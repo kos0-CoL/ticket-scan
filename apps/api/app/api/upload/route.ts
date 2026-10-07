@@ -1,10 +1,17 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Cliente perezoso: crearlo a nivel de módulo rompe `next build` si las env vars aún no existen.
+let supabase: SupabaseClient | undefined;
+function getSupabase(): SupabaseClient {
+  if (!supabase) {
+    supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return supabase;
+}
 
 // POST /api/upload
 export async function POST(req: Request) {
@@ -19,13 +26,13 @@ export async function POST(req: Request) {
   const ext = file.name.split('.').pop() ?? 'jpg';
   const path = `${userId}/${crypto.randomUUID()}.${ext}`;
 
-  const { data, error } = await supabase.storage
+  const { data, error } = await getSupabase().storage
     .from('tickets')
     .upload(path, buffer, { contentType: file.type, upsert: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  const { data: publicUrl } = supabase.storage.from('tickets').getPublicUrl(path);
+  const { data: publicUrl } = getSupabase().storage.from('tickets').getPublicUrl(path);
 
   return NextResponse.json({ path: data.path, url: publicUrl.publicUrl }, { status: 201 });
 }

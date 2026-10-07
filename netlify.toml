@@ -1,8 +1,15 @@
+# Netlify — TicketScan API (apps/api)
+#
+# Base = raíz del monorepo (default): Netlify detecta pnpm por pnpm-lock.yaml
+# y el campo "packageManager" del package.json raíz, e instala el workspace completo.
 [build]
-  command = "pnpm run build"
-  publish = ".next"
+  # Construye solo el servidor Next.js (no admin ni mobile).
+  command = "pnpm --filter @ticketscan/api build"
+  # El runtime de Next.js de Netlify lee apps/api/.next/required-server-files.json
+  # para generar las functions (SSR + route handlers) y los assets estáticos.
+  publish = "apps/api/.next"
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# Runtime oficial de Next.js en Netlify (OpenNext): provisiona functions para
+# SSR y route handlers, redirects, cache e image optimization.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

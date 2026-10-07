@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node scripts/smoke.mjs"
   },
   "dependencies": {
     "@ai-sdk/google": "^1.2.22",
@@ -13,11 +14,12 @@
     "@ticketscan/types": "workspace:*",
     "@ticketscan/utils": "workspace:*",
     "ai": "^4.3.19",
-    "zod": "^4.6.5",
+    "zod": "^3.25.0",
     "drizzle-orm": "^0.36.4"
   },
   "devDependencies": {
-    "typescript": "^5.5.0"
+    "typescript": "^5.5.0",
+    "@types/node": "^20.17.6"
   },
   "exports": {
     ".": "./src/index.ts",

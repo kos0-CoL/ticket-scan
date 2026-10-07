@@ -4,6 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "skipLibCheck": true,
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
@@ -11,7 +12,11 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "baseUrl": ".",
-    "paths": { "@/*": ["./src/*"] }
+    "paths": {
+      "@/*": ["./src/*"],
+      "@ticketscan/*": ["../../packages/*/src"]
+    },
+    "types": ["node"]
   },
   "include": ["src"]
 }

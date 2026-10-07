@@ -1,12 +1,19 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Cliente perezoso: crearlo a nivel de módulo rompe `next build` si las env vars aún no existen.
+let supabase: SupabaseClient | undefined;
+function getSupabase(): SupabaseClient {
+  if (!supabase) {
+    supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return supabase;
+}
 
 export async function decrypt(encryptedText: string): Promise<string> {
-  const { data, error } = await supabase.rpc('pgp_sym_decrypt', {
+  const { data, error } = await getSupabase().rpc('pgp_sym_decrypt', {
     encrypted_text: encryptedText,
     secret_key: process.env.AI_ENCRYPTION_KEY,
   });
@@ -15,7 +22,7 @@ export async function decrypt(encryptedText: string): Promise<string> {
 }
 
 export async function encrypt(plainText: string): Promise<string> {
-  const { data, error } = await supabase.rpc('pgp_sym_encrypt', {
+  const { data, error } = await getSupabase().rpc('pgp_sym_encrypt', {
     plaintext: plainText,
     secret_key: process.env.AI_ENCRYPTION_KEY,
   });

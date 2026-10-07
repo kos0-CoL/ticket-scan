@@ -1,5 +1,6 @@
 import { generateObject } from 'ai';
 import { getActiveProvider as getProvider, getFallbackOrder, modelFor } from './providers';
+import { ExtractedTicketSchema } from './schema';
 import type { ExtractedTicket } from '@ticketscan/types';
 
 const EXTRACTION_PROMPT = `
@@ -36,8 +37,15 @@ export async function extractTicket(imageUrl: string): Promise<ExtractedTicket> 
     try {
       const result = await generateObject({
         model: modelFor(p),
-        prompt: EXTRACTION_PROMPT,
-        images: [{ url: imageUrl }],
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: EXTRACTION_PROMPT },
+              { type: "image", image: imageUrl },
+            ],
+          },
+        ],
         schema: ExtractedTicketSchema,
       });
       return result.object;
@@ -50,19 +58,3 @@ export async function extractTicket(imageUrl: string): Promise<ExtractedTicket> 
   throw new Error(`Todos los proveedores fallaron: ${errors.map(e => e.message).join("; ")}`);
 }
 
-import { z } from "zod";
-const ExtractedTicketSchema = z.object({
-  comercio: z.string(),
-  fecha: z.string(),
-  hora: z.string().optional(),
-  total: z.number(),
-  metodo_pago: z.string().optional(),
-  items: z.array(z.object({
-    nombre: z.string(),
-    cantidad: z.number(),
-    precio_unitario: z.number(),
-    precio_total: z.number(),
-    categoria: z.string().optional(),
-    marca: z.string().optional(),
-  })).optional().default([]),
-});
