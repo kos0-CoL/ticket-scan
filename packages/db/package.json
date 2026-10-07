@@ -1,0 +1,21 @@
+{
+  "name": "@ticketscan/db",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx src/seed.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "drizzle-kit": "^0.27.2",
+    "drizzle-orm": "^0.36.4",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1",
+    "tsx": "^4.23.15",
+    "typescript": "^5.5.0"
+  }
+}

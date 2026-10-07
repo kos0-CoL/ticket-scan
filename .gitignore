@@ -1,0 +1,10 @@
+node_modules
+.next
+.turbo
+.env
+.env.*
+!.env.example
+dist
+out
+capacitor.config.ts
+packages/db/dist
