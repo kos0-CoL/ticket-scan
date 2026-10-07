@@ -17,9 +17,5 @@
     "@types/pg": "^8.23.1",
     "tsx": "^4.23.15",
     "typescript": "^5.5.0"
-  },
-  "exports": {
-    ".": "./index.ts",
-    "./schema": "./src/schema.ts"
   }
 }

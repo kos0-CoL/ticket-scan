@@ -1,5 +1,5 @@
 import { generateObject } from 'ai';
-import { getActiveProvider as getProvider, getFallbackOrder, modelFor } from './providers';
+import { getProvider, getFallbackOrder } from './providers';
 import type { ExtractedTicket } from '@ticketscan/types';
 
 const EXTRACTION_PROMPT = `
@@ -35,7 +35,7 @@ export async function extractTicket(imageUrl: string): Promise<ExtractedTicket> 
   for (const p of [provider, ...fallback]) {
     try {
       const result = await generateObject({
-        model: modelFor(p),
+        model: p.model(p.apiKey),
         prompt: EXTRACTION_PROMPT,
         images: [{ url: imageUrl }],
         schema: ExtractedTicketSchema,

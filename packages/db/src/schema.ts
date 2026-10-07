@@ -39,7 +39,7 @@ export type NormalizationStatus = 'pending' | 'approved' | 'rejected';
 
 export const tickets = pgTable("tickets", {
   id: uuid("id").defaultRandom().primaryKey(),
-  user_id: uuid("user_id").notNull(),
+  user_id: text("user_id").notNull(),
   fecha: date("fecha").notNull(),
   hora: time("hora"),
   comercio: text("comercio").notNull(),

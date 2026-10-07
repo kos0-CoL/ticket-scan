@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@ticketscan/db';
 import { aiProviders, eq } from '@ticketscan/db/schema';
 import { decrypt } from '@ticketscan/ai/crypto';
-import { modelFor } from '@ticketscan/ai';
+import { Google } from '@ai-sdk/google';
+import { OpenAI } from '@ai-sdk/openai';
 import { generateText } from 'ai';
 
 export async function POST(req: NextRequest) {
@@ -14,16 +15,22 @@ export async function POST(req: NextRequest) {
 
   try {
     const apiKey = await decrypt(row.api_key_enc);
-    const providerConfig = {
-      id: row.id,
-      name: row.name,
-      apiKey,
-      baseUrl: row.base_url ?? null,
-      defaultModel: row.default_model,
-      fallbackOrder: row.fallback_order,
-    };
-    const model = modelFor(providerConfig);
-    const result = await generateText({ model, prompt: 'Respón "ok" si puedes leer esto.' });
+    let result;
+
+    switch (row.name) {
+      case 'gemini': {
+        const model = new Google({ apiKey, baseURL: row.base_url ?? undefined });
+        result = await generateText({ model, prompt: 'Respón "ok" si puedes leer esto.' });
+        break;
+      }
+      case 'openai': {
+        const model = new OpenAI({ apiKey, baseURL: row.base_url ?? undefined });
+        result = await generateText({ model, prompt: 'Respón "ok" si puedes leer esto.' });
+        break;
+      }
+      default:
+        return NextResponse.json({ error: 'proveedor no soportado para test' }, { status: 400 });
+    }
 
     return NextResponse.json({ ok: true, name: row.name, model: row.default_model, response: result.text?.slice(0, 50) });
   } catch (err: any) {

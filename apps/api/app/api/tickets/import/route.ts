@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@ticketscan/db';
 import { tickets, ticketItems, productos } from '@ticketscan/db/schema';
-import { eq } from 'drizzle-orm';
+
 import { normalizeProduct } from '@ticketscan/ai/normalize';
 
 // POST /api/tickets/import

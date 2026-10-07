@@ -11,16 +11,28 @@ export async function GET(req: Request) {
 
   if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 });
 
-  let condition = eq(tickets.user_id, userId as any);
-
+  const userIdNonNull = userId!;
   if (month) {
     const start = new Date(month + '-01');
+    const startStr = start.toISOString().slice(0, 10);
     const end = new Date(start);
     end.setMonth(end.getMonth() + 1);
-    condition = and(condition, gte(tickets.fecha, start), lte(tickets.fecha, end));
+    const endStr = end.toISOString().slice(0, 10);
+    const result = await db
+      .select()
+      .from(tickets)
+      .where(
+        and(
+          eq(tickets.user_id, userIdNonNull),
+          gte(tickets.fecha, startStr),
+          lte(tickets.fecha, endStr)
+        )
+      )
+      .limit(100);
+    return NextResponse.json(result);
   }
 
-  const result = await db.select().from(tickets).where(condition).limit(100);
+  const result = await db.select().from(tickets).where(eq(tickets.user_id, userIdNonNull)).limit(100);
   return NextResponse.json(result);
 }
 

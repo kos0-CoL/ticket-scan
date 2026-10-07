@@ -37,11 +37,20 @@
       "@ticketscan/utils": [
         "../../packages/utils/src"
       ]
-    }
+    },
+    "incremental": true,
+    "module": "esnext",
+    "jsx": "preserve",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
+    "**/*.ts",
     "next-env.d.ts",
-    "**/*.ts"
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

@@ -1,8 +1,8 @@
 import { db } from '@ticketscan/db';
 import { aiProviders, appConfig } from '@ticketscan/db/schema';
 import { eq } from 'drizzle-orm';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { createOpenAI } from '@ai-sdk/openai';
+import { Google } from '@ai-sdk/google';
+import { OpenAI } from '@ai-sdk/openai';
 import { decrypt } from './crypto';
 
 export interface ProviderConfig {
@@ -47,20 +47,10 @@ export async function getFallbackOrder(): Promise<ProviderConfig[]> {
 
 export function modelFor(provider: ProviderConfig) {
   switch (provider.name) {
-    case 'gemini': {
-      const googleProvider = createGoogleGenerativeAI({
-        apiKey: provider.apiKey,
-        baseURL: provider.baseUrl ?? undefined,
-      });
-      return googleProvider.languageModel(provider.default_model);
-    }
-    case 'openai': {
-      const openaiProvider = createOpenAI({
-        apiKey: provider.apiKey,
-        baseURL: provider.baseUrl ?? undefined,
-      });
-      return openaiProvider.languageModel(provider.default_model);
-    }
+    case 'gemini':
+      return new Google({ apiKey: provider.apiKey, baseURL: provider.baseUrl ?? undefined });
+    case 'openai':
+      return new OpenAI({ apiKey: provider.apiKey, baseURL: provider.baseUrl ?? undefined });
     default:
       throw new Error('Unknown provider: ' + provider.name);
   }

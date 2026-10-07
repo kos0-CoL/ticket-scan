@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@ticketscan/db';
-import { tickets, normalizacionLog } from '@ticketscan/db/schema';
-import { sql, count, gte, and } from 'drizzle-orm';
+import { tickets, ticketItems, normalizacionLog, aiProviders } from '@ticketscan/db/schema';
+import { sql, count, gte, lte, and, eq } from 'drizzle-orm';
 
 // GET /api/admin/metrics
 export async function GET(req: Request) {
@@ -18,14 +18,15 @@ export async function GET(req: Request) {
     })
     .from(tickets)
     .where(gte(tickets.created_at, since))
-    .groupBy(sql`to_char(date(created_at), 'YYYY-MM-DD')`)
+    .groupBy(sql`to_char(date(created_at), 'YYYY-MM-DD')`;
 
   // Tasa de éxito (tickets con items vs sin items)
   const totalTicketsResult = await db.select({ count: count() }).from(tickets).where(gte(tickets.created_at, since));
   const ticketsWithItemsResult = await db
     .select({ count: count() })
     .from(tickets)
-    .where(and(sql`id IN (SELECT DISTINCT ticket_id FROM ticket_items)`, gte(tickets.created_at, since)));
+    .where(sql`id IN (SELECT DISTINCT ticket_id FROM ticket_items)`)
+    .where(gte(tickets.created_at, since));
 
   // Normalización: metodo breakdown
   const normalizationByMethod = await db

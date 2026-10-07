@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@ticketscan/db';
-import { normalizacionLog, categorias, productos } from '@ticketscan/db/schema';
+import { normalizacionLog, productos } from '@ticketscan/db/schema';
 import { eq, desc } from 'drizzle-orm';
 
 // GET /api/admin/normalization

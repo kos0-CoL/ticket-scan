@@ -8,6 +8,7 @@
   "dependencies": {
     "@ai-sdk/google": "^1.2.22",
     "@ai-sdk/openai": "^1.3.24",
+    "@supabase/supabase-js": "^2.117.3",
     "@ticketscan/db": "workspace:*",
     "@ticketscan/types": "workspace:*",
     "@ticketscan/utils": "workspace:*",
@@ -16,5 +17,12 @@
   },
   "devDependencies": {
     "typescript": "^5.5.0"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./crypto": "./src/crypto.ts",
+    "./providers": "./src/providers.ts",
+    "./normalize": "./src/normalize.ts",
+    "./registry": "./src/registry.ts"
   }
 }

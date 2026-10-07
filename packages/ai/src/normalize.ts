@@ -1,5 +1,5 @@
 import { db } from '@ticketscan/db';
-import { productos, normalizacionLog, eq } from '@ticketscan/db/schema';
+import { productos, normalizacionLog } from '@ticketscan/db/schema';
 import type { NormalizationResult, NormalizationMethod } from '@ticketscan/types';
 
 export async function normalizeProduct(

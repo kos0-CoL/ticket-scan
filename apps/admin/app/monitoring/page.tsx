@@ -24,7 +24,7 @@ export default function MonitoringPage() {
         </div>
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-sm text-gray-600 mb-2">Tasa de éxito IA</h3>
-          <p className="text-3xl font-bold">{(metrics?.successRate * 100 ?? 0).toFixed(1)}%</p>
+          <p className="text-3xl font-bold">{(((metrics?.successRate ?? 0) * 100)).toFixed(1)}%</p>
         </div>
       </div>
 

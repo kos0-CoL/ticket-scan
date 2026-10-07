@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@ticketscan/db';
-import { aiProviders, appConfig, eq } from '@ticketscan/db/schema';
+import { aiProviders, eq } from '@ticketscan/db/schema';
 import { encrypt } from '@ticketscan/ai/crypto';
 
 // GET /api/admin/providers
