@@ -15,7 +15,7 @@ export interface ProviderConfig {
 }
 
 export async function getActiveProvider(): Promise<ProviderConfig> {
-  const config = await db.select().from(appConfig).where(eq(appConfig.key, 'ai_provider_active')).limit(1);
+  const config = await db.select().from(appConfig).where(eq(appConfig.key, 'ai_provider_active')).limit(1) as any;
   if (!config.length) throw new Error('No active AI provider configured');
 
   const providerId = config[0].value.provider_id as string;
@@ -26,7 +26,7 @@ export async function getActiveProvider(): Promise<ProviderConfig> {
   return {
     id: row.id,
     name: row.name,
-    apiKey: decrypt(row.api_key_enc),
+    apiKey: await decrypt(row.api_key_enc),
     baseUrl: row.base_url,
     defaultModel: row.default_model,
     fallbackOrder: row.fallback_order,
@@ -35,14 +35,18 @@ export async function getActiveProvider(): Promise<ProviderConfig> {
 
 export async function getFallbackOrder(): Promise<ProviderConfig[]> {
   const all = await db.select().from(aiProviders).where(eq(aiProviders.is_active, true)).orderBy(aiProviders.fallback_order);
-  return all.map(r => ({
-    id: r.id,
-    name: r.name,
-    apiKey: decrypt(r.api_key_enc),
-    baseUrl: r.base_url,
-    defaultModel: r.default_model,
-    fallbackOrder: r.fallback_order,
-  }));
+  const result = [];
+  for (const r of all) {
+    result.push({
+      id: r.id,
+      name: r.name,
+      apiKey: await decrypt(r.api_key_enc),
+      baseUrl: r.base_url,
+      defaultModel: r.default_model,
+      fallbackOrder: r.fallback_order,
+    });
+  }
+  return result;
 }
 
 export function modelFor(provider: ProviderConfig) {
@@ -52,14 +56,14 @@ export function modelFor(provider: ProviderConfig) {
         apiKey: provider.apiKey,
         baseURL: provider.baseUrl ?? undefined,
       });
-      return googleProvider.languageModel(provider.default_model);
+      return googleProvider.languageModel(provider.defaultModel);
     }
     case 'openai': {
       const openaiProvider = createOpenAI({
         apiKey: provider.apiKey,
         baseURL: provider.baseUrl ?? undefined,
       });
-      return openaiProvider.languageModel(provider.default_model);
+      return openaiProvider.languageModel(provider.defaultModel);
     }
     default:
       throw new Error('Unknown provider: ' + provider.name);

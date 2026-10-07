@@ -40,7 +40,7 @@ importers:
         version: 10.6.1(postcss@8.5.29)
       next:
         specifier: ^15.0.0
-        version: 15.5.27(@opentelemetry/api@1.9.0)(@types/node@16.18.11)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 15.5.27(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       postcss:
         specifier: ^8.4.0
         version: 8.5.29
@@ -95,11 +95,17 @@ importers:
         version: 0.36.4(@opentelemetry/api@1.9.0)(@types/pg@8.23.1)(@types/react@19.3.0)(pg@8.23.1)(react@19.3.0)
       next:
         specifier: ^15.0.0
-        version: 15.5.27(@opentelemetry/api@1.9.0)(@types/node@16.18.11)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 15.5.27(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       vercel:
         specifier: ^41.0.0
         version: 41.7.8
     devDependencies:
+      '@types/node':
+        specifier: ^20.17.6
+        version: 20.19.43
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.3.0
       typescript:
         specifier: ^5.5.0
         version: 5.9.3
@@ -135,7 +141,7 @@ importers:
         version: 10.6.1(postcss@8.5.29)
       next:
         specifier: ^15.0.0
-        version: 15.5.27(@opentelemetry/api@1.9.0)(@types/node@16.18.11)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 15.5.27(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       postcss:
         specifier: ^8.4.0
         version: 8.5.29
@@ -185,6 +191,9 @@ importers:
       ai:
         specifier: ^4.3.19
         version: 4.3.19(react@19.3.0)(zod@4.6.5)
+      drizzle-orm:
+        specifier: ^0.36.4
+        version: 0.36.4(@opentelemetry/api@1.9.0)(@types/pg@8.23.1)(@types/react@19.3.0)(pg@8.23.1)(react@19.3.0)
       zod:
         specifier: ^4.6.5
         version: 4.6.5
@@ -1171,8 +1180,8 @@ packages:
   '@types/node@16.18.11':
     resolution: {integrity: sha512-3oJbGBUWuS6ahSnEq1eN2XrCyf4YsWI8OyCvo7c64zQJNplk3mO84t53o8lfTk+2ji59g5ycfc6qQ3fdHliHuA==}
 
-  '@types/node@26.6.4':
-    resolution: {integrity: sha512-ldVPDCzj7fsaGZrLB0NuHuTvJcsNasysBAqMolr/cgxrLd1xbqxIr3XJiPnHHJUCxj5sNF1vnRj9aWnrVh5Jcg==}
+  '@types/node@20.19.43':
+    resolution: {integrity: sha512-6oYBAi5ikg4Pl+kGsoYtawUMBT2zZMCvPNF7pVLnHZfd1zf38DRiWn/gT01RYCdUqkv7Fhr+C9ot4/tb+2sVvA==}
 
   '@types/pg@8.23.1':
     resolution: {integrity: sha512-fKVHpikPdg4GKks3JuLEhvwSyvwzF23hnabPy6DD8ljVbC7+6J5dQzdv4arV6jqq57djnMgs1HKBxX4P8aBI3A==}
@@ -2690,8 +2699,8 @@ packages:
   uid-promise@1.0.0:
     resolution: {integrity: sha512-R8375j0qwXyIu/7R0tjdF06/sElHqbmdmWC9M2qQHpEVbvE4I5+38KJI7LUUmQMp7NVq4tKHiBMkT0NFM453Ig==}
 
-  undici-types@8.9.0:
-    resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
+  undici-types@6.21.0:
+    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
   undici@5.28.4:
     resolution: {integrity: sha512-72RFADWFqKmUb2hmmvNODKL3p9hcB6Gt2DOQMis1SEBaV6a4MH8soBvzg+95CYhCKPFedut2JY9bMfrDl9D23g==}
@@ -3521,19 +3530,19 @@ snapshots:
 
   '@types/fs-extra@8.1.5':
     dependencies:
-      '@types/node': 26.6.4
+      '@types/node': 20.19.43
 
   '@types/json-schema@7.0.15': {}
 
   '@types/node@16.18.11': {}
 
-  '@types/node@26.6.4':
+  '@types/node@20.19.43':
     dependencies:
-      undici-types: 8.9.0
+      undici-types: 6.21.0
 
   '@types/pg@8.23.1':
     dependencies:
-      '@types/node': 26.6.4
+      '@types/node': 20.19.43
       pg-protocol: 1.16.1
       pg-types: 2.2.0
 
@@ -4426,7 +4435,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  next@15.5.27(@opentelemetry/api@1.9.0)(@types/node@16.18.11)(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+  next@15.5.27(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
       '@next/env': 15.5.27
       '@swc/helpers': 0.5.15
@@ -4445,7 +4454,7 @@ snapshots:
       '@next/swc-win32-arm64-msvc': 15.5.27
       '@next/swc-win32-x64-msvc': 15.5.27
       '@opentelemetry/api': 1.9.0
-      sharp: 0.35.5(@types/node@16.18.11)
+      sharp: 0.35.5(@types/node@20.19.43)
     transitivePeerDependencies:
       - '@babel/core'
       - '@types/node'
@@ -4718,7 +4727,7 @@ snapshots:
 
   setprototypeof@1.1.1: {}
 
-  sharp@0.35.5(@types/node@16.18.11):
+  sharp@0.35.5(@types/node@20.19.43):
     dependencies:
       '@img/colour': 1.1.0
       detect-libc: 2.1.2
@@ -4749,7 +4758,7 @@ snapshots:
       '@img/sharp-win32-arm64': 0.35.5
       '@img/sharp-win32-ia32': 0.35.5
       '@img/sharp-win32-x64': 0.35.5
-      '@types/node': 16.18.11
+      '@types/node': 20.19.43
     optional: true
 
   shebang-command@2.0.0:
@@ -4982,7 +4991,7 @@ snapshots:
 
   uid-promise@1.0.0: {}
 
-  undici-types@8.9.0: {}
+  undici-types@6.21.0: {}
 
   undici@5.28.4:
     dependencies:

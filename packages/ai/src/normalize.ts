@@ -51,7 +51,7 @@ async function logNormalization(raw: string, normalized: NormalizationResult, me
     nombre_normalizado: normalized.nombre_normalizado,
     categoria_asignada: normalized.categoria,
     metodo: method,
-    confianza: normalized.confianza,
+    confianza: String(normalized.confianza),
     status: 'pending' as 'pending',
   });
 }
