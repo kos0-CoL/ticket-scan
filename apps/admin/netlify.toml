@@ -8,7 +8,16 @@
 #     BUILD_APP, con default "api" para que producción (ticket-ar) nunca
 #     deje de construir la API. El sitio admin-ticket-ar setea BUILD_APP=admin.
 [build]
-  command = "pnpm --filter @ticketscan/${BUILD_APP:-api} build"
+  # $BUILD_APP está seteado en las env vars de cada sitio (api en ticket-ar,
+  # admin en admin-ticket-ar). Se usa $BUILD_APP sin sintaxis ${VAR:-default}
+  # para que la expansión la haga siempre bash y nunca el parser de toml.
+  #
+  # El "base directory" de ticket-ar apunta a apps/admin (el deploy del
+  # 04:07 construyó el admin desde este archivo), así que el plugin de Next
+  # empaqueta lo que encuentre en apps/admin/.next. Si ticket-ar construye
+  # la API (BUILD_APP=api), copiamos el .next de la API ahí para que el
+  # plugin empaquete la API y no un .next viejo del admin.
+  command = "[ -f pnpm-workspace.yaml ] || cd ../..; pnpm --filter @ticketscan/$BUILD_APP build || exit 1; if [ \"$BUILD_APP\" = api ]; then rm -rf apps/admin/.next && cp -R apps/api/.next apps/admin/.next; fi"
   publish = ".next"
 
 # Runtime oficial de Next.js en Netlify (OpenNext).

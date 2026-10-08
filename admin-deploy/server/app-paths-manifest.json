@@ -1,8 +1,0 @@
-{
-  "/_not-found/page": "app/_not-found/page.js",
-  "/monitoring/page": "app/monitoring/page.js",
-  "/normalization/page": "app/normalization/page.js",
-  "/providers/page": "app/providers/page.js",
-  "/users/page": "app/users/page.js",
-  "/(auth)/login/page": "app/(auth)/login/page.js"
-}
