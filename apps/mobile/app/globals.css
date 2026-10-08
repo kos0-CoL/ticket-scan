@@ -1,3 +1,80 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-primary-light;
+  }
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply bg-background text-slate-900 antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  ::selection {
+    @apply bg-primary-light text-primary;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-primary {
+    @apply btn bg-primary text-white shadow-float hover:shadow-float-lg hover:-translate-y-0.5 active:translate-y-0;
+  }
+  .btn-secondary {
+    @apply btn bg-primary-light text-primary hover:bg-primary-light/80;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent hover:bg-slate-100 text-slate-700;
+  }
+  .btn-float {
+    @apply fixed bottom-6 right-6 z-50 btn-primary shadow-float-lg rounded-2xl px-6 py-3;
+  }
+  .card {
+    @apply bg-white rounded-2xl border border-primary-light/50 shadow-card transition-all duration-200 hover:shadow-card-hover;
+  }
+  .card-padded {
+    @apply card p-6;
+  }
+  .input {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder-slate-400 transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary-light focus:outline-none;
+  }
+  .input-error {
+    @apply border-red-300 focus:border-red-500 focus:ring-red-100;
+  }
+  .label {
+    @apply block mb-1.5 text-sm font-medium text-slate-700;
+  }
+  .page-container {
+    @apply min-h-screen bg-surface;
+  }
+  .page-content {
+    @apply max-w-4xl mx-auto px-4 py-8;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .animate-in {
+    animation: animateIn 0.3s ease-out forwards;
+  }
+  @keyframes animateIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .glass {
+    @apply bg-white/80 backdrop-blur-xl border border-primary-light/30;
+  }
+}

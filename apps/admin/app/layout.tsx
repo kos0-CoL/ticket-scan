@@ -1,6 +1,7 @@
 import './globals.css';
 import { supabaseServer } from '../lib/supabase-server';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 
 export const metadata = { title: 'TicketScan Admin', description: 'Panel de administración' };
 
@@ -10,16 +11,37 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   if (!session) redirect('/login');
 
+  const navItems = [
+    { href: '/providers', label: 'Proveedores IA', icon: '🤖' },
+    { href: '/monitoring', label: 'Monitorización', icon: '📊' },
+    { href: '/normalization', label: 'Normalización', icon: '🔧' },
+    { href: '/users', label: 'Usuarios', icon: '👥' },
+  ];
+
   return (
     <html lang="es">
-      <body className="bg-gray-50">
-        <nav className="bg-blue-600 text-white p-4 flex gap-6">
-          <a href="/providers" className="hover:underline">Proveedores</a>
-          <a href="/monitoring" className="hover:underline">Monitorización</a>
-          <a href="/normalization" className="hover:underline">Normalización</a>
-          <a href="/users" className="hover:underline">Usuarios</a>
-        </nav>
-        <main>{children}</main>
+      <body className="page-container">
+        <header className="sticky top-0 z-40 glass shadow-card">
+          <nav className="max-w-7xl mx-auto px-4" aria-label="Navegación principal">
+            <div className="flex h-16 items-center justify-between">
+              <Link href="/providers" className="flex items-center gap-2 text-xl font-bold text-slate-900">
+                <span className="text-2xl">🎫</span> TicketScan Admin
+              </Link>
+              <div className="flex items-center gap-1">
+                {navItems.map(item => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-primary-light hover:text-primary hover:shadow-card"
+                  >
+                    <span aria-hidden="true">{item.icon}</span> {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </nav>
+        </header>
+        <main className="page-content">{children}</main>
       </body>
     </html>
   );

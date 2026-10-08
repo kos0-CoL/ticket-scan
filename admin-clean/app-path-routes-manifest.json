@@ -1,0 +1,8 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/monitoring/page": "/monitoring",
+  "/normalization/page": "/normalization",
+  "/providers/page": "/providers",
+  "/users/page": "/users",
+  "/(auth)/login/page": "/login"
+}
