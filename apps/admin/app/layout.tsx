@@ -14,6 +14,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     { href: '/providers', label: 'Proveedores IA', icon: '🤖' },
     { href: '/monitoring', label: 'Monitorización', icon: '📊' },
     { href: '/normalization', label: 'Normalización', icon: '🔧' },
+    { href: '/landing', label: 'Landing', icon: '🛬' },
     { href: '/users', label: 'Usuarios', icon: '👥' },
   ];
 

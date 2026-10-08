@@ -27,7 +27,12 @@ function TabBar() {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<any>(null);
+  // undefined = cargando; null = sin sesión; objeto = sesión activa.
+  // Antes arrancaba en null, y "session === null" devolvía el splash para
+  // siempre: getSession() resuelve con null cuando no hay sesión, así que el
+  // estado nunca cambiaba y el router.replace('/login') de abajo era
+  // inalcanzable (splash eterno para cualquier usuario deslogueado).
+  const [session, setSession] = useState<any>(undefined);
   const router = useRouter();
   const pathname = usePathname();
   // La barra de tabs solo en las rutas que tenían el layout (tabs)
@@ -46,7 +51,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     }
   }, []);
 
-  if (session === null) return (
+  // Redirigir a /login fuera del render (y sin pisar la propia /login).
+  useEffect(() => {
+    if (session === null && pathname !== '/login') router.replace('/login');
+  }, [session, pathname, router]);
+
+  // Splash mientras carga, o mientras espera la redirección a /login.
+  if (session === undefined || (session === null && pathname !== '/login')) return (
     <html lang="es">
       <body className="page-container flex items-center justify-center">
         <div className="text-center animate-in">
@@ -58,7 +69,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </body>
     </html>
   );
-  if (!session) router.replace('/login');
 
   return (
     <html lang="es">
