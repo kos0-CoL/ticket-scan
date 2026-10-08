@@ -1,6 +1,6 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import { getSupabaseClient } from '../../../lib/supabase-browser';
+import { getSupabaseClient } from '../../lib/supabase-browser';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 

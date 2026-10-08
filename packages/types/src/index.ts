@@ -5,7 +5,7 @@ export type TicketType = 'compra' | 'devolucion';
 export type TicketSource = 'foto_multiple' | 'importado' | 'qr';
 export type NormalizationMethod = 'regla' | 'fuzzy' | 'ia' | 'manual';
 export type NormalizationStatus = 'pending' | 'approved' | 'rejected';
-export type AIProviderName = 'gemini' | 'openai' | 'anthropic';
+export type AIProviderName = 'gemini' | 'openai' | 'anthropic' | 'openrouter';
 
 export interface Category {
   id: string;

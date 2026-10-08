@@ -1,7 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
-import { getSupabaseClient } from '../../../lib/supabase-browser';
+import { getSupabaseClient } from '../../lib/supabase-browser';
 import Link from 'next/link';
 
 import '@/app/globals.css';

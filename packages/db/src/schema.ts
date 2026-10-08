@@ -87,7 +87,7 @@ export const normalizacionLog = pgTable("normalizacion_log", {
 });
 
 // ===================== Proveedores IA =====================
-export type AIProviderName = 'gemini' | 'openai' | 'anthropic';
+export type AIProviderName = 'gemini' | 'openai' | 'anthropic' | 'openrouter';
 
 export const aiProviders = pgTable("ai_providers", {
   id: uuid("id").defaultRandom().primaryKey(),

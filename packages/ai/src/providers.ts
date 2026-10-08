@@ -65,6 +65,15 @@ export function modelFor(provider: ProviderConfig) {
       });
       return openaiProvider.languageModel(provider.defaultModel);
     }
+    case 'openrouter': {
+      // OpenRouter es compatible con la API de OpenAI: mismas rutas
+      // (/chat/completions), base URL propia y modelos "vendor".
+      const openrouterProvider = createOpenAI({
+        apiKey: provider.apiKey,
+        baseURL: provider.baseUrl ?? 'https://openrouter.ai/api/v1',
+      });
+      return openrouterProvider.languageModel(provider.defaultModel);
+    }
     default:
       throw new Error('Unknown provider: ' + provider.name);
   }

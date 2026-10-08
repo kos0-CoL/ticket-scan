@@ -33,6 +33,23 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // Solo cuentas de la allowlist ADMIN_EMAILS acceden al panel. Cualquier
+  // otra cuenta (signup con Google de un tercero, por ejemplo) va al
+  // dashboard de usuarios. Fail-closed: sin ADMIN_EMAILS nadie pasa.
+  const admins = (process.env.ADMIN_EMAILS ?? '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  const email = session.user.email?.toLowerCase() ?? '';
+  if (!email || !admins.includes(email)) {
+    const dashboard = process.env.DASHBOARD_URL;
+    // Sin dashboard configurado tampoco se deja pasar: se va al login.
+    if (dashboard) return NextResponse.redirect(dashboard);
+    const loginUrl = new URL('/login', req.url);
+    loginUrl.searchParams.set('error', 'no-admin');
+    return NextResponse.redirect(loginUrl);
+  }
+
   // TODO: check admin role (custom claim or admins table)
 
   return res;

@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import ModelPicker from '../../components/ModelPicker';
 
 interface Provider {
   id: string;
@@ -96,10 +97,27 @@ function ProviderForm({ onClose }: { onClose: () => void }) {
         <option value="gemini">Gemini</option>
         <option value="openai">OpenAI</option>
         <option value="anthropic">Anthropic</option>
+        <option value="openrouter">OpenRouter</option>
       </select>
       <input className="w-full rounded border px-3 py-2" placeholder="API Key" value={apiKey} onChange={e => setApiKey(e.target.value)} required />
       <input className="w-full rounded border px-3 py-2" placeholder="Base URL (opcional)" value={baseUrl} onChange={e => setBaseUrl(e.target.value)} />
-      <input className="w-full rounded border px-3 py-2" placeholder="Modelo default" value={defaultModel} onChange={e => setDefaultModel(e.target.value)} required />
+      <div>
+        <label className="block text-sm font-medium mb-1">Modelo default</label>
+        <ModelPicker
+          providerName={name}
+          apiKey={apiKey}
+          baseUrl={baseUrl}
+          value={defaultModel}
+          onChange={setDefaultModel}
+        />
+        <input
+          className="w-full rounded border px-3 py-2 mt-2 font-mono text-sm"
+          placeholder="ID del modelo (elegilo arriba o escribilo)"
+          value={defaultModel}
+          onChange={e => setDefaultModel(e.target.value)}
+          required
+        />
+      </div>
       <input className="w-full rounded border px-3 py-2" type="number" placeholder="Orden fallback" value={fallbackOrder} onChange={e => setFallbackOrder(+e.target.value)} />
       <div className="flex gap-2">
         <button className="rounded bg-blue-600 px-4 py-2 text-white" type="submit">Guardar</button>

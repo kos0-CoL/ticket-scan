@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import ModelPicker from '../../components/ModelPicker';
 
 interface Provider {
   id: string;
@@ -170,12 +171,17 @@ export default function ModeloPage() {
 
                   <div>
                     <label className="label">Modelo</label>
+                    <ModelPicker
+                      providerName={providers.find(p => p.id === formData.provider_id)?.name ?? ''}
+                      value={formData.model_id}
+                      onChange={id => setFormData({ ...formData, model_id: id })}
+                    />
                     <input
                       type="text"
                       value={formData.model_id}
                       onChange={e => setFormData({ ...formData, model_id: e.target.value })}
-                      className="input"
-                      placeholder="ej: gemini-1.5-pro, gpt-4o, claude-3-sonnet"
+                      className="input mt-2 font-mono text-sm"
+                      placeholder="ej: gemini-1.5-pro, gpt-4o, google/gemma-2-9b-it:free"
                       required
                     />
                   </div>

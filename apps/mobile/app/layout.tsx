@@ -1,14 +1,37 @@
 'use client';
 export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
 import { getSupabaseClient } from '../lib/supabase-browser';
 
 import '@/app/globals.css';
 
+// Barra de tabs. Antes vivía en app/(tabs)/layout.tsx; los route groups con
+// paréntesis generan rutas de chunk con `(` y `)`, que el deploy de Sites
+// rechaza, así que los carpetas se aplanaron y la nav vive aquí.
+function TabBar() {
+  return (
+    <nav className="sticky bottom-0 z-50 flex gap-1 p-2 bg-white/90 backdrop-blur-xl border-t border-primary-light/30 shadow-float">
+      <Link href="/tickets" className="flex-1 flex flex-col items-center gap-1 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-500 transition-all duration-200 hover:bg-primary-light hover:text-primary active:bg-primary-light/50" aria-label="Tickets">
+        <span className="text-xl" aria-hidden="true">🧾</span> Tickets
+      </Link>
+      <Link href="/analisis" className="flex-1 flex flex-col items-center gap-1 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-500 transition-all duration-200 hover:bg-primary-light hover:text-primary active:bg-primary-light/50" aria-label="Análisis">
+        <span className="text-xl" aria-hidden="true">📊</span> Análisis
+      </Link>
+      <Link href="/config" className="flex-1 flex flex-col items-center gap-1 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-500 transition-all duration-200 hover:bg-primary-light hover:text-primary active:bg-primary-light/50" aria-label="Configuración">
+        <span className="text-xl" aria-hidden="true">⚙️</span> Config
+      </Link>
+    </nav>
+  );
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<any>(null);
   const router = useRouter();
+  const pathname = usePathname();
+  // La barra de tabs solo en las rutas que tenían el layout (tabs)
+  const showTabs = !!pathname && (pathname === '/tickets' || pathname.startsWith('/tickets/') || pathname === '/analisis' || pathname === '/config');
 
   useEffect(() => {
     try {
@@ -39,7 +62,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="es">
-      <body className="page-container">{children}</body>
+      <body className="page-container">
+        {showTabs && <TabBar />}
+        <div className={showTabs ? 'pb-20' : undefined}>{children}</div>
+      </body>
     </html>
   );
 }

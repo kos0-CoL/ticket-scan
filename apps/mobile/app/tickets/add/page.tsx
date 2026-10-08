@@ -1,7 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
 import { useState } from 'react';
-import { getSupabaseClient } from '../../../../lib/supabase-browser';
+import { getSupabaseClient } from '../../../lib/supabase-browser';
 import { useRouter } from 'next/navigation';
 
 export default function AddTicketPage() {
