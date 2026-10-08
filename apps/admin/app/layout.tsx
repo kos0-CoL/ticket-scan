@@ -1,15 +1,14 @@
 import './globals.css';
-import { supabaseServer } from '../lib/supabase-server';
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
 export const metadata = { title: 'TicketScan Admin', description: 'Panel de administración' };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await supabaseServer();
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (!session) redirect('/login');
+  // La protección de sesión vive en middleware.ts (excluye /login del
+  // matcher). Este layout NUNCA debe redirigir: hacerlo en /login causaba
+  // un bucle infinito (redirect('/login') dentro del render de /login).
+  // El middleware garantiza que solo usuarios con sesión llegan aquí,
+  // salvo a /login y a las rutas excluidas.
 
   const navItems = [
     { href: '/providers', label: 'Proveedores IA', icon: '🤖' },

@@ -24,7 +24,11 @@ export async function middleware(req: NextRequest) {
 
   // Redirect to login if no session
   if (!session) {
-    const loginUrl = new URL('/(auth)/login', req.url);
+    // La URL real de app/(auth)/login/page.tsx es /login — los route groups
+    // (auth) no aparecen en la URL. Redirigir a /(auth)/login causaría un
+    // bucle infinito: esa ruta no existe, el 404 vuelve a pasar por el
+    // middleware y éste redirige de nuevo.
+    const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('redirect', req.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
   }
@@ -35,5 +39,7 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  // 'login' debe excluirse: si el middleware redirige /login a /login
+  // (no hay sesión todavía), se crea un bucle de redirecciones infinito.
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|login).*)'],
 };

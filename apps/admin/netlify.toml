@@ -1,0 +1,21 @@
+# Netlify — TicketScan Admin (apps/admin)
+#
+# Importar en Netlify con Base directory = apps/admin.
+# Si existe netlify.toml en la base directory, tiene prioridad sobre la del
+# raíz (que construye la API), así este sitio construye el admin y no la API.
+[build]
+  command = "pnpm --filter @ticketscan/admin build"
+  publish = "apps/admin/.next"
+
+# Runtime oficial de Next.js en Netlify (OpenNext).
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# El admin no incluye rutas /api (viven en el sitio ticket-ar). Las páginas
+# hacen fetch a rutas relativas (/api/admin/*), así que se proxyan al sitio
+# de la API con status 200 (rewrite, misma origin en el navegador → las
+# cookies de Supabase y el CORS siguen funcionando).
+[[redirects]]
+  from = "/api/*"
+  to = "https://ticket-ar.netlify.app/api/:splat"
+  status = 200
