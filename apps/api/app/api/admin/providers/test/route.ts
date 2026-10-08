@@ -29,13 +29,29 @@ export async function POST(req: NextRequest) {
   } catch (err: any) {
     // Superficie el error real del proveedor: el wrapper del AI SDK
     // ("Provider returned error") no dice nada útil para diagnosticar.
-    const parts = [
-      err?.statusCode ? `HTTP ${err.statusCode}` : null,
-      err?.responseBody ? String(err.responseBody).slice(0, 400) : null,
-      err?.message,
-    ].filter(Boolean);
+    // El error real vive en la cadena .cause / .errors (APICallError con
+    // statusCode + responseBody).
+    const chain: any[] = [];
+    const walk = (e: any, depth = 0) => {
+      if (!e || chain.length > 20 || depth > 6) return;
+      chain.push(e);
+      if (Array.isArray(e.errors)) e.errors.forEach((x: any) => walk(x, depth + 1));
+      if (e.cause) walk(e.cause, depth + 1);
+    };
+    walk(err);
+
+    const parts: string[] = [];
+    for (const e of chain) {
+      if (e?.statusCode && !parts.some((p) => p.includes(`HTTP ${e.statusCode}`))) {
+        parts.push(`HTTP ${e.statusCode}`);
+      }
+      if (e?.responseBody && !parts.some((p) => p.includes(String(e.responseBody).slice(0, 80)))) {
+        parts.push(String(e.responseBody).slice(0, 400));
+      }
+    }
+    parts.push(err?.message ?? 'Error desconocido');
     return NextResponse.json(
-      { ok: false, error: parts.join(' | ') || 'Error desconocido' },
+      { ok: false, error: parts.join(' | ').slice(0, 900) || 'Error desconocido' },
       { status: 500 }
     );
   }
