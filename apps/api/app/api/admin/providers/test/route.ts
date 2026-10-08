@@ -27,6 +27,16 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, name: row.name, model: row.default_model, response: result.text?.slice(0, 50) });
   } catch (err: any) {
-    return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
+    // Superficie el error real del proveedor: el wrapper del AI SDK
+    // ("Provider returned error") no dice nada útil para diagnosticar.
+    const parts = [
+      err?.statusCode ? `HTTP ${err.statusCode}` : null,
+      err?.responseBody ? String(err.responseBody).slice(0, 400) : null,
+      err?.message,
+    ].filter(Boolean);
+    return NextResponse.json(
+      { ok: false, error: parts.join(' | ') || 'Error desconocido' },
+      { status: 500 }
+    );
   }
 }
