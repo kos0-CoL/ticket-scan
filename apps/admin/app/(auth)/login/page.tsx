@@ -1,7 +1,7 @@
 'use client';
 import { supabaseBrowser } from '../../../lib/supabase-browser';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -9,6 +9,21 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Vuelta de Google OAuth: Supabase redirige a /login?code=... (PKCE).
+  // El matcher del middleware EXCLUYE /login, así que el código llega intacto
+  // y el primer getSession() lo intercambia (detectSessionInUrl) → cookies.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const oauthError = params.get('error_description') || params.get('error');
+    const hadCode = params.has('code');
+    if (oauthError) { setError(oauthError); return; }
+    const supabase = supabaseBrowser();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) { router.replace('/providers'); return; }
+      if (hadCode) setError('No se pudo completar el login con Google. Intenta de nuevo.');
+    });
+  }, [router]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -23,7 +38,15 @@ export default function LoginPage() {
 
   async function handleGoogle() {
     const supabase = supabaseBrowser();
-    await supabase.auth.signInWithOAuth({ provider: 'google' });
+    // redirectTo EXACTO (sin wildcards): Supabase Dashboard → Authentication →
+    // URL Configuration lista esta URL literal. El wildcard /* es rechazado por
+    // el dashboard y además sobra: caer en / (raíz) haría que el middleware
+    // tirara el query ?code= antes de poder intercambiarlo.
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/login` },
+    });
+    if (error) setError(error.message);
   }
 
   return (
