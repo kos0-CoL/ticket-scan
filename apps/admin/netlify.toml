@@ -12,13 +12,14 @@
   # admin en admin-ticket-ar). Se usa $BUILD_APP sin sintaxis ${VAR:-default}
   # para que la expansión la haga siempre bash y nunca el parser de toml.
   #
-  # El "base directory" de ticket-ar apunta a apps/admin (el deploy del
-  # 04:07 construyó el admin desde este archivo), así que el plugin de Next
-  # empaqueta lo que encuentre en apps/admin/.next. Si ticket-ar construye
-  # la API (BUILD_APP=api), copiamos el .next de la API ahí para que el
-  # plugin empaquete la API y no un .next viejo del admin.
-  command = "[ -f pnpm-workspace.yaml ] || cd ../..; pnpm --filter @ticketscan/$BUILD_APP build || exit 1; if [ \"$BUILD_APP\" = api ]; then rm -rf apps/admin/.next && cp -R apps/api/.next apps/admin/.next; fi"
-  publish = ".next"
+  # El "base directory" de ticket-ar es la raíz del repo (el log del build
+  # fallido lo probó: el plugin buscó /opt/build/repo/.next) y este archivo
+  # se lee vía package directory. Por eso publish va relativo a la raíz.
+  #
+  # Si la app construida es la admin, se copia su .next al publish (la API
+  # nunca copia: su .next ya está en apps/api/.next, ruta nativa).
+  command = "[ -f pnpm-workspace.yaml ] || cd ../..; pnpm --filter @ticketscan/$BUILD_APP build || exit 1; if [ \"$BUILD_APP\" = admin ]; then rm -rf apps/api/.next && cp -R apps/admin/.next apps/api/.next; fi"
+  publish = "apps/api/.next"
 
 # Runtime oficial de Next.js en Netlify (OpenNext).
 [[plugins]]

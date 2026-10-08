@@ -7,8 +7,9 @@
   # BUILD_APP permite que el MISBO archivo sirva a dos sitios del monorepo:
   # "api" en ticket-ar, "admin" en admin-ticket-ar (seteado en las env vars
   # de cada sitio). Sin ${...:-} para que la expansión la haga bash, no el
-  # parser de toml.
-  command = "pnpm --filter @ticketscan/$BUILD_APP build"
+  # parser de toml. Si se construye el admin, se copia su .next al publish
+  # (la API ya vive en apps/api/.next, no necesita copia).
+  command = "pnpm --filter @ticketscan/$BUILD_APP build || exit 1; if [ \"$BUILD_APP\" = admin ]; then rm -rf apps/api/.next && cp -R apps/admin/.next apps/api/.next; fi"
   # El runtime de Next.js de Netlify lee apps/api/.next/required-server-files.json
   # para generar las functions (SSR + route handlers) y los assets estáticos.
   publish = "apps/api/.next"
