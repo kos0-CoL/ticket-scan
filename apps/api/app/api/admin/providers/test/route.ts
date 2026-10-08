@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       id: row.id,
       name: row.name,
       apiKey,
-      baseUrl: row.base_url ?? null,
+      baseUrl: row.base_url?.trim() || null,
       defaultModel: row.default_model,
       fallbackOrder: row.fallback_order,
     };

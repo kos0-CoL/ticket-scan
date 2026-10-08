@@ -50,18 +50,23 @@ export async function getFallbackOrder(): Promise<ProviderConfig[]> {
 }
 
 export function modelFor(provider: ProviderConfig) {
+  // baseUrl vacío ("") cuenta como "no configurado": si no, el AI SDK
+  // intenta resolver `/chat/completions` contra una base relativa y truena
+  // con "Failed to parse URL from /chat/completions".
+  const base = provider.baseUrl?.trim() || undefined;
+
   switch (provider.name) {
     case 'gemini': {
       const googleProvider = createGoogleGenerativeAI({
         apiKey: provider.apiKey,
-        baseURL: provider.baseUrl ?? undefined,
+        baseURL: base,
       });
       return googleProvider.languageModel(provider.defaultModel);
     }
     case 'openai': {
       const openaiProvider = createOpenAI({
         apiKey: provider.apiKey,
-        baseURL: provider.baseUrl ?? undefined,
+        baseURL: base,
       });
       return openaiProvider.languageModel(provider.defaultModel);
     }
@@ -70,7 +75,7 @@ export function modelFor(provider: ProviderConfig) {
       // (/chat/completions), base URL propia y modelos "vendor".
       const openrouterProvider = createOpenAI({
         apiKey: provider.apiKey,
-        baseURL: provider.baseUrl ?? 'https://openrouter.ai/api/v1',
+        baseURL: base ?? 'https://openrouter.ai/api/v1',
       });
       return openrouterProvider.languageModel(provider.defaultModel);
     }
