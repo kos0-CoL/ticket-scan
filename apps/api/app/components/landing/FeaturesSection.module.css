@@ -1,0 +1,56 @@
+/**
+ * FeaturesSection Module - Estilos específicos de la sección Features
+ * Importar como: import styles from './FeaturesSection.module.css'
+ */
+
+.section {
+  @apply py-[64px] lg:py-[80px];
+  background-color: var(--color-background);
+}
+
+.container {
+  @apply mx-auto max-w-5xl px-4 sm:px-6 lg:px-8;
+}
+
+.header {
+  @apply text-center max-w-3xl mx-auto mb-16 animate-in;
+}
+
+.headline {
+  @apply text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 mb-4 animate-in;
+}
+
+.subtext {
+  @apply mt-4 text-lg text-slate-600;
+}
+
+.grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
+}
+
+.card {
+  @apply card-padded animate-in flex flex-col;
+}
+
+.icon {
+  @apply text-4xl mb-4;
+}
+
+.title {
+  @apply text-xl font-semibold text-slate-900 mb-2;
+}
+
+.description {
+  @apply text-slate-600 flex-1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .headline {
+    font-size: 1.875rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

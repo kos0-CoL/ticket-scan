@@ -1,0 +1,83 @@
+/**
+ * CTADownloadSection Module - Estilos específicos de la sección CTA Download
+ * Importar como: import styles from './CTADownloadSection.module.css'
+ */
+
+.section {
+  @apply relative py-[64px] lg:py-[80px] overflow-hidden;
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.container {
+  @apply mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center;
+}
+
+.header {
+  @apply mb-12 animate-in;
+}
+
+.headline {
+  @apply text-3xl lg:text-4xl font-bold text-white mb-4 animate-in;
+}
+
+.subtext {
+  @apply mx-auto max-w-xl text-lg animate-in;
+  color: var(--color-primary-light);
+  animation-delay: 150ms;
+}
+
+.ctaGroup {
+  @apply flex flex-col sm:flex-row items-center justify-center gap-4 animate-in;
+  animation-delay: 300ms;
+}
+
+.ctaPrimary {
+  @apply btn px-8 py-3.5 text-lg shadow-float-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200;
+  background-color: white;
+  color: var(--color-primary);
+}
+
+.ctaSecondary {
+  @apply btn border-2 border-white text-white px-8 py-3.5 text-lg transition-all duration-200 hover:bg-white/10;
+}
+
+.ctaSecondaryDisabled {
+  @apply btn border-2 border-white text-white px-8 py-3.5 text-lg cursor-not-allowed opacity-60;
+}
+
+/* Decorative blobs */
+.blobTop {
+  @apply absolute top-0 -right-16 h-64 w-64 rounded-full blur-3xl;
+  background-color: rgba(255, 255, 255, 0.05);
+  @apply aria-hidden;
+}
+
+.blobBottom {
+  @apply absolute -bottom-16 left-1/2 h-64 w-64 rounded-full blur-3xl -translate-x-1/2;
+  background-color: rgba(255, 255, 255, 0.05);
+  @apply aria-hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .headline {
+    font-size: 1.875rem;
+  }
+
+  .subtext {
+    font-size: 1rem;
+  }
+
+  .ctaGroup {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .ctaPrimary,
+  .ctaSecondary,
+  .ctaSecondaryDisabled {
+    width: 100%;
+    justify-content: center;
+  }
+}

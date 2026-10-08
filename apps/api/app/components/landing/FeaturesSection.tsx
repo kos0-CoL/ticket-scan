@@ -1,3 +1,5 @@
+import styles from './FeaturesSection.module.css';
+
 interface FeaturesSectionProps {
   data?: {
     enabled?: boolean;
@@ -14,33 +16,33 @@ interface FeaturesSectionProps {
 export function FeaturesSection({ data }: FeaturesSectionProps) {
   if (!data || !data.items?.length) return null;
   return (
-    <section className="py-[64px] lg:py-[80px] bg-white">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <header className="text-center max-w-3xl mx-auto mb-16 animate-in">
+    <section className={styles.section}>
+      <div className={styles.container}>
+        <header className={styles.header}>
           <h2
-            className="text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 mb-4 animate-in"
+            className={styles.headline}
             dangerouslySetInnerHTML={{
               __html: data.headline || "Todo lo que necesitas para <span class='text-primary'>controlar tus compras</span>",
             }}
           />
-          <p className="mt-4 text-lg text-slate-600">
+          <p className={styles.subtext}>
             {data.subtext || "Diseñada para el contexto argentino: supermercados locales, moneda ARS, facturación AFIP."}
           </p>
         </header>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className={styles.grid}>
           {data.items.map((feature, i) => (
             <article
               key={feature.title || i}
-              className="card-padded animate-in flex flex-col"
+              className={styles.card}
               style={{ animationDelay: `${600 + i * 100}ms` }}
             >
-              <div className="text-4xl mb-4" aria-hidden="true">
+              <div className={styles.icon} aria-hidden="true">
                 {feature.icon || "⚡"}
               </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-2">
+              <h3 className={styles.title}>
                 {feature.title || "Sin título"}
               </h3>
-              <p className="text-slate-600 flex-1">
+              <p className={styles.description}>
                 {feature.desc || "Descripción no disponible."}
               </p>
             </article>

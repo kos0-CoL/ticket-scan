@@ -1,0 +1,100 @@
+/**
+ * SocialProofSection Module - Estilos específicos de la sección Social Proof
+ * Importar como: import styles from './SocialProofSection.module.css'
+ */
+
+.section {
+  @apply py-[64px] lg:py-[80px];
+  background-color: var(--color-surface);
+}
+
+.container {
+  @apply mx-auto max-w-5xl px-4 sm:px-6 lg:px-8;
+}
+
+.header {
+  @apply text-center max-w-3xl mx-auto mb-16 animate-in;
+}
+
+.headline {
+  @apply text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 mb-4 animate-in;
+}
+
+.subtext {
+  @apply mt-4 text-lg text-slate-600;
+}
+
+.testimonialsGrid {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-12;
+}
+
+.testimonialCard {
+  @apply card-padded animate-in;
+}
+
+.starRating {
+  @apply flex gap-1 mb-3;
+}
+
+.starFilled {
+  @apply text-accent;
+}
+
+.starEmpty {
+  @apply text-slate-300;
+}
+
+.testimonialText {
+  @apply text-slate-700 italic mb-4;
+}
+
+.testimonialFooter {
+  @apply flex items-center gap-2 text-sm text-slate-500;
+}
+
+.testimonialName {
+  @apply font-medium text-slate-900;
+}
+
+.testimonialLocation {
+  @apply text-slate-500;
+}
+
+.statsContainer {
+  @apply text-center animate-in;
+}
+
+.statsRow {
+  @apply flex flex-wrap items-center justify-center gap-4 text-slate-600;
+}
+
+.statItem {
+  @apply inline-flex items-center gap-2;
+}
+
+.statValue {
+  @apply font-bold text-3xl text-primary;
+}
+
+.statLabel {
+  @apply text-slate-600;
+}
+
+.statDivider {
+  @apply w-px h-8 bg-slate-200 mx-2;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .headline {
+    font-size: 1.875rem;
+  }
+
+  .testimonialsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statValue {
+    font-size: 2rem;
+  }
+}

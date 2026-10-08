@@ -1,3 +1,5 @@
+import styles from './Hero.module.css';
+
 interface HeroSectionProps {
   data?: {
     enabled?: boolean;
@@ -16,13 +18,13 @@ interface HeroSectionProps {
 export function HeroSection({ data }: HeroSectionProps) {
   if (!data) return null;
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-primary-light/30 to-white py-[64px] lg:py-[96px]">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <span className="inline-flex items-center gap-2 rounded-full bg-primary-light px-4 py-1.5 text-sm font-medium text-primary shadow-sm animate-in" style={{ animationDelay: "100ms" }}>
+    <section className={styles.section}>
+      <div className={styles.container}>
+        <div className={styles.content}>
+          <span className={styles.badge} style={{ animationDelay: "100ms" }}>
             {data.badge || "🎫 TicketScan"}
           </span>
-          <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight text-slate-900 mt-6 animate-in" style={{ animationDelay: "200ms" }}>
+          <h1 className={styles.headline} style={{ animationDelay: "200ms" }}>
             <span
               dangerouslySetInnerHTML={{
                 __html:
@@ -31,16 +33,16 @@ export function HeroSection({ data }: HeroSectionProps) {
               }}
             />
           </h1>
-          <p className="mt-6 max-w-3xl mx-auto text-lg leading-relaxed text-slate-600 animate-in" style={{ animationDelay: "300ms" }}>
+          <p className={styles.subtext} style={{ animationDelay: "300ms" }}>
             {data.subtext ||
               "La app que usa IA para leer tus tickets, organizar tus gastos por categoría y mostrarte gráficos claros de tu presupuesto familiar."}
           </p>
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-in" style={{ animationDelay: "400ms" }}>
+          <div className={styles.ctaGroup} style={{ animationDelay: "400ms" }}>
             <a
               href={data.cta_primary_url || "#"}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-primary text-lg px-8 py-3.5 shadow-float"
+              className={styles.ctaPrimary}
             >
               {data.cta_primary_text || "Descargar APK (MediaFire)"}
             </a>
@@ -49,7 +51,7 @@ export function HeroSection({ data }: HeroSectionProps) {
                 href={data.cta_secondary_url || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-secondary text-lg px-8 py-3.5"
+                className={styles.ctaSecondary}
               >
                 {data.cta_secondary_text || "Próximamente en Play Store"}
               </a>
@@ -57,19 +59,19 @@ export function HeroSection({ data }: HeroSectionProps) {
             {data.cta_secondary_disabled && (
               <button
                 disabled
-                className="btn btn-secondary text-lg px-8 py-3.5 cursor-not-allowed opacity-60"
+                className={styles.ctaSecondaryDisabled}
               >
                 {data.cta_secondary_text || "Próximamente en Play Store"}
               </button>
             )}
           </div>
-          <p className="mt-4 text-sm text-slate-500 animate-in" style={{ animationDelay: "500ms" }}>
+          <p className={styles.footnote} style={{ animationDelay: "500ms" }}>
             {data.footnote || "Versión beta • Sin anuncios • Datos 100% tuyos"}
           </p>
         </div>
       </div>
-      <div className="absolute top-0 right-0 h-96 w-96 rounded-full bg-primary/10 blur-3xl -translate-x-1/2 translate-y-1/2" aria-hidden="true" />
-      <div className="absolute bottom-0 left-0 h-96 w-96 rounded-full bg-primary/10 blur-3xl translate-x-1/2 -translate-y-1/2" aria-hidden="true" />
+      <div className={styles.blobTop} aria-hidden="true" />
+      <div className={styles.blobBottom} aria-hidden="true" />
     </section>
   );
 }

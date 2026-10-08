@@ -1,0 +1,102 @@
+/**
+ * Hero Module - Estilos específicos de la sección Hero
+ * Importar como: import styles from './Hero.module.css'
+ */
+
+.section {
+  @apply relative overflow-hidden;
+  background: linear-gradient(to bottom, var(--color-primary-light) 0%, var(--color-background) 100%);
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+@media (min-width: 1024px) {
+  .section {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+}
+
+.container {
+  @apply mx-auto max-w-5xl px-4 sm:px-6 lg:px-8;
+}
+
+.content {
+  @apply text-center;
+}
+
+.badge {
+  @apply inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium shadow-sm animate-in;
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  animation-delay: 100ms;
+}
+
+.headline {
+  @apply text-4xl sm:text-5xl font-bold leading-tight tracking-tight text-slate-900 mt-6 animate-in;
+  animation-delay: 200ms;
+}
+
+.subtext {
+  @apply mt-6 max-w-3xl mx-auto text-lg leading-relaxed text-slate-600 animate-in;
+  animation-delay: 300ms;
+}
+
+.ctaGroup {
+  @apply mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-in;
+  animation-delay: 400ms;
+}
+
+.ctaPrimary {
+  @apply btn btnPrimary text-lg px-8 py-3.5 shadow-float;
+}
+
+.ctaSecondary {
+  @apply btn btnSecondary text-lg px-8 py-3.5;
+}
+
+.ctaSecondaryDisabled {
+  @apply btn btnSecondary text-lg px-8 py-3.5 cursor-not-allowed opacity-60;
+}
+
+.footnote {
+  @apply mt-4 text-sm text-slate-500 animate-in;
+  animation-delay: 500ms;
+}
+
+/* Decorative blobs */
+.blobTop {
+  @apply absolute top-0 right-0 h-96 w-96 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2;
+  background-color: rgba(0, 171, 228, 0.1);
+  @apply aria-hidden;
+}
+
+.blobBottom {
+  @apply absolute bottom-0 left-0 h-96 w-96 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2;
+  background-color: rgba(0, 171, 228, 0.1);
+  @apply aria-hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .headline {
+    font-size: 2.25rem;
+    line-height: 1.1;
+  }
+
+  .subtext {
+    font-size: 1rem;
+  }
+
+  .ctaGroup {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .ctaPrimary,
+  .ctaSecondary,
+  .ctaSecondaryDisabled {
+    width: 100%;
+    justify-content: center;
+  }
+}

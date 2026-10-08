@@ -1,0 +1,104 @@
+/**
+ * FooterSection Module - Estilos específicos de la sección Footer
+ * Importar como: import styles from './FooterSection.module.css'
+ */
+
+.section {
+  @apply py-[48px] lg:py-[72px];
+  background-color: #020617; /* slate-950 */
+  color: #cbd5e1; /* slate-300 */
+}
+
+.container {
+  @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+
+.grid {
+  @apply grid grid-cols-1 md:grid-cols-4 gap-8 mb-12;
+}
+
+.brandColumn {
+  @apply md:col-span-2;
+}
+
+.brandBadge {
+  @apply inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium mb-4;
+  background-color: rgba(0, 171, 228, 0.15);
+  color: var(--color-primary);
+}
+
+.brandDescription {
+  @apply max-w-xs text-slate-400;
+}
+
+.socialLinks {
+  @apply flex gap-4 mt-5;
+}
+
+.socialLink {
+  @apply text-slate-400 transition-colors hover:text-white;
+  text-decoration: none;
+}
+
+.socialIcon {
+  @apply text-lg;
+  aria-hidden: true;
+}
+
+.navColumn {
+  @apply space-y-2;
+}
+
+.navTitle {
+  @apply font-semibold text-white mb-4;
+}
+
+.navList {
+  @apply space-y-2 text-sm;
+}
+
+.navItem {
+  @apply transition-colors hover:text-primary;
+  text-decoration: none;
+}
+
+.divider {
+  @apply pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-500;
+}
+
+.copyright {
+  @apply text-slate-500;
+}
+
+.footerBottom {
+  @apply flex items-center gap-4;
+}
+
+.version {
+  @apply text-slate-400;
+}
+
+.adminLink {
+  @apply text-primary hover:underline;
+  text-decoration: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brandColumn {
+    grid-column: 1;
+  }
+
+  .divider {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footerBottom {
+    justify-content: center;
+  }
+}

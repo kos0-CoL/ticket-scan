@@ -1,45 +1,90 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
-import { landingSections, categorias } from './src/schema';
+import { db } from './src/index';
+import {
+  categorias,
+  landingSections,
+  appConfig,
+  seedCategories,
+  seedLandingSections,
+} from './src/schema';
 import { eq } from 'drizzle-orm';
-import * as seedData from './src/schema';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-
-const db = drizzle({ client: pool, schema: { landingSections, categorias } });
-
-async function seed() {
-  console.log('🌱 Iniciando seed...');
-
-  // Seed categorías
-  console.log('📦 Insertando categorías...');
-  for (const cat of seedData.seedCategories) {
-    try {
-      await db.insert(categorias).values(cat).onConflictDoNothing();
-      console.log(`  ✓ ${cat.nombre}`);
-    } catch (e) {
-      console.log(`  ⚠ ${cat.nombre}: ${e}`);
-    }
+async function seedCategoriesTable() {
+  console.log('🌱 Seeding categorias...');
+  for (const cat of seedCategories) {
+    await db
+      .insert(categorias)
+      .values(cat)
+      .onConflictDoUpdate({
+        target: categorias.slug,
+        set: { nombre: cat.nombre, icono: cat.icono, updated_at: new Date() },
+      });
   }
-
-  // Seed landing sections
-  console.log('📦 Insertando landing sections...');
-  for (const section of seedData.seedLandingSections) {
-    try {
-      await db.insert(landingSections).values(section).onConflictDoNothing();
-      console.log(`  ✓ ${section.key}`);
-    } catch (e) {
-      console.log(`  ⚠ ${section.key}: ${e}`);
-    }
-  }
-
-  console.log('✅ Seed completado');
-  await pool.end();
+  console.log(`   ✓ ${seedCategories.length} categorías`);
 }
 
-seed().catch((e) => {
-  console.error('❌ Error en seed:', e);
-  process.exit(1);
-});
+async function seedLandingSectionsTable() {
+  console.log('🌱 Seeding landing_sections...');
+  for (const section of seedLandingSections) {
+    await db
+      .insert(landingSections)
+      .values(section)
+      .onConflictDoUpdate({
+        target: landingSections.key,
+        set: {
+          title: section.title,
+          content: section.content,
+          enabled: section.enabled,
+          sort_order: section.sort_order,
+          updated_at: new Date(),
+        },
+      });
+  }
+  console.log(`   ✓ ${seedLandingSections.length} secciones de landing`);
+}
+
+async function seedAppConfig() {
+  console.log('🌱 Seeding app_config...');
+
+  const configs = [
+    {
+      key: 'ai_provider_active',
+      value: { provider_id: null },
+    },
+    {
+      key: 'app_version',
+      value: { version: '1.0.0-beta', build: Date.now() },
+    },
+    {
+      key: 'maintenance_mode',
+      value: { enabled: false, message: '' },
+    },
+  ];
+
+  for (const config of configs) {
+    await db
+      .insert(appConfig)
+      .values(config)
+      .onConflictDoUpdate({
+        target: appConfig.key,
+        set: { value: config.value, updated_at: new Date() },
+      });
+  }
+  console.log(`   ✓ ${configs.length} configuraciones de app`);
+}
+
+async function main() {
+  console.log('🚀 Iniciando seed de base de datos...\n');
+
+  try {
+    await seedCategoriesTable();
+    await seedLandingSectionsTable();
+    await seedAppConfig();
+
+    console.log('\n✅ Seed completado exitosamente');
+  } catch (error) {
+    console.error('\n❌ Error en seed:', error);
+    process.exit(1);
+  }
+}
+
+main();
