@@ -4,8 +4,12 @@ import { aiProviders, eq } from '@ticketscan/db/schema';
 import { decrypt } from '@ticketscan/ai/crypto';
 import { modelFor } from '@ticketscan/ai';
 import { generateText } from 'ai';
+import { requireAdmin, isAdminResponse } from '../../../../../lib/admin-auth';
 
 export async function POST(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const { id } = await req.json();
   if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });
 

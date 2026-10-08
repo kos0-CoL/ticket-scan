@@ -2,15 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@ticketscan/db';
 import { mlConfig, eq } from '@ticketscan/db/schema';
 import { desc } from 'drizzle-orm';
+import { requireAdmin, isAdminResponse } from '../../../../lib/admin-auth';
 
 // GET /api/admin/ml-config - Get current ML config
 export async function GET() {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const configs = await db.select().from(mlConfig).orderBy(desc(mlConfig.created_at)).limit(1);
   return NextResponse.json(configs);
 }
 
 // POST /api/admin/ml-config - Create new ML config
 export async function POST(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const body = await req.json();
   const { provider_id, model_id, temperature, max_tokens, system_prompt, version, is_active } = body;
 
@@ -38,6 +45,9 @@ export async function POST(req: NextRequest) {
 
 // PUT /api/admin/ml-config - Update ML config
 export async function PUT(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const body = await req.json();
   const { id, provider_id, model_id, temperature, max_tokens, system_prompt, version, is_active } = body;
 
@@ -65,6 +75,9 @@ export async function PUT(req: NextRequest) {
 
 // DELETE /api/admin/ml-config - Delete ML config
 export async function DELETE(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });

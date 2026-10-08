@@ -1,16 +1,19 @@
 import type { Config } from "tailwindcss";
+// Paleta compartida con el dashboard (apps/mobile): fuente única de verdad.
+import { palette } from "../../packages/ui/src/palette";
+
 const config: Config = {
   content: ["./app/**/*.{js,ts,jsx,tsx,mdx}", "./components/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
     extend: {
       colors: {
-        primary: {
-          DEFAULT: "#00ABE4",
-          light: "#E9F1FA",
-          dark: "#008BC7",
-        },
-        background: "#FFFFFF",
-        surface: "#F8FAFC",
+        primary: palette.primary,
+        accent: palette.accent,
+        success: palette.success,
+        warning: palette.warning,
+        danger: palette.danger,
+        background: palette.background,
+        surface: palette.surface,
       },
       borderRadius: {
         DEFAULT: "0.75rem",

@@ -2,15 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@ticketscan/db';
 import { landingSections, eq } from '@ticketscan/db/schema';
 import { desc } from 'drizzle-orm';
+import { requireAdmin, isAdminResponse } from '../../../../lib/admin-auth';
 
 // GET /api/admin/landing - List all landing sections
 export async function GET() {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const sections = await db.select().from(landingSections).orderBy(desc(landingSections.sort_order));
   return NextResponse.json(sections);
 }
 
 // POST /api/admin/landing - Create new landing section
 export async function POST(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const body = await req.json();
   const { key, title, content, enabled, sort_order } = body;
 
@@ -31,6 +38,9 @@ export async function POST(req: NextRequest) {
 
 // PUT /api/admin/landing - Update landing section
 export async function PUT(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const body = await req.json();
   const { id, key, title, content, enabled, sort_order } = body;
 
@@ -51,6 +61,9 @@ export async function PUT(req: NextRequest) {
 
 // DELETE /api/admin/landing - Delete landing section
 export async function DELETE(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });

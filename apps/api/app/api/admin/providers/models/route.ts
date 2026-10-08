@@ -3,6 +3,7 @@ import { db } from '@ticketscan/db';
 import { aiProviders } from '@ticketscan/db/schema';
 import { eq } from 'drizzle-orm';
 import { decrypt } from '@ticketscan/ai/crypto';
+import { requireAdmin, isAdminResponse } from '../../../../../lib/admin-auth';
 
 export interface ModelInfo {
   id: string;
@@ -90,6 +91,9 @@ async function listModels(name: string, apiKey?: string, baseUrl?: string | null
 }
 
 export async function POST(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   try {
     const { name, apiKey, baseUrl } = await req.json();
     if (!name) {

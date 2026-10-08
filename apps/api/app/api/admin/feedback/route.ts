@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@ticketscan/db';
 import { feedbackImages, mlTrainingJobs, eq } from '@ticketscan/db/schema';
 import { desc, and, sql, inArray } from 'drizzle-orm';
+import { requireAdmin, isAdminResponse } from '../../../../lib/admin-auth';
 
 // GET /api/admin/feedback - List feedback images with filters
 export async function GET(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '50');
@@ -40,6 +44,9 @@ export async function GET(req: NextRequest) {
 
 // POST /api/admin/feedback - Bulk update selected_for_training
 export async function POST(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const body = await req.json();
   const { image_ids, selected_for_training } = body;
 
@@ -56,6 +63,9 @@ export async function POST(req: NextRequest) {
 
 // PUT /api/admin/feedback - Create training job with selected percentage
 export async function PUT(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const body = await req.json();
   const { feedback_percentage } = body;
 

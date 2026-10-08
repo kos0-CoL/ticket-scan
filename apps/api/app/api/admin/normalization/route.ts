@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@ticketscan/db';
 import { normalizacionLog, productos } from '@ticketscan/db/schema';
 import { eq, desc } from 'drizzle-orm';
+import { requireAdmin, isAdminResponse } from '../../../../lib/admin-auth';
 
 // GET /api/admin/normalization
 export async function GET(req: Request) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const { searchParams } = new URL(req.url);
   const limit = parseInt(searchParams.get('limit') ?? '100');
 
@@ -19,6 +23,9 @@ export async function GET(req: Request) {
 
 // POST /api/admin/normalization/approve - approve/reject
 export async function POST(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const body = await req.json();
   const { id, nombre_normalizado, categoria } = body;
 
@@ -36,6 +43,9 @@ export async function POST(req: NextRequest) {
 
 // PUT /api/admin/normalization/rules - add manual rule
 export async function PUT(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const body = await req.json();
   const { raw_name, normalized_name, categoria, marca, unidad } = body;
 
@@ -58,6 +68,9 @@ export async function PUT(req: NextRequest) {
 
 // DELETE /api/admin/normalization - reject
 export async function DELETE(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });

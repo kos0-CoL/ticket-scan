@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@ticketscan/db';
 import { aiProviders, eq } from '@ticketscan/db/schema';
 import { encrypt } from '@ticketscan/ai/crypto';
+import { requireAdmin, isAdminResponse } from '../../../../lib/admin-auth';
 
 // "" y strings sin esquema se normalizan a null; un valor que no sea
 // http(s):// válido devuelve false (rechazo con 400).
@@ -20,6 +21,9 @@ function normalizeBaseUrl(value: unknown): string | null | false {
 
 // GET /api/admin/providers
 export async function GET() {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const providers = await db.select().from(aiProviders).orderBy(aiProviders.fallback_order);
   // Never expose api_key_enc to frontend
   const safe = providers.map(({ api_key_enc, ...rest }) => rest);
@@ -28,6 +32,9 @@ export async function GET() {
 
 // POST /api/admin/providers
 export async function POST(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const body = await req.json();
   const { name, apiKey, baseUrl, defaultModel, fallbackOrder } = body;
 
@@ -60,6 +67,9 @@ export async function POST(req: NextRequest) {
 
 // PUT /api/admin/providers
 export async function PUT(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const body = await req.json();
   const { id, name, apiKey, baseUrl, defaultModel, fallbackOrder, isActive } = body;
 
@@ -87,6 +97,9 @@ export async function PUT(req: NextRequest) {
 
 // DELETE /api/admin/providers
 export async function DELETE(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (isAdminResponse(guard)) return guard;
+
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });

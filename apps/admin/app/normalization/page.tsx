@@ -43,7 +43,7 @@ export default function NormalizationPage() {
 
   return (
     <main className="p-8">
-      <h1 className="text-2xl font-bold mb-6">Gestión de Normalización</h1>
+      <h1 className="text-2xl font-bold text-slate-900 mb-6">Gestión de Normalización</h1>
 
       <div className="bg-white rounded-lg shadow mb-6 p-6">
         <h2 className="font-medium mb-2">Agregar regla manual</h2>
@@ -64,7 +64,7 @@ export default function NormalizationPage() {
           <input name="raw" className="w-full rounded border px-3 py-2" placeholder="Nombre raw" required />
           <input name="norm" className="w-full rounded border px-3 py-2" placeholder="Nombre normalizado" required />
           <input name="cat" className="w-full rounded border px-3 py-2" placeholder="Categoría" required />
-          <button className="rounded bg-blue-600 px-4 py-2 text-white">Guardar regla</button>
+          <button className="btn-primary">Guardar regla</button>
         </form>
       </div>
 
