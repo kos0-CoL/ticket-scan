@@ -1,21 +1,22 @@
-# Netlify — TicketScan Admin (apps/admin)
+# Netlify — apps/admin (site admin-ticket-ar)
 #
-# Importar en Netlify con Base directory = apps/admin.
-# Si existe netlify.toml en la base directory, tiene prioridad sobre la del
-# raíz (que construye la API), así este sitio construye el admin y no la API.
+# IMPORTANTE: este archivo puede ser leído por DOS sitios según el "base
+# directory" de cada uno:
+#   - admin-ticket-ar (base = apps/admin): construye el ADMIN (BUILD_APP=admin)
+#   - ticket-ar: si su base directory apunta a apps/admin, también lo lee
+#     aquí — por eso el comando selecciona la app por variable de entorno
+#     BUILD_APP, con default "api" para que producción (ticket-ar) nunca
+#     deje de construir la API. El sitio admin-ticket-ar setea BUILD_APP=admin.
 [build]
-  command = "pnpm --filter @ticketscan/admin build"
-  publish = "apps/admin/.next"
+  command = "pnpm --filter @ticketscan/${BUILD_APP:-api} build"
+  publish = ".next"
 
 # Runtime oficial de Next.js en Netlify (OpenNext).
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# El admin no incluye rutas /api (viven en el sitio ticket-ar). Las páginas
-# hacen fetch a rutas relativas (/api/admin/*), así que se proxyan al sitio
-# de la API con status 200 (rewrite, misma origin en el navegador → las
-# cookies de Supabase y el CORS siguen funcionando).
-[[redirects]]
-  from = "/api/*"
-  to = "https://ticket-ar.netlify.app/api/:splat"
-  status = 200
+# NOTA: el proxy de /api/* al sitio de la API NO va aquí (una regla
+# [[redirects]] en este archivo también se aplicaría en ticket-ar si su base
+# directory apunta a apps/admin → proxy hacia sí mismo → /api/* muere en
+# producción). El proxy vive en next.config.js (rewrites), que solo se
+# aplica cuando se construye la app admin.
