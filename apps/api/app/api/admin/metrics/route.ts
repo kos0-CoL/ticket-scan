@@ -14,10 +14,6 @@ function sourceCond(source: string | null) {
   return undefined;
 }
 
-function isRecognized(name: string) {
-  return new RegExp(RECOGNIZED_REGEX, 'i').test(name ?? '');
-}
-
 // GET /api/admin/metrics?days=30 | ?month=YYYY-MM&source=recognized|unrecognized
 export async function GET(req: Request) {
   const guard = await requireAdmin();
@@ -107,6 +103,10 @@ export async function GET(req: Request) {
     .select({
       comercio: tickets.comercio,
       total: count(),
+      // El reconocimiento se calcula en SQL (\y = word boundary en Postgres).
+      // Replicarlo en JS con el mismo string no funciona: en JavaScript `\y`
+      // es un escape de identidad y el pattern nunca matchea.
+      recognized: sql<boolean>`lower(comercio) ~ ${RECOGNIZED_REGEX}`,
     })
     .from(tickets)
     .where(ticketWhere)
@@ -131,7 +131,7 @@ export async function GET(req: Request) {
     topComercios: topComercios.map((c) => ({
       comercio: c.comercio,
       total: Number(c.total),
-      recognized: isRecognized(c.comercio),
+      recognized: c.recognized,
     })),
   });
 }
