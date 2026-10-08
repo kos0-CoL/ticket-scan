@@ -4,44 +4,114 @@
  */
 
 .section {
-  @apply py-[64px] lg:py-[80px];
+  padding-top: 4rem;
+  padding-bottom: 4rem;
   background-color: var(--color-background);
 }
 
+@media (min-width: 1024px) {
+  .section {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+}
+
 .container {
-  @apply mx-auto max-w-5xl px-4 sm:px-6 lg:px-8;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 64rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
 }
 
 .header {
-  @apply text-center max-w-3xl mx-auto mb-16 animate-in;
+  text-align: center;
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 4rem;
+  animation: fade-in 0.5s ease-out forwards;
 }
 
 .headline {
-  @apply text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 mb-4 animate-in;
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: #0F172A;
+  margin-bottom: 1rem;
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+@media (min-width: 1024px) {
+  .headline {
+    font-size: 2.25rem;
+  }
 }
 
 .subtext {
-  @apply mt-4 text-lg text-slate-600;
+  margin-top: 1rem;
+  font-size: 1.125rem;
+  color: #475569;
 }
 
 .grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .card {
-  @apply card-padded animate-in flex flex-col;
+  border-radius: 1.5rem;
+  border: 1px solid #E2E8F0;
+  background-color: white;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  animation: fade-in 0.5s ease-out forwards;
+  display: flex;
+  flex-direction: column;
 }
 
 .icon {
-  @apply text-4xl mb-4;
+  font-size: 2.25rem;
+  margin-bottom: 1rem;
 }
 
 .title {
-  @apply text-xl font-semibold text-slate-900 mb-2;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0F172A;
+  margin-bottom: 0.5rem;
 }
 
 .description {
-  @apply text-slate-600 flex-1;
+  color: #475569;
+  flex: 1;
 }
 
 /* Responsive adjustments */

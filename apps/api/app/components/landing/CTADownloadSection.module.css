@@ -4,59 +4,167 @@
  */
 
 .section {
-  @apply relative py-[64px] lg:py-[80px] overflow-hidden;
+  position: relative;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  overflow: hidden;
   background-color: var(--color-primary);
   color: white;
 }
 
+@media (min-width: 1024px) {
+  .section {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+}
+
 .container {
-  @apply mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 64rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
 }
 
 .header {
-  @apply mb-12 animate-in;
+  margin-bottom: 3rem;
+  animation: fade-in 0.5s ease-out forwards;
 }
 
 .headline {
-  @apply text-3xl lg:text-4xl font-bold text-white mb-4 animate-in;
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1rem;
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+@media (min-width: 1024px) {
+  .headline {
+    font-size: 2.25rem;
+  }
 }
 
 .subtext {
-  @apply mx-auto max-w-xl text-lg animate-in;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 36rem;
+  font-size: 1.125rem;
+  animation: fade-in 0.5s ease-out forwards;
   color: var(--color-primary-light);
   animation-delay: 150ms;
 }
 
 .ctaGroup {
-  @apply flex flex-col sm:flex-row items-center justify-center gap-4 animate-in;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  animation: fade-in 0.5s ease-out forwards;
   animation-delay: 300ms;
 }
 
+@media (min-width: 640px) {
+  .ctaGroup {
+    flex-direction: row;
+  }
+}
+
 .ctaPrimary {
-  @apply btn px-8 py-3.5 text-lg shadow-float-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  padding: 0.875rem 2rem;
+  font-weight: 500;
+  font-size: 1.125rem;
+  box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.15);
+  transition: all 200ms ease;
   background-color: white;
   color: var(--color-primary);
 }
 
+.ctaPrimary:hover {
+  transform: translateY(-2px);
+}
+
+.ctaPrimary:active {
+  transform: translateY(0);
+}
+
 .ctaSecondary {
-  @apply btn border-2 border-white text-white px-8 py-3.5 text-lg transition-all duration-200 hover:bg-white/10;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  border: 2px solid white;
+  padding: 0.875rem 2rem;
+  font-weight: 500;
+  font-size: 1.125rem;
+  transition: all 200ms ease;
+  color: white;
+}
+
+.ctaSecondary:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .ctaSecondaryDisabled {
-  @apply btn border-2 border-white text-white px-8 py-3.5 text-lg cursor-not-allowed opacity-60;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  border: 2px solid white;
+  padding: 0.875rem 2rem;
+  font-weight: 500;
+  font-size: 1.125rem;
+  color: white;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* Decorative blobs */
 .blobTop {
-  @apply absolute top-0 -right-16 h-64 w-64 rounded-full blur-3xl;
+  position: absolute;
+  top: 0;
+  right: -4rem;
+  height: 16rem;
+  width: 16rem;
+  border-radius: 9999px;
+  filter: blur(64px);
   background-color: rgba(255, 255, 255, 0.05);
-  @apply aria-hidden;
 }
 
 .blobBottom {
-  @apply absolute -bottom-16 left-1/2 h-64 w-64 rounded-full blur-3xl -translate-x-1/2;
+  position: absolute;
+  bottom: -4rem;
+  left: 50%;
+  height: 16rem;
+  width: 16rem;
+  border-radius: 9999px;
+  filter: blur(64px);
+  transform: translateX(-50%);
   background-color: rgba(255, 255, 255, 0.05);
-  @apply aria-hidden;
 }
 
 /* Responsive adjustments */
