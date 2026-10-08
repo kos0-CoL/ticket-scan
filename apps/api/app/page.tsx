@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React from "react";
+import { headers } from "next/headers";
 
 export const metadata = {
   title: "TicketScan - Escanea tus tickets de supermercado",
@@ -21,7 +22,13 @@ interface LandingConfig {
 
 async function getLandingConfig(): Promise<LandingConfig> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    // Origen de la misma petición: en Netlify el SSR no puede usar
+    // localhost ni conocer su dominio de antemano (el fetch previo a
+    // http://localhost:3000 devolvía ECONNREFUSED y la landing salía vacía).
+    const h = await headers();
+    const proto = h.get("x-forwarded-proto") || "http";
+    const host = h.get("host") || "localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || `${proto}://${host}`;
     const res = await fetch(`${baseUrl}/api/landing`, {
       next: { revalidate: 60 },
       headers: { "Content-Type": "application/json" },
