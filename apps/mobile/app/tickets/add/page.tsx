@@ -1,8 +1,9 @@
 'use client';
-export const dynamic = 'force-dynamic';
+
 import { useState } from 'react';
 import { getSupabaseClient } from '../../../lib/supabase-browser';
 import { useRouter } from 'next/navigation';
+import { Button, Card } from '@ticketscan/ui';
 
 export default function AddTicketPage() {
   const router = useRouter();
@@ -34,7 +35,6 @@ export default function AddTicketPage() {
       const buffer = await file.arrayBuffer();
       const ext = file.name.split('.').pop() || 'jpg';
 
-      // Generate random ID - simple approach to avoid build issues
       const randomId = Math.random().toString(36).substr(2, 9);
       const path = user.id + '/' + randomId + '.' + ext;
 
@@ -56,15 +56,21 @@ export default function AddTicketPage() {
   }
 
   return (
-    <main className="p-4">
-      <h1 className="text-xl font-bold mb-4">Agregar ticket</h1>
-      {error && <p className="text-red-600 mb-2">{error}</p>}
-      <button onClick={pickImage} disabled={loading} className="w-full rounded bg-blue-600 py-3 text-white">
-        {loading ? 'Procesando...' : ' Importar imagen'}
-      </button>
-      <button className="w-full rounded border py-3 mt-2">Modo panorámico (próximamente)</button>
-      <button className="w-full rounded border py-3 mt-2 text-xs text-gray-500">Escanear QR (experimental)</button>
-      {preview && <img src={preview} className="mt-4 rounded border max-h-64" />}
+    <main style={{ padding: '1rem' }}>
+      <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--color-900)', marginBottom: '1rem' }}>Agregar ticket</h1>
+      {error && (
+        <div style={{ color: '#B91C1C', marginBottom: '0.5rem', fontSize: '0.875rem' }}>{error}</div>
+      )}
+      <Card padded style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <Button variant="primary" onClick={pickImage} disabled={loading} style={{ width: '100%' }}>
+          {loading ? 'Procesando...' : 'Importar imagen'}
+        </Button>
+        <Button variant="ghost" style={{ width: '100%' }}>Modo panorámico (próximamente)</Button>
+        <Button variant="ghost" size="sm" style={{ width: '100%', color: 'var(--color-500)', fontSize: '0.75rem' }}>Escanear QR (experimental)</Button>
+        {preview && (
+          <img src={preview} alt="Preview" style={{ marginTop: '1rem', borderRadius: '0.5rem', border: '1px solid rgba(0, 171, 228, 0.1)', maxHeight: '16rem', width: '100%', objectFit: 'cover' }} />
+        )}
+      </Card>
     </main>
   );
 }

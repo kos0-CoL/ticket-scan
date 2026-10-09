@@ -1,5 +1,7 @@
 'use client';
+
 import { useEffect, useState } from 'react';
+import { Table, Select, Badge, Card, CardHeader, CardContent } from '@ticketscan/ui';
 
 interface Metrics {
   window: { month: string | null; since: string; until: string | null; source: string | null };
@@ -18,6 +20,7 @@ const MES_LABELS: Record<string, string> = {
   '05': 'Mayo', '06': 'Junio', '07': 'Julio', '08': 'Agosto',
   '09': 'Septiembre', '10': 'Octubre', '11': 'Noviembre', '12': 'Diciembre',
 };
+
 function monthLabel(m: string) {
   const [y, mm] = m.split('-');
   return `${MES_LABELS[mm] ?? mm} ${y}`;
@@ -59,157 +62,146 @@ export default function MonitoringPage() {
 
   const n = (v: number | string | undefined) => Number(v ?? 0);
 
+  const ticketsColumns = [
+    { key: 'date', header: 'Fecha' },
+    { key: 'total', header: 'Tickets', className: 'text-right', render: (d: { total: number | string }) => <span className="font-medium">{n(d.total)}</span> },
+  ];
+
+  const topComerciosColumns = [
+    { key: 'comercio', header: 'Comercio' },
+    {
+      key: 'recognized',
+      header: 'Fuente',
+      render: (c: { recognized: boolean }) => <Badge variant={c.recognized ? 'success' : 'accent'}>{c.recognized ? 'Reconocido' : 'No reconocido'}</Badge>,
+    },
+    { key: 'total', header: 'Tickets', className: 'text-right', render: (c: { total: number | string }) => <span className="font-medium">{n(c.total)}</span> },
+  ];
+
+  const monthOptions = [
+    { value: '30d', label: 'Últimos 30 días' },
+    { value: '90d', label: 'Últimos 90 días' },
+    { value: 'all', label: 'Todo' },
+    ...(metrics?.months ?? []).map(m => ({ value: m.month, label: `${monthLabel(m.month)} (${m.total} tickets)` })),
+  ];
+
+  const sourceOptions = [
+    { value: '', label: 'Todos los comercios' },
+    { value: 'recognized', label: 'Solo supermercados reconocidos' },
+    { value: 'unrecognized', label: 'Solo comercios no reconocidos' },
+  ];
+
   return (
     <main className="page-container">
       <div className="page-content">
-        <div className="section-header animate-in">
-          <h1 className="section-title">Monitorización</h1>
-          <p className="text-muted mt-1">Actividad de tickets y normalización</p>
-        </div>
-
-        {/* Filtros */}
-        <div className="filters-card card-padded mb-6 animate-in">
-          <div className="filters-grid">
-            <div>
-              <label className="label" htmlFor="f-month">Período</label>
-              <select
-                id="f-month"
-                className="input input-inline"
-                value={month}
-                onChange={e => { setMonth(e.target.value); load(e.target.value, source); }}
-              >
-                <option value="30d">Últimos 30 días</option>
-                <option value="90d">Últimos 90 días</option>
-                <option value="all">Todo</option>
-                {(metrics?.months ?? []).map(m => (
-                  <option key={m.month} value={m.month}>
-                    {monthLabel(m.month)} ({m.total} tickets)
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="label" htmlFor="f-source">Fuente</label>
-              <select
-                id="f-source"
-                className="input input-inline"
-                value={source}
-                onChange={e => { setSource(e.target.value); load(month, e.target.value); }}
-              >
-                <option value="">Todos los comercios</option>
-                <option value="recognized">Solo supermercados reconocidos</option>
-                <option value="unrecognized">Solo comercios no reconocidos</option>
-              </select>
-            </div>
-            {loading && <span className="loading-text">Cargando…</span>}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-900)', margin: 0 }}>Monitorización</h1>
+            <p style={{ color: 'var(--color-500)', marginTop: '0.25rem' }}>Actividad de tickets y normalización</p>
           </div>
         </div>
 
-        {error && <div className="error-box mb-6">{error}</div>}
+        <Card padded style={{ marginBottom: '1.5rem' }}>
+          <CardHeader title="Filtros" />
+          <CardContent>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', alignItems: 'flex-end' }}>
+              <div style={{ minWidth: '180px' }}>
+                <label style={{ display: 'block', marginBottom: '0.375rem', fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-700)' }}>Período</label>
+                <Select
+                  value={month}
+                  onChange={e => { setMonth(e.target.value); load(e.target.value, source); }}
+                  options={monthOptions}
+                />
+              </div>
+              <div style={{ minWidth: '180px' }}>
+                <label style={{ display: 'block', marginBottom: '0.375rem', fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-700)' }}>Fuente</label>
+                <Select
+                  value={source}
+                  onChange={e => { setSource(e.target.value); load(month, e.target.value); }}
+                  options={sourceOptions}
+                />
+              </div>
+              {loading && <span style={{ color: 'var(--color-400)', fontSize: '0.875rem' }}>Cargando…</span>}
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* KPIs */}
-        <div className="kpis-grid">
-          <div className="card-padded">
-            <h3 className="kpi-label">Tickets totales</h3>
-            <p className="kpi-value">{n(metrics?.totalTickets)}</p>
-          </div>
-          <div className="card-padded">
-            <h3 className="kpi-label">Tasa de éxito IA</h3>
-            <p className="kpi-value kpi-primary">{((metrics?.successRate ?? 0) * 100).toFixed(1)}%</p>
-          </div>
-          <div className="card-padded">
-            <h3 className="kpi-label">Reconocidos</h3>
-            <p className="kpi-value kpi-success">
-              {metrics?.bySource.recognized ?? 0}
-              <span className="kpi-sub">
-                de {n(metrics?.totalTickets) || (metrics ? metrics.bySource.recognized + metrics.bySource.unrecognized : 0)}
+        {error && <div style={{ padding: '0.75rem', borderRadius: '0.5rem', backgroundColor: 'var(--color-danger-light)', color: '#B91C1C', fontSize: '0.875rem', marginBottom: '1.5rem' }}>{error}</div>}
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+          <Card padded>
+            <h3 style={{ fontSize: '0.875rem', color: 'var(--color-500)', margin: '0 0 0.5rem' }}>Tickets totales</h3>
+            <p style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--color-900)', margin: 0, lineHeight: 1.1 }}>{n(metrics?.totalTickets)}</p>
+          </Card>
+          <Card padded>
+            <h3 style={{ fontSize: '0.875rem', color: 'var(--color-500)', margin: '0 0 0.5rem' }}>Tasa de éxito IA</h3>
+            <p style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--color-primary)', margin: 0, lineHeight: 1.1 }}>{((metrics?.successRate ?? 0) * 100).toFixed(1)}%</p>
+          </Card>
+          <Card padded>
+            <h3 style={{ fontSize: '0.875rem', color: 'var(--color-500)', margin: '0 0 0.5rem' }}>Reconocidos</h3>
+            <p style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--color-success)', margin: 0, lineHeight: 1.1 }}>
+              {n(metrics?.bySource?.recognized)}
+              <span style={{ fontSize: '0.875rem', fontWeight: '400', color: 'var(--color-400)', marginLeft: '0.5rem' }}>
+                de {n(metrics?.totalTickets) || n(metrics?.bySource?.recognized) + n(metrics?.bySource?.unrecognized)}
               </span>
             </p>
-          </div>
-          <div className="card-padded">
-            <h3 className="kpi-label">No reconocidos</h3>
-            <p className="kpi-value kpi-accent">{metrics?.bySource.unrecognized ?? 0}</p>
-          </div>
+          </Card>
+          <Card padded>
+            <h3 style={{ fontSize: '0.875rem', color: 'var(--color-500)', margin: '0 0 0.5rem' }}>No reconocidos</h3>
+            <p style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--color-accent)', margin: 0, lineHeight: 1.1 }}>{n(metrics?.bySource?.unrecognized)}</p>
+          </Card>
         </div>
 
-        <div className="main-grid">
-          {/* Tickets por día */}
-          <div className="card-padded main-col-span-2">
-            <h3 className="section-title mb-4">Tickets por día</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+          <Card padded style={{ gridColumn: 'span 2' }}>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-900)', margin: '0 0 1rem' }}>Tickets por día</h3>
             {(metrics?.ticketsPerDay.length ?? 0) === 0 && !loading ? (
-              <p className="empty-text">No hay tickets con los filtros seleccionados.</p>
+              <p style={{ color: 'var(--color-400)', padding: '1.5rem 0', textAlign: 'center' }}>No hay tickets con los filtros seleccionados.</p>
             ) : (
-              <div className="table-scroll">
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Fecha</th>
-                      <th className="text-right">Tickets</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(metrics?.ticketsPerDay ?? []).map(d => (
-                      <tr key={d.date} className="divide-y">
-                        <td>{d.date}</td>
-                        <td className="text-right font-medium">{n(d.total)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div style={{ overflowX: 'auto' }}>
+                <Table
+                  columns={ticketsColumns}
+                  data={metrics?.ticketsPerDay ?? []}
+                  keyExtractor={d => d.date}
+                  hover
+                  divide
+                  emptyMessage="No hay datos"
+                />
               </div>
             )}
-          </div>
+          </Card>
 
-          {/* Normalización por método */}
-          <div className="card-padded">
-            <h3 className="section-title mb-4">Normalización por método</h3>
+          <Card padded>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-900)', margin: '0 0 1rem' }}>Normalización por método</h3>
             {(metrics?.normalizationByMethod.length ?? 0) === 0 && !loading ? (
-              <p className="empty-text">Sin datos de normalización.</p>
+              <p style={{ color: 'var(--color-400)', padding: '1.5rem 0', textAlign: 'center' }}>Sin datos de normalización.</p>
             ) : (
-              <ul className="method-list">
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 {(metrics?.normalizationByMethod ?? []).map(m => (
-                  <li key={m.metodo} className="method-item">
-                    <span className="method-name">{m.metodo}</span>
-                    <span className="badge badge-primary-light">{n(m.total)}</span>
+                  <li key={m.metodo} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid var(--color-100)' }}>
+                    <span style={{ color: 'var(--color-700)' }}>{m.metodo}</span>
+                    <Badge variant="primary">{n(m.total)}</Badge>
                   </li>
                 ))}
               </ul>
             )}
-          </div>
+          </Card>
         </div>
 
-        {/* Top comercios */}
-        <div className="card-padded">
-          <h3 className="section-title mb-4">Top comercios</h3>
+        <Card padded>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-900)', margin: '0 0 1rem' }}>Top comercios</h3>
           {(metrics?.topComercios.length ?? 0) === 0 && !loading ? (
-            <p className="empty-text">No hay comercios con estos filtros.</p>
+            <p style={{ color: 'var(--color-400)', padding: '1.5rem 0', textAlign: 'center' }}>No hay comercios con estos filtros.</p>
           ) : (
-            <div className="table-scroll">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Comercio</th>
-                    <th>Fuente</th>
-                    <th className="text-right">Tickets</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(metrics?.topComercios ?? []).map(c => (
-                    <tr key={c.comercio} className="divide-y">
-                      <td className="font-medium">{c.comercio}</td>
-                      <td>
-                        <span className={`badge ${c.recognized ? 'badge-success' : 'badge-accent'}`}>
-                          {c.recognized ? 'Reconocido' : 'No reconocido'}
-                        </span>
-                      </td>
-                      <td className="text-right font-medium">{n(c.total)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Table
+              columns={topComerciosColumns}
+              data={metrics?.topComercios ?? []}
+              keyExtractor={c => c.comercio}
+              hover
+              divide
+              emptyMessage="No hay comercios con estos filtros"
+            />
           )}
-        </div>
+        </Card>
       </div>
     </main>
   );

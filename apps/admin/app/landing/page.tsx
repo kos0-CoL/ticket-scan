@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Table, Button, Modal, Badge, Card, CardHeader, CardContent } from '@ticketscan/ui';
 
 interface LandingSection {
   id: string;
@@ -10,6 +11,7 @@ interface LandingSection {
   enabled: boolean;
   sort_order: number;
 }
+
 export default function LandingPage() {
   const [sections, setSections] = useState<LandingSection[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -95,170 +97,157 @@ export default function LandingPage() {
     else alert('Error al eliminar');
   }
 
+  const columns = [
+    { key: 'key', header: 'Clave', className: 'font-mono text-sm' },
+    { key: 'title', header: 'Título' },
+    {
+      key: 'enabled',
+      header: 'Estado',
+      render: (row: LandingSection) => (
+        <Badge variant={row.enabled ? 'success' : 'muted'} dot>
+          {row.enabled ? 'Activo' : 'Inactivo'}
+        </Badge>
+      ),
+    },
+    { key: 'sort_order', header: 'Orden', className: 'text-muted' },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      render: (row: LandingSection) => (
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <Button variant="ghost" size="sm" onClick={() => openEdit(row)}>Editar</Button>
+                    <Button variant="danger" size="sm" onClick={() => remove(row.id)}>Eliminar</Button>
+                  </div>
+      ),
+    },
+  ];
+
   return (
     <main className="page-container">
       <div className="page-content">
-        <div className="landing-header-row">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <div>
-            <h1 className="section-title">Editor de Landing Page</h1>
-            <p className="text-muted mt-1">Gestiona las secciones modulares de la página pública</p>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-900)', margin: 0 }}>Editor de Landing Page</h1>
+            <p style={{ color: 'var(--color-500)', marginTop: '0.25rem' }}>Gestiona las secciones modulares de la página pública</p>
           </div>
-          <button onClick={openCreate} className="btn btn-primary">
-            + Nueva sección
-          </button>
+          <Button onClick={openCreate}>+ Nueva sección</Button>
         </div>
 
         {sections.length === 0 ? (
-          <div className="card-padded landing-empty">
-            <div className="landing-empty-icon">📄</div>
-            <h3 className="landing-empty-title">No hay secciones aún</h3>
-            <p className="text-muted mb-4">Crea la primera sección para empezar a construir la landing page.</p>
-            <button onClick={openCreate} className="btn btn-primary">Crear primera sección</button>
-          </div>
+          <Card padded className="text-center" style={{ padding: '3rem 1.5rem' }}>
+            <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📄</div>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-900)', margin: '0 0 0.5rem' }}>No hay secciones aún</h3>
+            <p style={{ color: 'var(--color-500)', margin: '0 0 1.5rem' }}>Crea la primera sección para empezar a construir la landing page.</p>
+            <Button onClick={openCreate}>Crear primera sección</Button>
+          </Card>
         ) : (
-          <div className="landing-table-card">
-            <div className="table-scroll">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Clave</th>
-                    <th>Título</th>
-                    <th>Estado</th>
-                    <th>Orden</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {sections.map((section) => (
-                    <tr key={section.id} className="hover-row">
-                      <td className="mono-cell">{section.key}</td>
-                      <td className="cell-medium">{section.title}</td>
-                      <td>
-                        <span className={`badge ${section.enabled ? 'badge-success' : 'badge-muted'}`}>
-                          {section.enabled ? '●' : '○'} {section.enabled ? 'Activo' : 'Inactivo'}
-                        </span>
-                      </td>
-                      <td className="text-muted">{section.sort_order}</td>
-                      <td>
-                        <div className="actions-cell">
-                          <button
-                            onClick={() => openEdit(section)}
-                            className="btn btn-ghost text-sm px-3 py-1.5"
-                          >
-                            Editar
-                          </button>
-                          <button
-                            onClick={() => remove(section.id)}
-                            className="btn btn-ghost text-sm px-3 py-1.5 text-danger"
-                          >
-                            Eliminar
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <Table
+            columns={columns}
+            data={sections}
+            keyExtractor={(row) => row.id}
+            hover
+            divide
+            emptyMessage="No hay secciones"
+          />
         )}
 
-        {/* Form Modal */}
-        {showForm && (
-          <div className="modal-backdrop" onClick={() => setShowForm(false)}>
-            <form onSubmit={save} className="modal-card" onClick={e => e.stopPropagation()}>
-              <div className="modal-header">
-                <h2 className="section-title">{editing ? 'Editar sección' : 'Nueva sección'}</h2>
-                <button type="button" onClick={() => setShowForm(false)} className="btn btn-ghost p-1">✕</button>
+        <Modal
+          open={showForm}
+          onClose={() => setShowForm(false)}
+          title={editing ? 'Editar sección' : 'Nueva sección'}
+          size="lg"
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button>
+              <Button variant="primary" onClick={() => { /* form submits via onSubmit */ }} type="submit" form="landing-form">
+                {editing ? 'Actualizar' : 'Crear'}
+              </Button>
+            </>
+          }
+        >
+          <form id="landing-form" onSubmit={save} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {error && <div style={{ padding: '0.75rem', borderRadius: '0.5rem', backgroundColor: 'var(--color-danger-light)', color: '#B91C1C', fontSize: '0.875rem' }}>{error}</div>}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.375rem', fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-700)' }}>Clave única (slug)</label>
+                <input
+                  type="text"
+                  value={formData.key}
+                  onChange={e => setFormData({ ...formData, key: e.target.value })}
+                  style={{ width: '100%', borderRadius: '1rem', border: '1px solid var(--color-200)', backgroundColor: 'var(--color-white)', padding: '0.75rem 1rem', fontSize: '0.9375rem', color: 'var(--color-900)', fontFamily: 'var(--font-sans)' }}
+                  placeholder="hero, features, downloads, testimonials, footer..."
+                  required
+                  disabled={!!editing}
+                />
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-500)', marginTop: '0.25rem' }}>Identificador único para el frontend. No editable al editar.</p>
               </div>
 
-              {error && <div className="error-box">{error}</div>}
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.375rem', fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-700)' }}>Título</label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={e => setFormData({ ...formData, title: e.target.value })}
+                  style={{ width: '100%', borderRadius: '1rem', border: '1px solid var(--color-200)', backgroundColor: 'var(--color-white)', padding: '0.75rem 1rem', fontSize: '0.9375rem', color: 'var(--color-900)', fontFamily: 'var(--font-sans)' }}
+                  placeholder="Título de la sección"
+                  required
+                />
+              </div>
 
-              <div className="form-grid">
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.375rem', fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-700)' }}>Contenido (JSON)</label>
+                <textarea
+                  value={formData.content}
+                  onChange={e => setFormData({ ...formData, content: e.target.value })}
+                  style={{ width: '100%', borderRadius: '1rem', border: '1px solid var(--color-200)', backgroundColor: 'var(--color-white)', padding: '0.75rem 1rem', fontSize: '0.875rem', color: 'var(--color-900)', fontFamily: 'var(--font-mono)', minHeight: '200px', resize: 'vertical' }}
+                  placeholder='{"subtitle": "Texto", "cta_text": "Botón", "cta_url": "/url", "image": "/img.png"}'
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                 <div>
-                  <label className="label">Clave única (slug)</label>
+                  <label style={{ display: 'block', marginBottom: '0.375rem', fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-700)' }}>Orden</label>
                   <input
-                    type="text"
-                    value={formData.key}
-                    onChange={e => setFormData({ ...formData, key: e.target.value })}
-                    className="input"
-                    placeholder="hero, features, downloads, testimonials, footer..."
-                    required
-                    disabled={!!editing}
-                  />
-                  <p className="text-xs text-muted mt-1">Identificador único para el frontend. No editable al editar.</p>
-                </div>
-
-                <div>
-                  <label className="label">Título</label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={e => setFormData({ ...formData, title: e.target.value })}
-                    className="input"
-                    placeholder="Título de la sección"
-                    required
+                    type="number"
+                    value={formData.sort_order}
+                    onChange={e => setFormData({ ...formData, sort_order: Number(e.target.value) })}
+                    style={{ width: '100%', borderRadius: '1rem', border: '1px solid var(--color-200)', backgroundColor: 'var(--color-white)', padding: '0.75rem 1rem', fontSize: '0.9375rem', color: 'var(--color-900)', fontFamily: 'var(--font-sans)' }}
+                    min="0"
                   />
                 </div>
-
-                <div>
-                  <label className="label">Contenido (JSON)</label>
-                  <textarea
-                    value={formData.content}
-                    onChange={e => setFormData({ ...formData, content: e.target.value })}
-                    className="input font-mono text-sm min-h-[200px] resize-y"
-                    placeholder='{"subtitle": "Texto", "cta_text": "Botón", "cta_url": "/url", "image": "/img.png"}'
-                    required
-                  />
-                </div>
-
-                <div className="form-row-2">
-                  <div>
-                    <label className="label">Orden</label>
+                <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                     <input
-                      type="number"
-                      value={formData.sort_order}
-                      onChange={e => setFormData({ ...formData, sort_order: Number(e.target.value) })}
-                      className="input"
-                      min="0"
+                      type="checkbox"
+                      checked={formData.enabled}
+                      onChange={e => setFormData({ ...formData, enabled: e.target.checked })}
+                      style={{ width: '1rem', height: '1rem', borderRadius: '0.375rem', border: '1px solid var(--color-300)', accentColor: 'var(--color-primary)' }}
                     />
-                  </div>
-                  <div className="flex items-end">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.enabled}
-                        onChange={e => setFormData({ ...formData, enabled: e.target.checked })}
-                        className="checkbox"
-                      />
-                      <span className="text-sm">Sección activa</span>
-                    </label>
-                  </div>
+                    <span style={{ fontSize: '0.875rem' }}>Sección activa</span>
+                  </label>
                 </div>
               </div>
+            </div>
+          </form>
+        </Modal>
 
-              <div className="modal-actions">
-                <button type="button" onClick={() => setShowForm(false)} className="btn btn-secondary">Cancelar</button>
-                <button type="submit" className="btn btn-primary">{editing ? 'Actualizar' : 'Crear'}</button>
-              </div>
-            </form>
-          </div>
-        )}
-
-        {/* Preview Section */}
-        <div className="preview-section mt-10">
-          <h2 className="section-title mb-3">Vista previa de la configuración actual</h2>
-          <div className="card-padded preview-box">
-            <pre className="preview-json">{JSON.stringify(
-              sections.filter(s => s.enabled).reduce((acc, s) => {
-                acc[s.key] = { ...s.content, enabled: s.enabled, title: s.title };
-                return acc;
-              }, {} as Record<string, any>),
-              null,
-              2
-            )}</pre>
-          </div>
-        </div>
+        <Card padded style={{ marginTop: '2.5rem' }}>
+          <CardHeader title="Vista previa de la configuración actual" />
+          <CardContent>
+            <pre style={{ fontSize: '0.875rem', color: 'var(--color-700)', overflowX: 'auto', margin: 0, fontFamily: 'var(--font-mono)' }}>
+              {JSON.stringify(
+                sections.filter(s => s.enabled).reduce((acc, s) => {
+                  acc[s.key] = { ...s.content, enabled: s.enabled, title: s.title };
+                  return acc;
+                }, {} as Record<string, any>),
+                null,
+                2
+              )}
+            </pre>
+          </CardContent>
+        </Card>
       </div>
     </main>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Button, Card, CardHeader, CardContent, Badge, Table } from '@ticketscan/ui';
 
 interface FeedbackImage {
   id: string;
@@ -57,7 +58,6 @@ export default function FeedbackPage() {
       setImages(imagesData.images);
       setTotalPages(imagesData.pagination.totalPages);
       setJobs(jobsData || []);
-      // Reset selection on page change
       setSelectedIds([]);
       setSelectAll(false);
     } catch (e) {
@@ -121,7 +121,6 @@ export default function FeedbackPage() {
       if (!res.ok) throw new Error(data.error || 'Error al crear job');
       setSuccess(`Job ${data.job.model_version} creado con ${data.job.images_count} imágenes (${feedbackPercentage}%)`);
       load();
-      // Load jobs from separate endpoint would be better, but for now refresh
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -132,87 +131,204 @@ export default function FeedbackPage() {
   const selectedCount = images.filter(i => i.selected_for_training).length;
   const totalCount = images.length;
 
-  if (loading) {
-    return (
-      <main className="page-container">
-        <div className="page-content">
-          <div className="animate-in text-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-slate-600">Cargando feedback de usuarios...</p>
-          </div>
+  if (loading) return (
+    <main className="page-container">
+      <div className="page-content">
+        <div className="animate-in text-center py-12">
+          <div className="loading-spinner"></div>
+          <p style={{ color: 'var(--color-500)' }}>Cargando feedback de usuarios...</p>
         </div>
-      </main>
-    );
-  }
+      </div>
+    </main>
+  );
+
+  const jobStatusVariant = (status: string): 'success' | 'info' | 'danger' | 'muted' => {
+    switch (status) {
+      case 'completed': return 'success';
+      case 'running': return 'info';
+      case 'failed': return 'danger';
+      default: return 'muted';
+    }
+  };
+
+  const imageColumns = [
+    { key: 'select', header: '', width: '40px', render: () => null },
+    { key: 'image', header: 'Imagen', width: '100px', render: () => null },
+    { key: 'info', header: 'Info', render: () => null },
+    { key: 'ocr', header: 'OCR Original', render: () => null },
+    { key: 'corrections', header: 'Correcciones Usuario', render: () => null },
+  ];
+
+  const jobColumns = [
+    { key: 'model_version', header: 'Versión', render: () => null },
+    { key: 'feedback_percentage', header: '% Feedback', render: () => null },
+    { key: 'images_count', header: 'Imágenes', render: () => null },
+    { key: 'status', header: 'Estado', render: () => null },
+    { key: 'created_at', header: 'Creado', render: () => null },
+    { key: 'completed_at', header: 'Completado', render: () => null },
+  ];
 
   return (
     <main className="page-container">
       <div className="page-content">
-        <div className="flex items-center justify-between mb-8 animate-in">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Pipeline de Reentrenamiento</h1>
-            <p className="text-slate-600 mt-1">Gestiona imágenes de feedback y crea jobs de entrenamiento</p>
-          </div>
-          <label className="flex items-center gap-2 cursor-pointer">
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-900)', margin: 0 }}>Pipeline de Reentrenamiento</h1>
+          <p style={{ color: 'var(--color-500)', marginTop: '0.25rem' }}>Gestiona imágenes de feedback y crea jobs de entrenamiento</p>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
             <input
               type="checkbox"
               checked={showSelectedOnly}
               onChange={e => { setShowSelectedOnly(e.target.checked); setPage(1); }}
-              className="rounded border-slate-300 text-primary focus:ring-primary"
+              style={{ width: '1rem', height: '1rem', borderRadius: '0.375rem', border: '1px solid var(--color-300)', accentColor: 'var(--color-primary)' }}
             />
-            <span className="text-sm text-slate-700">Solo seleccionadas para entrenamiento</span>
+            <span style={{ fontSize: '0.875rem', color: 'var(--color-700)' }}>Solo seleccionadas para entrenamiento</span>
           </label>
         </div>
 
-        {/* Stats Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 animate-in">
-          <div className="card-padded text-center">
-            <p className="text-3xl font-bold text-primary">{totalCount}</p>
-            <p className="text-sm text-slate-600">Total imágenes</p>
-          </div>
-          <div className="card-padded text-center">
-            <p className="text-3xl font-bold text-green-600">{selectedCount}</p>
-            <p className="text-sm text-slate-600">Para entrenamiento</p>
-          </div>
-          <div className="card-padded text-center">
-            <p className="text-3xl font-bold text-slate-900">{Math.round(selectedCount / (totalCount || 1) * 100)}%</p>
-            <p className="text-sm text-slate-600">Porcentaje actual</p>
-          </div>
-          <div className="card-padded text-center">
-            <p className="text-3xl font-bold text-slate-900">{jobs.length}</p>
-            <p className="text-sm text-slate-600">Jobs de entrenamiento</p>
-          </div>
+        {/* Stats Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+          <Card padded style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--color-primary)', margin: 0 }}>{totalCount}</p>
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-500)', margin: 0 }}>Total imágenes</p>
+          </Card>
+          <Card padded style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--color-success)', margin: 0 }}>{selectedCount}</p>
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-500)', margin: 0 }}>Para entrenamiento</p>
+          </Card>
+          <Card padded style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--color-900)', margin: 0 }}>{Math.round(selectedCount / (totalCount || 1) * 100)}%</p>
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-500)', margin: 0 }}>Porcentaje actual</p>
+          </Card>
+          <Card padded style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--color-900)', margin: 0 }}>{jobs.length}</p>
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-500)', margin: 0 }}>Jobs de entrenamiento</p>
+          </Card>
         </div>
 
-        {/* Images Grid */}
-        <div className="card animate-in">
-          <div className="p-4 border-b border-primary-light/50 flex items-center justify-between">
-            <h2 className="font-semibold text-slate-900">Imágenes de Feedback ({images.length})</h2>
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selectAll}
-                  onChange={toggleSelectAll}
-                  className="rounded border-slate-300 text-primary focus:ring-primary"
-                />
-                <span className="text-sm text-slate-700">Seleccionar todo</span>
-              </label>
-              <div className="flex gap-2">
-                <button onClick={() => bulkUpdateSelection(true)} className="btn-secondary text-sm px-3 py-1.5" disabled={selectedIds.length === 0}>
+        {/* Images Table */}
+        <Card padded>
+          <CardHeader 
+            title={`Imágenes de Feedback (${images.length})`}
+            action={
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer', fontSize: '0.875rem' }}>
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={toggleSelectAll}
+                    style={{ width: '1rem', height: '1rem', borderRadius: '0.375rem', border: '1px solid var(--color-300)', accentColor: 'var(--color-primary)' }}
+                  />
+                  Seleccionar todo
+                </label>
+                <Button variant="secondary" size="sm" onClick={() => bulkUpdateSelection(true)} disabled={selectedIds.length === 0}>
                   Marcar seleccionadas
-                </button>
-                <button onClick={() => bulkUpdateSelection(false)} className="btn-ghost text-sm px-3 py-1.5 text-red-600 hover:bg-red-50" disabled={selectedIds.length === 0}>
-                  Desmarcar seleccionadas
-                </button>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => bulkUpdateSelection(false)} disabled={selectedIds.length === 0} style={{ color: 'var(--color-danger)' }}>
+                  Desmarcar
+                </Button>
               </div>
-            </div>
-          </div>
+            }
+          />
+          <CardContent>
+            {images.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '3rem' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📷</div>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-900)', marginBottom: '0.5rem' }}>No hay imágenes de feedback</h3>
+                <p style={{ color: 'var(--color-500)' }}>Los usuarios aún no han enviado correcciones de OCR.</p>
+              </div>
+            ) : (
+              <>
+                <Table
+                  columns={imageColumns.map(col => ({
+                    ...col,
+                    render: (img: FeedbackImage) => {
+                      switch (col.key) {
+                        case 'select':
+                          return (
+                            <input
+                              type="checkbox"
+                              checked={img.selected_for_training || selectedIds.includes(img.id)}
+                              onChange={() => toggleSelect(img.id)}
+                              style={{ width: '1rem', height: '1rem', borderRadius: '0.375rem', border: '1px solid var(--color-300)', accentColor: 'var(--color-primary)' }}
+                            />
+                          );
+                        case 'image':
+                          return (
+                            <div style={{ position: 'relative', width: '80px', height: '80px' }}>
+                              <img
+                                src={img.image_url}
+                                alt="Feedback"
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0.75rem', border: '1px solid rgba(0, 171, 228, 0.1)' }}
+                                loading="lazy"
+                              />
+                              {img.selected_for_training && (
+                                <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', backgroundColor: 'var(--color-success)', color: 'white', fontSize: '0.625rem', padding: '0.25rem 0.5rem', borderRadius: '9999px' }}>
+                                  ✓ Entrenar
+                                </div>
+                              )}
+                              {img.training_job_id && (
+                                <div style={{ position: 'absolute', bottom: '0.5rem', left: '0.5rem', backgroundColor: 'var(--color-primary)', color: 'white', fontSize: '0.625rem', padding: '0.25rem 0.5rem', borderRadius: '9999px' }}>
+                                  Job asignado
+                                </div>
+                              )}
+                            </div>
+                          );
+                        case 'info':
+                          return (
+                            <div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.875rem', marginBottom: '0.25rem' }}>
+                                <span style={{ fontWeight: '500', color: 'var(--color-900)' }}>Usuario: {img.user_id.slice(0, 8)}...</span>
+                                <span style={{ color: 'var(--color-500)' }}>{new Date(img.created_at).toLocaleString('es-AR')}</span>
+                                {img.ticket_id && <span style={{ color: 'var(--color-500)' }}>Ticket: {img.ticket_id.slice(0, 8)}...</span>}
+                              </div>
+                            </div>
+                          );
+                        case 'ocr':
+                          return (
+                            <pre style={{ backgroundColor: 'var(--color-100)', padding: '0.5rem', borderRadius: '0.5rem', fontSize: '0.625rem', overflow: 'auto', maxHeight: '128px', color: 'var(--color-700)', fontFamily: 'var(--font-mono)' }}>
+                              {JSON.stringify(img.ocr_result, null, 2).slice(0, 300)}
+                            </pre>
+                          );
+                        case 'corrections':
+                          return (
+                            <pre style={{ backgroundColor: 'rgba(4, 120, 87, 0.08)', padding: '0.5rem', borderRadius: '0.5rem', fontSize: '0.625rem', overflow: 'auto', maxHeight: '128px', color: '#047857', fontFamily: 'var(--font-mono)' }}>
+                              {JSON.stringify(img.user_corrections, null, 2).slice(0, 300)}
+                            </pre>
+                          );
+                      }
+                    }
+                  }))}
+                  data={images}
+                  keyExtractor={img => img.id}
+                />
+                {totalPages > 1 && (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(0, 171, 228, 0.08)' }}>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-500)' }}>Página {page} de {totalPages}</p>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <Button variant="ghost" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
+                        Anterior
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
+                        Siguiente
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </CardContent>
+        </Card>
 
-          <div className="p-4 border-b border-primary-light/50 bg-slate-50">
-            <div className="flex items-center gap-4 flex-wrap">
-              <label className="flex items-center gap-2">
-                <span className="text-sm text-slate-700">% para reentrenar:</span>
+        {/* Training Config */}
+        <Card padded style={{ marginTop: '1.5rem' }}>
+          <CardHeader title="Crear Job de Entrenamiento" />
+          <CardContent>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '1.5rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '280px' }}>
+                <span style={{ fontSize: '0.875rem', color: 'var(--color-700)' }}>% para reentrenar:</span>
                 <input
                   type="range"
                   min="10"
@@ -220,159 +336,58 @@ export default function FeedbackPage() {
                   step="10"
                   value={feedbackPercentage}
                   onChange={e => setFeedbackPercentage(Number(e.target.value))}
-                  className="w-48 h-2 bg-primary-light rounded-lg appearance-none cursor-pointer accent-primary"
+                  style={{ flex: 1, accentColor: 'var(--color-primary)' }}
                 />
-                <span className="text-sm font-medium text-primary w-10 text-right">{feedbackPercentage}%</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--color-primary)', minWidth: '3rem', textAlign: 'right' }}>{feedbackPercentage}%</span>
               </label>
-              <span className="text-xs text-slate-500">
+              <span style={{ fontSize: '0.75rem', color: 'var(--color-500)' }}>
                 Usar {Math.round(selectedCount * feedbackPercentage / 100)} de {selectedCount} imágenes seleccionadas
               </span>
-              <button
-                onClick={createTrainingJob}
-                disabled={creatingJob || selectedCount === 0}
-                className="btn-primary ml-auto"
-              >
+              <Button variant="primary" onClick={createTrainingJob} disabled={creatingJob || selectedCount === 0}>
                 {creatingJob ? 'Creando job...' : 'Crear Job de Entrenamiento'}
-              </button>
+              </Button>
             </div>
-          </div>
-
-          <div className="divide-y divide-primary-light/50">
-            {images.length === 0 ? (
-              <div className="p-12 text-center">
-                <div className="text-4xl mb-4">📷</div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">No hay imágenes de feedback</h3>
-                <p className="text-slate-600">Los usuarios aún no han enviado correcciones de OCR.</p>
-              </div>
-            ) : (
-              images.map(img => (
-                <div key={img.id} className="p-4 flex items-start gap-4 hover:bg-primary-light/20 transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={img.selected_for_training || selectedIds.includes(img.id)}
-                    onChange={() => toggleSelect(img.id)}
-                    className="mt-1 rounded border-slate-300 text-primary focus:ring-primary"
-                  />
-                  <div className="relative w-24 h-24 flex-shrink-0">
-                    <img
-                      src={img.image_url}
-                      alt="Feedback"
-                      className="w-full h-full object-cover rounded-xl border border-primary-light/50"
-                      loading="lazy"
-                    />
-                    {img.selected_for_training && (
-                      <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                        ✓ Entrenar
-                      </div>
-                    )}
-                    {img.training_job_id && (
-                      <div className="absolute bottom-2 left-2 bg-primary text-white text-xs px-1.5 py-0.5 rounded-full">
-                        Job asignado
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 text-sm">
-                      <span className="font-medium text-slate-900">Usuario: {img.user_id.slice(0, 8)}...</span>
-                      <span className="text-slate-500">{new Date(img.created_at).toLocaleString('es-AR')}</span>
-                      {img.ticket_id && (
-                        <span className="text-slate-500">Ticket: {img.ticket_id.slice(0, 8)}...</span>
-                      )}
-                    </div>
-                    <div className="mt-2 grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-slate-500">OCR Original</p>
-                        <pre className="bg-slate-100 p-2 rounded text-xs overflow-auto max-h-32 text-slate-700 font-mono">
-                          {JSON.stringify(img.ocr_result, null, 2).slice(0, 200)}
-                        </pre>
-                      </div>
-                      <div>
-                        <p className="text-slate-500">Correcciones Usuario</p>
-                        <pre className="bg-green-50 p-2 rounded text-xs overflow-auto max-h-32 text-green-900 font-mono">
-                          {JSON.stringify(img.user_corrections, null, 2).slice(0, 200)}
-                        </pre>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="p-4 flex items-center justify-between">
-              <p className="text-sm text-slate-600">Página {page} de {totalPages}</p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="btn-ghost text-sm px-3 py-1.5"
-                >
-                  Anterior
-                </button>
-                <button
-                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                  disabled={page === totalPages}
-                  className="btn-ghost text-sm px-3 py-1.5"
-                >
-                  Siguiente
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Training Jobs History */}
-        <div className="mt-10 animate-in" style={{ animationDelay: "200ms" }}>
-          <h2 className="text-xl font-bold text-slate-900 mb-4">Historial de Jobs de Entrenamiento</h2>
-          <div className="card overflow-hidden">
+        <Card padded style={{ marginTop: '1.5rem' }}>
+          <CardHeader title="Historial de Jobs de Entrenamiento" />
+          <CardContent>
             {jobs.length === 0 ? (
-              <div className="card-padded text-center py-8">
-                <p className="text-slate-500">No hay jobs de entrenamiento creados aún</p>
+              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-500)' }}>
+                No hay jobs de entrenamiento creados aún
               </div>
             ) : (
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-surface border-b border-primary-light/50">
-                    <th className="p-4 text-left text-sm font-semibold text-slate-700">Versión</th>
-                    <th className="p-4 text-left text-sm font-semibold text-slate-700">% Feedback</th>
-                    <th className="p-4 text-left text-sm font-semibold text-slate-700">Imágenes</th>
-                    <th className="p-4 text-left text-sm font-semibold text-slate-700">Estado</th>
-                    <th className="p-4 text-left text-sm font-semibold text-slate-700">Creado</th>
-                    <th className="p-4 text-left text-sm font-semibold text-slate-700">Completado</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-primary-light/50">
-                  {jobs.map(job => (
-                    <tr key={job.id} className="hover:bg-primary-light/20">
-                      <td className="p-4 font-mono text-sm text-slate-900">{job.model_version}</td>
-                      <td className="p-4 text-sm text-slate-700">{job.feedback_percentage}%</td>
-                      <td className="p-4 text-sm text-slate-700">{job.images_count}</td>
-                      <td className="p-4">
-                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
-                          job.status === 'completed' ? 'bg-green-100 text-green-700' :
-                          job.status === 'running' ? 'bg-blue-100 text-blue-700' :
-                          job.status === 'failed' ? 'bg-red-100 text-red-700' :
-                          'bg-slate-100 text-slate-700'
-                        }`}>
-                          {job.status === 'completed' && '●'} {job.status}
-                        </span>
-                      </td>
-                      <td className="p-4 text-sm text-slate-600">{new Date(job.created_at).toLocaleString('es-AR')}</td>
-                      <td className="p-4 text-sm text-slate-600">
-                        {job.completed_at ? new Date(job.completed_at).toLocaleString('es-AR') : '—'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <Table
+                columns={jobColumns.map(col => ({
+                  ...col,
+                  render: (job: TrainingJob) => {
+                    switch (col.key) {
+                      case 'model_version':
+                        return <code style={{ fontSize: '0.8125rem', color: 'var(--color-900)' }}>{job.model_version}</code>;
+                      case 'feedback_percentage':
+                        return <span style={{ fontSize: '0.875rem', color: 'var(--color-700)' }}>{job.feedback_percentage}%</span>;
+                      case 'images_count':
+                        return <span style={{ fontSize: '0.875rem', color: 'var(--color-700)' }}>{job.images_count}</span>;
+                      case 'status':
+                        return <Badge variant={jobStatusVariant(job.status)} dot>{job.status}</Badge>;
+                      case 'created_at':
+                        return <span style={{ fontSize: '0.875rem', color: 'var(--color-600)' }}>{new Date(job.created_at).toLocaleString('es-AR')}</span>;
+                      case 'completed_at':
+                        return <span style={{ fontSize: '0.875rem', color: 'var(--color-600)' }}>{job.completed_at ? new Date(job.completed_at).toLocaleString('es-AR') : '—'}</span>;
+                    }
+                  }
+                }))}
+                data={jobs}
+                keyExtractor={job => job.id}
+              />
             )}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        {error && <div className="mt-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm animate-in">{error}</div>}
-        {success && <div className="mt-4 p-3 rounded-lg bg-green-50 text-green-700 text-sm animate-in">{success}</div>}
+        {error && <div style={{ marginTop: '1rem', padding: '0.75rem', borderRadius: '0.5rem', backgroundColor: 'rgba(185, 28, 28, 0.1)', color: '#B91C1C', fontSize: '0.875rem' }}>{error}</div>}
+        {success && <div style={{ marginTop: '1rem', padding: '0.75rem', borderRadius: '0.5rem', backgroundColor: 'rgba(4, 120, 87, 0.1)', color: '#047857', fontSize: '0.875rem' }}>{success}</div>}
       </div>
     </main>
   );

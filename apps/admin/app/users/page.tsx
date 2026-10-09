@@ -1,5 +1,7 @@
 'use client';
+
 import { useEffect, useState } from 'react';
+import { Table, Button, Modal, Badge } from '@ticketscan/ui';
 
 interface User {
   id: string;
@@ -9,12 +11,12 @@ interface User {
   user_metadata?: Record<string, any>;
   last_sign_in_at?: string | null;
 }
+
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
   const [showForm, setShowForm] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -104,127 +106,121 @@ export default function UsersPage() {
 
   if (loading) return <main className="page-container"><p className="text-muted">Cargando usuarios...</p></main>;
 
+  const columns = [
+    { key: 'email', header: 'Email', render: (u: User) => <span className="font-medium">{u.email ?? '(sin email)'}</span> },
+    {
+      key: 'role',
+      header: 'Rol',
+      render: (u: User) => {
+        const admin = roleOf(u) === 'admin';
+        return <Badge variant={admin ? 'success' : 'muted'} dot>{admin ? '👑 Admin' : 'Usuario'}</Badge>;
+      },
+    },
+    { key: 'created_at', header: 'Creado', render: (u: User) => <span className="text-muted">{new Date(u.created_at).toLocaleDateString('es-AR')}</span> },
+    { key: 'last_sign_in_at', header: 'Último acceso', render: (u: User) => <span className="text-muted">{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString('es-AR') : '—'}</span> },
+    {
+      key: 'actions',
+      header: '',
+      className: 'text-right',
+      render: (u: User) => (
+        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => toggleAdmin(u)}
+            disabled={busyId === u.id}
+          >
+            {busyId === u.id ? '…' : roleOf(u) === 'admin' ? 'Quitar admin' : 'Dar admin'}
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={() => remove(u)}
+            disabled={busyId === u.id}
+          >
+            {busyId === u.id ? '…' : 'Borrar'}
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <main className="page-container">
       <div className="page-content">
-        <div className="users-header">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
           <div>
-            <h1 className="section-title">Usuarios</h1>
-            <p className="text-muted mt-1">
-              Cuentas de Supabase Auth. Solo los <strong>admins</strong> pueden entrar al panel.
-            </p>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-900)', margin: 0 }}>Usuarios</h1>
+            <p style={{ color: 'var(--color-500)', marginTop: '0.25rem' }}>Cuentas de Supabase Auth. Solo los <strong>admins</strong> pueden entrar al panel.</p>
           </div>
-          <button onClick={() => setShowForm(v => !v)} className="btn btn-primary">
-            {showForm ? 'Cerrar' : '+ Crear usuario'}
-          </button>
+          <Button onClick={() => setShowForm(v => !v)}>{showForm ? 'Cerrar' : '+ Crear usuario'}</Button>
         </div>
 
-        {error && <div className="error-box mb-4">{error}</div>}
-        {success && <div className="success-box mb-4">{success}</div>}
+        {error && <div style={{ padding: '0.75rem', borderRadius: '0.5rem', backgroundColor: 'var(--color-danger-light)', color: '#B91C1C', fontSize: '0.875rem', marginBottom: '1rem' }}>{error}</div>}
+        {success && <div style={{ padding: '0.75rem', borderRadius: '0.5rem', backgroundColor: 'var(--color-success-light)', color: '#047857', fontSize: '0.875rem', marginBottom: '1rem' }}>{success}</div>}
 
-        {showForm && (
-          <form onSubmit={create} className="card-padded mb-8 space-y-4 animate-in">
-            <h2 className="panel-title">Nuevo usuario</h2>
-            <div className="params-grid">
+        <Modal
+          open={showForm}
+          onClose={() => setShowForm(false)}
+          title="Nuevo usuario"
+          size="lg"
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button>
+              <Button variant="primary" type="submit" form="user-form" disabled={saving}>
+                {saving ? 'Creando…' : 'Crear usuario'}
+              </Button>
+            </>
+          }
+        >
+          <form id="user-form" onSubmit={create} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
               <div>
-                <label className="form-label" htmlFor="user-email">Email</label>
+                <label style={{ display: 'block', marginBottom: '0.375rem', fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-700)' }}>Email</label>
                 <input
-                  id="user-email"
                   type="email"
-                  className="input"
-                  placeholder="usuario@email.com"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
+                  style={{ width: '100%', borderRadius: '1rem', border: '1px solid var(--color-200)', backgroundColor: 'var(--color-white)', padding: '0.75rem 1rem', fontSize: '0.9375rem', color: 'var(--color-900)', fontFamily: 'var(--font-sans)' }}
+                  placeholder="usuario@email.com"
                   required
                 />
               </div>
               <div>
-                <label className="form-label" htmlFor="user-pass">Contraseña</label>
+                <label style={{ display: 'block', marginBottom: '0.375rem', fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-700)' }}>Contraseña</label>
                 <input
-                  id="user-pass"
                   type="password"
-                  className="input"
-                  placeholder="mínimo 8 caracteres"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
+                  style={{ width: '100%', borderRadius: '1rem', border: '1px solid var(--color-200)', backgroundColor: 'var(--color-white)', padding: '0.75rem 1rem', fontSize: '0.9375rem', color: 'var(--color-900)', fontFamily: 'var(--font-sans)' }}
+                  placeholder="mínimo 8 caracteres"
                   minLength={8}
                   required
                 />
               </div>
             </div>
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
               <input
                 type="checkbox"
                 checked={isAdmin}
                 onChange={e => setIsAdmin(e.target.checked)}
-                className="checkbox-custom"
+                style={{ width: '1rem', height: '1rem', borderRadius: '0.375rem', border: '1px solid var(--color-300)', accentColor: 'var(--color-primary)' }}
               />
-              <span className="text-sm">Dar acceso al panel de admin (rol <code>admin</code>)</span>
+              <span style={{ fontSize: '0.875rem' }}>Dar acceso al panel de admin (rol <code>admin</code>)</span>
             </label>
-            <div className="flex gap-2">
-              <button type="submit" disabled={saving} className="btn btn-primary">
-                {saving ? 'Creando…' : 'Crear usuario'}
-              </button>
-              <button type="button" onClick={() => setShowForm(false)} className="btn btn-secondary">Cancelar</button>
-            </div>
           </form>
-        )}
+        </Modal>
 
-        <div className="card-padded animate-in">
-          <div className="table-scroll">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Email</th>
-                  <th>Rol</th>
-                  <th>Creado</th>
-                  <th>Último acceso</th>
-                  <th className="text-right">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map(u => {
-                  const admin = roleOf(u) === 'admin';
-                  return (
-                    <tr key={u.id} className="border-t divide-y">
-                      <td className="cell-medium">{u.email ?? '(sin email)'}</td>
-                      <td>
-                        <span className={`users-badge ${admin ? 'users-badge-admin' : 'users-badge-user'}`}>
-                          {admin ? '👑 Admin' : 'Usuario'}
-                        </span>
-                      </td>
-                      <td className="text-muted">{new Date(u.created_at).toLocaleDateString('es-AR')}</td>
-                      <td className="text-muted">
-                        {u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString('es-AR') : '—'}
-                      </td>
-                      <td className="text-right actions-cell">
-                        <button
-                          onClick={() => toggleAdmin(u)}
-                          disabled={busyId === u.id}
-                          className="btn btn-secondary btn-secondary-compact"
-                        >
-                          {busyId === u.id ? '…' : admin ? 'Quitar admin' : 'Dar admin'}
-                        </button>
-                        <button
-                          onClick={() => remove(u)}
-                          disabled={busyId === u.id}
-                          className="btn btn-secondary btn-secondary-compact text-danger-compact"
-                        >
-                          Borrar
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-                {users.length === 0 && (
-                  <tr><td colSpan={5} className="p-6 text-center text-muted">No hay usuarios todavía.</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <Table
+          columns={columns}
+          data={users}
+          keyExtractor={(u) => u.id}
+          hover
+          divide
+          emptyMessage="No hay usuarios todavía."
+        />
 
-        <p className="mt-4 text-xs-muted">
+        <p style={{ marginTop: '1rem', fontSize: '0.75rem', color: 'var(--color-500)' }}>
           El rol se guarda en <code>app_metadata.role</code> de Supabase Auth. Si acabás de darle admin a
           alguien con sesión abierta, que cierre y abra sesión de nuevo para refrescar el token.
         </p>

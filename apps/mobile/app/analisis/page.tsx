@@ -1,11 +1,10 @@
 'use client';
-export const dynamic = 'force-dynamic';
+
 import { useEffect, useState, useCallback } from 'react';
 import { getSupabaseClient } from '../../lib/supabase-browser';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-
-import '@/app/globals.css';
+import { Button, Card, CardHeader, CardContent } from '@ticketscan/ui';
 
 interface MonthlySpending {
   month: string;
@@ -35,8 +34,6 @@ interface AnalyticsData {
   loading: boolean;
   error: string | null;
 }
-
-
 
 const CATEGORY_COLORS: Record<string, string> = {
   'Almacén': '#00ABE4', 'Frescos': '#10B981', 'Lácteos': '#F59E0B',
@@ -97,25 +94,25 @@ export default function AnalisisPage() {
   }
 
   function getTrendColor(current: number, previous: number) {
-    if (previous === 0) return current > 0 ? 'text-green-600' : 'text-slate-500';
+    if (previous === 0) return current > 0 ? 'var(--color-success)' : 'var(--color-500)';
     const change = ((current - previous) / previous) * 100;
-    if (change > 5) return 'text-green-600';
-    if (change < -5) return 'text-red-600';
-    return 'text-slate-500';
+    if (change > 5) return 'var(--color-success)';
+    if (change < -5) return 'var(--color-danger)';
+    return 'var(--color-500)';
   }
 
   if (data.loading) {
     return (
-      <main className="p-4 space-y-4">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-slate-200 rounded w-1/3" />
-          <div className="grid grid-cols-3 gap-4">
+      <main style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ height: '2rem', backgroundColor: 'var(--color-200)', borderRadius: '0.5rem', width: '33%' }} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="card-padded h-24 bg-slate-50 rounded-xl" />
+              <Card key={i} padded style={{ height: '6rem', backgroundColor: 'var(--color-50)', borderRadius: '0.75rem' }} />
             ))}
           </div>
-          <div className="h-64 bg-slate-50 rounded-xl" />
-          <div className="h-64 bg-slate-50 rounded-xl" />
+          <Card padded style={{ height: '16rem', backgroundColor: 'var(--color-50)', borderRadius: '0.75rem' }} />
+          <Card padded style={{ height: '16rem', backgroundColor: 'var(--color-50)', borderRadius: '0.75rem' }} />
         </div>
       </main>
     );
@@ -123,15 +120,13 @@ export default function AnalisisPage() {
 
   if (data.error) {
     return (
-      <main className="p-4">
-        <div className="card-padded text-center py-12">
-          <div className="w-16 h-16 rounded-2xl bg-red-100 flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">⚠️</span>
-          </div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Error al cargar análisis</h2>
-          <p className="text-slate-500 mb-6">{data.error}</p>
-          <button onClick={loadAnalytics} className="btn-primary">Reintentar</button>
-        </div>
+      <main style={{ padding: '1rem' }}>
+        <Card padded style={{ textAlign: 'center', padding: '3rem' }}>
+          <div style={{ width: '4rem', height: '4rem', borderRadius: '1rem', backgroundColor: 'rgba(185, 28, 28, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', fontSize: '2rem' }}>⚠️</div>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--color-900)', marginBottom: '0.5rem' }}>Error al cargar análisis</h2>
+          <p style={{ color: 'var(--color-500)', marginBottom: '1.5rem' }}>{data.error}</p>
+          <Button variant="primary" onClick={loadAnalytics}>Reintentar</Button>
+        </Card>
       </main>
     );
   }
@@ -139,142 +134,143 @@ export default function AnalisisPage() {
   const { currentMonth, previousMonth, monthlyTrend, byCategory, topMerchants } = data;
 
   return (
-    <main className="p-4 pb-24 space-y-6">
+    <main style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBottom: '6rem' }}>
       <header>
-        <h1 className="text-2xl font-bold text-slate-900">Análisis de gastos</h1>
-        <p className="text-slate-500 text-sm">Tu presupuesto bajo control</p>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-900)', margin: 0 }}>Análisis de gastos</h1>
+        <p style={{ color: 'var(--color-500)', fontSize: '0.875rem', margin: 0 }}>Tu presupuesto bajo control</p>
       </header>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="card-padded">
-          <p className="text-xs text-slate-500 uppercase tracking-wide">Este mes</p>
-          <p className="text-2xl font-bold text-slate-900 mt-1">{formatCurrency(currentMonth.total)}</p>
-          <p className="text-xs mt-1 flex items-center gap-1">
-            <span className={getTrendColor(currentMonth.total, previousMonth.total)}>
-              {getTrendIcon(currentMonth.total, previousMonth.total)}
-            </span>
-            <span className={getTrendColor(currentMonth.total, previousMonth.total)}>
-              vs mes anterior
-            </span>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+        <Card padded>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-500)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Este mes</p>
+          <p style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-900)', margin: '0.25rem 0' }}>{formatCurrency(currentMonth.total)}</p>
+          <p style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem', margin: 0 }}>
+            <span style={{ color: getTrendColor(currentMonth.total, previousMonth.total) }}>{getTrendIcon(currentMonth.total, previousMonth.total)}</span>
+            <span style={{ color: getTrendColor(currentMonth.total, previousMonth.total) }}>vs mes anterior</span>
           </p>
-        </div>
-        <div className="card-padded">
-          <p className="text-xs text-slate-500 uppercase tracking-wide">Tickets</p>
-          <p className="text-2xl font-bold text-slate-900 mt-1">{formatNumber(currentMonth.count)}</p>
-          <p className="text-xs mt-1 flex items-center gap-1">
-            <span className={getTrendColor(currentMonth.count, previousMonth.count)}>
-              {getTrendIcon(currentMonth.count, previousMonth.count)}
-            </span>
-            <span className={getTrendColor(currentMonth.count, previousMonth.count)}>
-              vs mes anterior
-            </span>
+        </Card>
+        <Card padded>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-500)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Tickets</p>
+          <p style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-900)', margin: '0.25rem 0' }}>{formatNumber(currentMonth.count)}</p>
+          <p style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem', margin: 0 }}>
+            <span style={{ color: getTrendColor(currentMonth.count, previousMonth.count) }}>{getTrendIcon(currentMonth.count, previousMonth.count)}</span>
+            <span style={{ color: getTrendColor(currentMonth.count, previousMonth.count) }}>vs mes anterior</span>
           </p>
-        </div>
-        <div className="card-padded">
-          <p className="text-xs text-slate-500 uppercase tracking-wide">Promedio/ticket</p>
-          <p className="text-2xl font-bold text-slate-900 mt-1">{formatCurrency(currentMonth.average)}</p>
-          <p className="text-xs mt-1 flex items-center gap-1">
-            <span className={getTrendColor(currentMonth.average, previousMonth.average)}>
-              {getTrendIcon(currentMonth.average, previousMonth.average)}
-            </span>
-            <span className={getTrendColor(currentMonth.average, previousMonth.average)}>
-              vs mes anterior
-            </span>
+        </Card>
+        <Card padded>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-500)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Promedio/ticket</p>
+          <p style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-900)', margin: '0.25rem 0' }}>{formatCurrency(currentMonth.average)}</p>
+          <p style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem', margin: 0 }}>
+            <span style={{ color: getTrendColor(currentMonth.average, previousMonth.average) }}>{getTrendIcon(currentMonth.average, previousMonth.average)}</span>
+            <span style={{ color: getTrendColor(currentMonth.average, previousMonth.average) }}>vs mes anterior</span>
           </p>
-        </div>
+        </Card>
       </div>
 
       {/* Monthly Trend Chart */}
-      <div className="card-padded">
-        <h2 className="font-semibold text-slate-900 mb-4">Evolución mensual</h2>
-        {monthlyTrend.length === 0 ? (
-          <div className="h-48 flex items-center justify-center text-slate-400">
-            <p>Sin datos suficientes para mostrar tendencia</p>
-          </div>
-        ) : (
-          <div className="h-48 flex items-end justify-between gap-2 px-2">
-            {monthlyTrend.map((month, i) => {
-              const maxTotal = Math.max(...monthlyTrend.map(m => m.total), 1);
-              const height = Math.max((month.total / maxTotal) * 200, 8);
-              const isCurrent = i === monthlyTrend.length - 1;
-              return (
-                <div key={month.month} className="flex-1 flex flex-col items-center justify-end min-w-[32px]">
-                  <div
-                    className={`rounded-t transition-all duration-300 w-full ${isCurrent ? 'bg-primary' : 'bg-primary-light'}`}
-                    style={{ height: `${height}px` }}
-                    title={`${format(new Date(month.month + '-01'), 'MMM yyyy', { locale: es })}: ${formatCurrency(month.total)}`}
-                  />
-                  <span className="text-xs text-slate-500 mt-1">
-                    {format(new Date(month.month + '-01'), 'MMM', { locale: es })}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+      <Card padded>
+        <CardHeader title="Evolución mensual" />
+        <CardContent>
+          {monthlyTrend.length === 0 ? (
+            <div style={{ height: '12rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-400)' }}>
+              <p>Sin datos suficientes para mostrar tendencia</p>
+            </div>
+          ) : (
+            <div style={{ height: '12rem', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '0.5rem', padding: '0 0.5rem' }}>
+              {monthlyTrend.map((month, i) => {
+                const maxTotal = Math.max(...monthlyTrend.map(m => m.total), 1);
+                const height = Math.max((month.total / maxTotal) * 200, 8);
+                const isCurrent = i === monthlyTrend.length - 1;
+                return (
+                  <div key={month.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', minWidth: '32px' }}>
+                    <div
+                      style={{
+                        borderRadius: '0.25rem 0.25rem 0 0',
+                        transition: 'all 0.3s',
+                        width: '100%',
+                        height: `${height}px`,
+                        backgroundColor: isCurrent ? 'var(--color-primary)' : 'rgba(0, 171, 228, 0.1)'
+                      }}
+                      title={`${format(new Date(month.month + '-01'), 'MMM yyyy', { locale: es })}: ${formatCurrency(month.total)}`}
+                    />
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-500)', marginTop: '0.25rem' }}>
+                      {format(new Date(month.month + '-01'), 'MMM', { locale: es })}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Category Breakdown */}
-      <div className="card-padded">
-        <h2 className="font-semibold text-slate-900 mb-4">Por categoría</h2>
-        {byCategory.length === 0 ? (
-          <p className="text-slate-400 text-center py-8">Sin datos de categorías aún</p>
-        ) : (
-          <div className="space-y-3">
-            {byCategory.map(cat => (
-              <div key={cat.categoria} className="animate-in">
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="font-medium capitalize text-slate-900">{cat.categoria}</span>
-                  <span className="font-semibold text-primary">{formatCurrency(cat.total)}</span>
+      <Card padded>
+        <CardHeader title="Por categoría" />
+        <CardContent>
+          {byCategory.length === 0 ? (
+            <p style={{ color: 'var(--color-400)', textAlign: 'center', padding: '2rem' }}>Sin datos de categorías aún</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {byCategory.map(cat => (
+                <div key={cat.categoria} style={{ animation: 'fadeIn 0.3s ease-out' }}>
+                  <div style={{ display: 'flex', justifyContent: 'spaceBetween', fontSize: '0.875rem', marginBottom: '0.25rem' }}>
+                    <span style={{ fontWeight: '500', color: 'var(--color-900)', textTransform: 'capitalize' }}>{cat.categoria}</span>
+                    <span style={{ fontWeight: '600', color: 'var(--color-primary)' }}>{formatCurrency(cat.total)}</span>
+                  </div>
+                  <div style={{ height: '0.5rem', backgroundColor: 'var(--color-100)', borderRadius: '9999px', overflow: 'hidden' }}>
+                    <div
+                      style={{
+                        height: '100%',
+                        borderRadius: '9999px',
+                        transition: 'width 0.5s ease-out',
+                        width: `${cat.percentage}%`,
+                        backgroundColor: CATEGORY_COLORS[cat.categoria] || '#00ABE4',
+                      }}
+                    />
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-500)', marginTop: '0.125rem', textAlign: 'right' }}>
+                    {cat.count} ticket{cat.count !== 1 ? 's' : ''} · {cat.percentage.toFixed(0)}%
+                  </p>
                 </div>
-                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${cat.percentage}%`,
-                      backgroundColor: CATEGORY_COLORS[cat.categoria] || '#00ABE4',
-                    }}
-                  />
-                </div>
-                <p className="text-xs text-slate-500 mt-0.5 text-right">
-                  {cat.count} ticket{cat.count !== 1 ? 's' : ''} · {cat.percentage.toFixed(0)}%
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Top Merchants */}
-      <div className="card-padded">
-        <h2 className="font-semibold text-slate-900 mb-4">Top comercios</h2>
-        {topMerchants.length === 0 ? (
-          <p className="text-slate-400 text-center py-8">Sin datos de comercios aún</p>
-        ) : (
-          <ul className="space-y-2">
-            {topMerchants.map((merchant, i) => (
-              <li key={merchant.comercio} className="flex items-center justify-between animate-in" style={{ animationDelay: `${i * 50}ms` }}>
-                <div className="flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary font-bold text-sm">
-                    {i + 1}
-                  </span>
-                  <div>
-                    <p className="font-medium text-slate-900 truncate max-w-[200px]">{merchant.comercio}</p>
-                    <p className="text-xs text-slate-500">{merchant.count} ticket{merchant.count !== 1 ? 's' : ''}</p>
+      <Card padded>
+        <CardHeader title="Top comercios" />
+        <CardContent>
+          {topMerchants.length === 0 ? (
+            <p style={{ color: 'var(--color-400)', textAlign: 'center', padding: '2rem' }}>Sin datos de comercios aún</p>
+          ) : (
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {topMerchants.map((merchant, i) => (
+                <li key={merchant.comercio} style={{ display: 'flex', alignItems: 'center', justifyContent: 'spaceBetween', animation: 'fadeIn 0.3s ease-out', animationDelay: `${i * 50}ms`, animationFillMode: 'both' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <span style={{ width: '2rem', height: '2rem', borderRadius: '0.75rem', backgroundColor: 'rgba(0, 171, 228, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', fontWeight: '700', fontSize: '0.875rem' }}>
+                      {i + 1}
+                    </span>
+                    <div>
+                      <p style={{ fontWeight: '500', color: 'var(--color-900)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>{merchant.comercio}</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-500)', margin: 0 }}>{merchant.count} ticket{merchant.count !== 1 ? 's' : ''}</p>
+                    </div>
                   </div>
-                </div>
-                <span className="font-bold text-primary">{formatCurrency(merchant.total)}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+                  <span style={{ fontWeight: '700', color: 'var(--color-primary)' }}>{formatCurrency(merchant.total)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Download PDF */}
-      <button className="btn-secondary w-full py-3 border-primary-light text-primary hover:bg-primary-light">
+      <Button variant="ghost" style={{ width: '100%', padding: '0.75rem', border: '1px solid rgba(0, 171, 228, 0.1)', color: 'var(--color-primary)' }}>
         📄 Descargar reporte PDF del mes
-      </button>
+      </Button>
     </main>
   );
 }

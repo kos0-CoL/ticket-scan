@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import ModelPicker from '../../components/ModelPicker';
+import { Button, Input, Textarea, Select, Card, CardHeader, CardContent, Badge, ModelPicker } from '@ticketscan/ui';
 
 interface Provider {
   id: string;
@@ -22,6 +22,7 @@ interface MLConfig {
   is_active: boolean;
   created_at: string;
 }
+
 export default function ModeloPage() {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [config, setConfig] = useState<MLConfig | null>(null);
@@ -122,82 +123,73 @@ export default function ModeloPage() {
     }
   }
 
-  if (loading) {
-    return (
-      <main className="page-container">
-        <div className="page-content">
-          <div className="animate-in text-center py-12">
-            <div className="loading-spinner"></div>
-            <p className="text-muted mt-4">Cargando configuración...</p>
-          </div>
+  if (loading) return (
+    <main className="page-container">
+      <div className="page-content">
+        <div className="animate-in text-center py-12">
+          <div className="loading-spinner"></div>
+          <p className="text-muted mt-4">Cargando configuración...</p>
         </div>
-      </main>
-    );
-  }
+      </div>
+    </main>
+  );
 
   return (
     <main className="page-container">
       <div className="page-content">
-        <div className="section-header animate-in">
-          <h1 className="section-title">Configuración del Modelo IA</h1>
-          <p className="text-muted mt-1">Gestiona el proveedor, modelo, parámetros y prompt del sistema</p>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-900)', margin: 0 }}>Configuración del Modelo IA</h1>
+          <p style={{ color: 'var(--color-500)', marginTop: '0.25rem' }}>Gestiona el proveedor, modelo, parámetros y prompt del sistema</p>
         </div>
 
-        <div className="modelo-grid">
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
           {/* Form Panel */}
-          <div className="form-panel space-y-6">
-            <form onSubmit={save} className="card-padded space-y-6">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <form onSubmit={save} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div>
-                <h2 className="panel-title">Proveedor y Modelo</h2>
-                <div className="space-y-4">
+                <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-900)', margin: '0 0 1rem' }}>Proveedor y Modelo</h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div>
-                    <label className="form-label">Proveedor IA</label>
-                    <select
+                    <label style={{ display: 'block', marginBottom: '0.375rem', fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-700)' }}>Proveedor IA</label>
+                    <Select
                       value={formData.provider_id}
                       onChange={e => setFormData({ ...formData, provider_id: e.target.value })}
-                      className="input"
                       required
-                    >
-                      <option value="">Seleccionar proveedor...</option>
-                      {providers.map(p => (
-                        <option key={p.id} value={p.id}>
-                          {p.name} ({p.defaultModel}) {p.isActive && '✓ Activo'}
-                        </option>
-                      ))}
-                    </select>
+                      options={providers.map(p => ({ value: p.id, label: `${p.name} (${p.defaultModel})${p.isActive ? ' ✓ Activo' : ''}` }))}
+                      placeholder="Seleccionar proveedor..."
+                    />
                   </div>
 
                   <div>
-                    <label className="form-label">Modelo</label>
+                    <label style={{ display: 'block', marginBottom: '0.375rem', fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-700)' }}>Modelo</label>
                     <ModelPicker
                       providerName={providers.find(p => p.id === formData.provider_id)?.name ?? ''}
                       value={formData.model_id}
                       onChange={id => setFormData({ ...formData, model_id: id })}
                     />
-                    <input
+                    <Input
                       type="text"
                       value={formData.model_id}
                       onChange={e => setFormData({ ...formData, model_id: e.target.value })}
-                      className="input mt-2 font-mono text-sm"
                       placeholder="ej: gemini-1.5-pro, gpt-4o, google/gemma-2-9b-it:free"
                       required
                     />
                   </div>
 
-                  <div className="flex gap-2">
-                    <button type="button" onClick={testConnection} className="btn btn-secondary" disabled={!formData.provider_id}>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <Button variant="secondary" onClick={testConnection} disabled={!formData.provider_id}>
                       Probar conexión
-                    </button>
-                    <span className="text-muted self-center">Prueba la API key del proveedor seleccionado</span>
+                    </Button>
+                    <span style={{ color: 'var(--color-500)', fontSize: '0.875rem' }}>Prueba la API key del proveedor seleccionado</span>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h2 className="panel-title">Parámetros de Generación</h2>
-                <div className="params-grid">
+                <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-900)', margin: '0 0 1rem' }}>Parámetros de Generación</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                   <div>
-                    <label className="form-label">Temperature <span className="text-muted-sm">({formData.temperature})</span></label>
+                    <label style={{ display: 'block', marginBottom: '0.375rem', fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-700)' }}>Temperature <span style={{ color: 'var(--color-500)', fontSize: '0.8125rem' }}>({formData.temperature})</span></label>
                     <input
                       type="range"
                       min="0"
@@ -205,138 +197,140 @@ export default function ModeloPage() {
                       step="0.1"
                       value={formData.temperature}
                       onChange={e => setFormData({ ...formData, temperature: parseFloat(e.target.value) })}
-                      className="range-slider"
+                      style={{ width: '100%', accentColor: 'var(--color-primary)' }}
                     />
-                    <p className="text-xs-muted mt-1">0 = determinístico, 2 = muy creativo</p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-500)', marginTop: '0.25rem' }}>0 = determinístico, 2 = muy creativo</p>
                   </div>
                   <div>
-                    <label className="form-label">Max Tokens</label>
-                    <input
+                    <label style={{ display: 'block', marginBottom: '0.375rem', fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-700)' }}>Max Tokens</label>
+                    <Input
                       type="number"
                       value={formData.max_tokens}
                       onChange={e => setFormData({ ...formData, max_tokens: parseInt(e.target.value) || 4096 })}
-                      className="input"
-                      min="100"
-                      max="8192"
+                      min={100}
+                      max={8192}
                     />
                   </div>
                 </div>
               </div>
 
               <div>
-                <h2 className="panel-title">Prompt del Sistema</h2>
-                <textarea
+                <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-900)', margin: '0 0 1rem' }}>Prompt del Sistema</h2>
+                <Textarea
                   value={formData.system_prompt}
                   onChange={e => setFormData({ ...formData, system_prompt: e.target.value })}
-                  className="input font-mono text-sm min-h-200 resize-y"
                   placeholder="Eres un experto en extracción de datos de tickets de supermercado argentinos..."
+                  style={{ minHeight: '200px' }}
                 />
-                <p className="text-xs-muted mt-1">Instrucciones para el modelo al procesar tickets</p>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-500)', marginTop: '0.25rem' }}>Instrucciones para el modelo al procesar tickets</p>
               </div>
 
               <div>
-                <h2 className="panel-title">Versionado</h2>
-                <div className="params-grid params-grid-3">
+                <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-900)', margin: '0 0 1rem' }}>Versionado</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem', alignItems: 'end' }}>
                   <div>
-                    <label className="form-label">Versión</label>
-                    <input
+                    <label style={{ display: 'block', marginBottom: '0.375rem', fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-700)' }}>Versión</label>
+                    <Input
                       type="text"
                       value={formData.version}
                       onChange={e => setFormData({ ...formData, version: e.target.value })}
-                      className="input"
                       placeholder="1.0.0"
                     />
                   </div>
-                  <div className="flex items-end">
-                    <label className="flex items-center gap-2 cursor-pointer w-full">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', width: '100%' }}>
                       <input
                         type="checkbox"
                         checked={formData.is_active}
                         onChange={e => setFormData({ ...formData, is_active: e.target.checked })}
-                        className="checkbox-custom"
+                        style={{ width: '1rem', height: '1rem', borderRadius: '0.375rem', border: '1px solid var(--color-300)', accentColor: 'var(--color-primary)' }}
                       />
-                      <span className="text-sm">Activar esta configuración</span>
+                      <span style={{ fontSize: '0.875rem' }}>Activar esta configuración</span>
                     </label>
                   </div>
                 </div>
               </div>
 
-              {error && <div className="error-box">{error}</div>}
-              {success && <div className="success-box">{success}</div>}
+              {error && <div style={{ padding: '0.75rem', borderRadius: '0.5rem', backgroundColor: 'var(--color-danger-light)', color: '#B91C1C', fontSize: '0.875rem' }}>{error}</div>}
+              {success && <div style={{ padding: '0.75rem', borderRadius: '0.5rem', backgroundColor: 'var(--color-success-light)', color: '#047857', fontSize: '0.875rem' }}>{success}</div>}
 
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <button type="submit" className="btn btn-primary" disabled={saving}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid rgba(0, 171, 228, 0.08)' }}>
+                <Button type="submit" variant="primary" disabled={saving}>
                   {saving ? 'Guardando...' : config ? 'Actualizar' : 'Crear configuración'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>
 
           {/* Current Config Panel */}
-          <div className="config-panel">
-            <div className="card-padded">
-              <h3 className="panel-title">Configuración Actual</h3>
-              {config ? (
-                <dl className="config-list">
-                  <div className="flex justify-between">
-                    <dt className="text-muted-sm">Proveedor</dt>
-                    <dd className="font-medium">
-                      {providers.find(p => p.id === config.provider_id)?.name || config.provider_id}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-sm">Modelo</dt>
-                    <dd className="font-medium font-mono">{config.model_id}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-sm">Temperature</dt>
-                    <dd className="font-medium">{config.temperature}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-sm">Max Tokens</dt>
-                    <dd className="font-medium">{config.max_tokens}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-sm">Versión</dt>
-                    <dd className="font-medium">{config.version}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-sm">Estado</dt>
-                    <dd className={`font-medium ${config.is_active ? 'text-success' : 'text-muted'}`}>
-                      {config.is_active ? '● Activo' : '○ Inactivo'}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-sm">Creado</dt>
-                    <dd className="font-medium">{new Date(config.created_at).toLocaleString('es-AR')}</dd>
-                  </div>
-                </dl>
-              ) : (
-                <p className="text-muted text-center py-8">No hay configuración activa</p>
-              )}
-            </div>
+          <div>
+            <Card padded>
+              <CardHeader title="Configuración Actual" />
+              <CardContent>
+                {config ? (
+                  <dl style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <dt style={{ fontSize: '0.8125rem', color: 'var(--color-500)' }}>Proveedor</dt>
+                      <dd style={{ fontWeight: '500' }}>
+                        {providers.find(p => p.id === config.provider_id)?.name || config.provider_id}
+                      </dd>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <dt style={{ fontSize: '0.8125rem', color: 'var(--color-500)' }}>Modelo</dt>
+                      <dd style={{ fontWeight: '500', fontFamily: 'var(--font-mono)' }}>{config.model_id}</dd>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <dt style={{ fontSize: '0.8125rem', color: 'var(--color-500)' }}>Temperature</dt>
+                      <dd style={{ fontWeight: '500' }}>{config.temperature}</dd>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <dt style={{ fontSize: '0.8125rem', color: 'var(--color-500)' }}>Max Tokens</dt>
+                      <dd style={{ fontWeight: '500' }}>{config.max_tokens}</dd>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <dt style={{ fontSize: '0.8125rem', color: 'var(--color-500)' }}>Versión</dt>
+                      <dd style={{ fontWeight: '500' }}>{config.version}</dd>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <dt style={{ fontSize: '0.8125rem', color: 'var(--color-500)' }}>Estado</dt>
+                      <dd style={{ fontWeight: '500', color: config.is_active ? 'var(--color-success)' : 'var(--color-500)' }}>
+                        {config.is_active ? '● Activo' : '○ Inactivo'}
+                      </dd>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <dt style={{ fontSize: '0.8125rem', color: 'var(--color-500)' }}>Creado</dt>
+                      <dd style={{ fontWeight: '500' }}>{new Date(config.created_at).toLocaleString('es-AR')}</dd>
+                    </div>
+                  </dl>
+                ) : (
+                  <p style={{ color: 'var(--color-500)', textAlign: 'center', padding: '2rem' }}>No hay configuración activa</p>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Providers Quick View */}
-            <div className="card-padded mt-6">
-              <h3 className="panel-title">Proveedores Configurados</h3>
-              {providers.length === 0 ? (
-                <p className="text-muted text-center py-4">No hay proveedores. Ve a <a href="/providers" className="text-primary hover-underline">Proveedores IA</a> para agregar.</p>
-              ) : (
-                <div className="providers-list">
-                  {providers.map(p => (
-                    <div key={p.id} className="provider-item">
-                      <div>
-                        <p className="font-medium">{p.name}</p>
-                        <p className="text-xs-muted">{p.defaultModel}</p>
+            <Card padded style={{ marginTop: '1.5rem' }}>
+              <CardHeader title="Proveedores Configurados" />
+              <CardContent>
+                {providers.length === 0 ? (
+                  <p style={{ color: 'var(--color-500)', textAlign: 'center', padding: '1rem' }}>No hay proveedores. Ve a <a href="/providers" style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}>Proveedores IA</a> para agregar.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {providers.map(p => (
+                      <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', border: '1px solid rgba(0, 171, 228, 0.08)', borderRadius: '0.75rem' }}>
+                        <div>
+                          <p style={{ fontWeight: '500' }}>{p.name}</p>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--color-500)' }}>{p.defaultModel}</p>
+                        </div>
+                        <Badge variant={p.isActive ? 'success' : 'muted'} dot>
+                          {p.isActive ? 'Activo' : 'Inactivo'}
+                        </Badge>
                       </div>
-                      <span className={`badge ${p.isActive ? 'badge-success' : 'badge-muted'}`}>
-                        {p.isActive ? 'Activo' : 'Inactivo'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

@@ -1,27 +1,17 @@
 'use client';
 export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { getSupabaseClient } from '../lib/supabase-browser';
+import { TabBar } from '@ticketscan/ui';
 
 import '@/app/globals.css';
 
-function TabBar() {
-  return (
-    <nav className="mobile-tab-bar">
-      <Link href="/tickets" className="tab-item" aria-label="Tickets">
-        <span aria-hidden="true">🧾</span> Tickets
-      </Link>
-      <Link href="/analisis" className="tab-item" aria-label="Análisis">
-        <span aria-hidden="true">📊</span> Análisis
-      </Link>
-      <Link href="/config" className="tab-item" aria-label="Configuración">
-        <span aria-hidden="true">⚙️</span> Config
-      </Link>
-    </nav>
-  );
-}
+const mobileTabs = [
+  { href: '/tickets', label: 'Tickets', icon: '🧾' },
+  { href: '/analisis', label: 'Análisis', icon: '📊' },
+  { href: '/config', label: 'Configuración', icon: '⚙️' },
+];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<any>(undefined);
@@ -48,6 +38,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   if (session === undefined || (session === null && pathname !== '/login')) return (
     <html lang="es">
+      <head>
+        <title>TicketScan</title>
+        <meta name="description" content="Escanea y organiza tus tickets de supermercado" />
+      </head>
       <body className="page-container loading-body">
         <div className="loading-screen">
           <div className="loading-icon"><span>🎫</span></div>
@@ -59,9 +53,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="es">
+      <head>
+        <title>TicketScan</title>
+        <meta name="description" content="Escanea y organiza tus tickets de supermercado" />
+      </head>
       <body className="page-container">
-        {showTabs && <TabBar />}
-        <div className={showTabs ? 'pb-20' : ''}>{children}</div>
+        {showTabs && <TabBar items={mobileTabs} pathname={pathname} hideOnPaths={['/login', '/tickets/add']} />}
+        <div className={showTabs ? 'pb-24' : ''}>{children}</div>
       </body>
     </html>
   );

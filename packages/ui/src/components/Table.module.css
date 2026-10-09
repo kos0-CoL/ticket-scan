@@ -1,0 +1,79 @@
+.wrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.th {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-500);
+  background-color: var(--color-surface);
+  border-bottom: 1px solid rgba(0, 171, 228, 0.08);
+  white-space: nowrap;
+}
+
+.td {
+  padding: var(--space-3) var(--space-4);
+  vertical-align: middle;
+}
+
+.divideY .td {
+  border-bottom: 1px solid rgba(0, 171, 228, 0.08);
+}
+
+.divideY tr:last-child .td {
+  border-bottom: none;
+}
+
+.hoverRow:hover {
+  background-color: rgba(0, 171, 228, 0.04);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--color-900);
+}
+
+.cellMedium {
+  font-weight: 500;
+  color: var(--color-900);
+}
+
+.textMuted {
+  color: var(--color-500);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.actions .btn {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.empty {
+  text-align: center;
+  padding: var(--space-12) var(--space-6);
+  color: var(--color-400);
+}
+
+.loading {
+  padding: var(--space-12) var(--space-6);
+  text-align: center;
+  color: var(--color-400);
+}
+
+.stickyHeader {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}

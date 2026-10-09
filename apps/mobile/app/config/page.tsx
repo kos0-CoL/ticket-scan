@@ -1,9 +1,8 @@
 'use client';
-export const dynamic = 'force-dynamic';
+
 import { useEffect, useState } from 'react';
 import { getSupabaseClient } from '../../lib/supabase-browser';
-
-import '@/app/globals.css';
+import { Button, Card, CardHeader, CardContent, Input } from '@ticketscan/ui';
 
 interface UserSettings {
   monthlyBudget: number;
@@ -30,9 +29,7 @@ export default function ConfigPage() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadSettings();
-  }, []);
+  useEffect(() => { loadSettings(); }, []);
 
   async function loadSettings() {
     try {
@@ -95,11 +92,11 @@ export default function ConfigPage() {
 
   if (loading) {
     return (
-      <main className="p-4 space-y-6">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-slate-200 rounded w-1/3" />
+      <main style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ height: '2rem', backgroundColor: 'var(--color-200)', borderRadius: '0.5rem', width: '33%' }} />
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="card-padded h-20 bg-slate-50 rounded-xl" />
+            <Card key={i} padded style={{ height: '5rem', backgroundColor: 'var(--color-50)', borderRadius: '0.75rem' }} />
           ))}
         </div>
       </main>
@@ -107,177 +104,170 @@ export default function ConfigPage() {
   }
 
   return (
-    <main className="p-4 pb-24 space-y-6">
+    <main style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBottom: '6rem' }}>
       <header>
-        <h1 className="text-2xl font-bold text-slate-900">Configuración</h1>
-        <p className="text-slate-500 text-sm">Personaliza tu experiencia</p>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-900)', margin: 0 }}>Configuración</h1>
+        <p style={{ color: 'var(--color-500)', fontSize: '0.875rem', margin: 0 }}>Personaliza tu experiencia</p>
       </header>
 
       {error && (
-        <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700 animate-in">
+        <div style={{ borderRadius: '0.75rem', backgroundColor: 'rgba(185, 28, 28, 0.1)', border: '1px solid rgba(185, 28, 28, 0.2)', padding: '0.75rem', fontSize: '0.875rem', color: '#B91C1C' }}>
           {error}
         </div>
       )}
 
       {/* Budget Section */}
-      <section className="card-padded space-y-6">
-        <h2 className="font-semibold text-slate-900 flex items-center gap-2">
-          <span className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary">💰</span>
-          Presupuesto mensual
-        </h2>
-
-        <div>
-          <label htmlFor="monthlyBudget" className="label">Presupuesto mensual</label>
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
-            <input
-              id="monthlyBudget"
-              type="number"
-              min="0"
-              step="1000"
-              value={settings.monthlyBudget}
-              onChange={e => handleChange('monthlyBudget', Number(e.target.value))}
-              className="input pl-8"
-              placeholder="500000"
-            />
+      <Card padded style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <CardHeader title="Presupuesto mensual">
+          <span style={{ width: '2rem', height: '2rem', borderRadius: '0.75rem', backgroundColor: 'rgba(0, 171, 228, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', marginRight: '0.5rem' }}>💰</span>
+        </CardHeader>
+        <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div>
+            <label htmlFor="monthlyBudget" style={{ display: 'block', marginBottom: '0.375rem', fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-700)' }}>Presupuesto mensual</label>
+            <div style={{ position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-400)' }}>$</span>
+              <Input
+                id="monthlyBudget"
+                type="number"
+                min={0}
+                step={1000}
+                value={settings.monthlyBudget}
+                onChange={e => handleChange('monthlyBudget', Number(e.target.value))}
+                placeholder="500000"
+                style={{ paddingLeft: '2.5rem' }}
+              />
+            </div>
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-500)', marginTop: '0.25rem' }}>
+              Ejemplo: {formatCurrency(settings.monthlyBudget)}
+            </p>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
-            Ejemplo: {formatCurrency(settings.monthlyBudget)}
-          </p>
-        </div>
 
-        <div>
-          <label htmlFor="budgetAlertThreshold" className="label">
-            Alerta de presupuesto ({settings.budgetAlertThreshold}%)
-          </label>
-          <input
-            id="budgetAlertThreshold"
-            type="range"
-            min="50"
-            max="100"
-            value={settings.budgetAlertThreshold}
-            onChange={e => handleChange('budgetAlertThreshold', Number(e.target.value))}
-            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary"
-          />
-          <p className="text-xs text-slate-500 mt-1">
-            Te avisamos cuando superes el {settings.budgetAlertThreshold}% de tu presupuesto
-          </p>
-        </div>
-      </section>
+          <div>
+            <label htmlFor="budgetAlertThreshold" style={{ display: 'block', marginBottom: '0.375rem', fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-700)' }}>
+              Alerta de presupuesto ({settings.budgetAlertThreshold}%)
+            </label>
+            <input
+              id="budgetAlertThreshold"
+              type="range"
+              min="50"
+              max="100"
+              value={settings.budgetAlertThreshold}
+              onChange={e => handleChange('budgetAlertThreshold', Number(e.target.value))}
+              style={{ width: '100%', height: '0.5rem', backgroundColor: 'var(--color-200)', borderRadius: '0.5rem', appearance: 'none', cursor: 'pointer', accentColor: 'var(--color-primary)' }}
+            />
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-500)', marginTop: '0.25rem' }}>
+              Te avisamos cuando superes el {settings.budgetAlertThreshold}% de tu presupuesto
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Preferences Section */}
-      <section className="card-padded space-y-4">
-        <h2 className="font-semibold text-slate-900 flex items-center gap-2">
-          <span className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary">⚙️</span>
-          Preferencias
-        </h2>
+      <Card padded style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <CardHeader title="Preferencias">
+          <span style={{ width: '2rem', height: '2rem', borderRadius: '0.75rem', backgroundColor: 'rgba(0, 171, 228, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', marginRight: '0.5rem' }}>⚙️</span>
+        </CardHeader>
+        <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'spaceBetween', cursor: 'pointer' }}>
+            <div>
+              <p style={{ fontWeight: '500', color: 'var(--color-900)', margin: 0 }}>Categorización automática</p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-500)', margin: 0 }}>Clasifica productos con IA al escanear</p>
+            </div>
+            <input
+              type="checkbox"
+              checked={settings.autoCategorize}
+              onChange={e => handleChange('autoCategorize', e.target.checked)}
+              style={{ width: '1.25rem', height: '1.25rem', borderRadius: '0.375rem', border: '1px solid var(--color-300)', accentColor: 'var(--color-primary)' }}
+            />
+          </label>
 
-        <label className="flex items-center justify-between">
+          <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'spaceBetween', cursor: 'pointer' }}>
+            <div>
+              <p style={{ fontWeight: '500', color: 'var(--color-900)', margin: 0 }}>Notificaciones push</p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-500)', margin: 0 }}>Alertas de presupuesto y recordatorios</p>
+            </div>
+            <input
+              type="checkbox"
+              checked={settings.notifications}
+              onChange={e => handleChange('notifications', e.target.checked)}
+              style={{ width: '1.25rem', height: '1.25rem', borderRadius: '0.375rem', border: '1px solid var(--color-300)', accentColor: 'var(--color-primary)' }}
+            />
+          </label>
+
           <div>
-            <p className="font-medium text-slate-900">Categorización automática</p>
-            <p className="text-sm text-slate-500">Clasifica productos con IA al escanear</p>
+            <label htmlFor="theme" style={{ display: 'block', marginBottom: '0.375rem', fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-700)' }}>Tema</label>
+            <select
+              id="theme"
+              value={settings.theme}
+              onChange={e => handleChange('theme', e.target.value as 'light' | 'dark' | 'system')}
+              style={{ width: '100%', padding: '0.625rem 0.875rem', border: '1px solid rgba(0, 171, 228, 0.1)', borderRadius: '0.5rem', backgroundColor: 'white', color: 'var(--color-900)', fontSize: '0.875rem', outline: 'none' }}
+            >
+              <option value="system">Sistema (automático)</option>
+              <option value="light">Claro</option>
+              <option value="dark">Oscuro</option>
+            </select>
           </div>
-          <input
-            type="checkbox"
-            checked={settings.autoCategorize}
-            onChange={e => handleChange('autoCategorize', e.target.checked)}
-            className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary"
-          />
-        </label>
-
-        <label className="flex items-center justify-between">
-          <div>
-            <p className="font-medium text-slate-900">Notificaciones push</p>
-            <p className="text-sm text-slate-500">Alertas de presupuesto y recordatorios</p>
-          </div>
-          <input
-            type="checkbox"
-            checked={settings.notifications}
-            onChange={e => handleChange('notifications', e.target.checked)}
-            className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary"
-          />
-        </label>
-
-        <div>
-          <label htmlFor="theme" className="label">Tema</label>
-          <select
-            id="theme"
-            value={settings.theme}
-            onChange={e => handleChange('theme', e.target.value as 'light' | 'dark' | 'system')}
-            className="input"
-          >
-            <option value="system">Sistema (automático)</option>
-            <option value="light">Claro</option>
-            <option value="dark">Oscuro</option>
-          </select>
-        </div>
-      </section>
+        </CardContent>
+      </Card>
 
       {/* Data Section */}
-      <section className="card-padded space-y-4">
-        <h2 className="font-semibold text-slate-900 flex items-center gap-2">
-          <span className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary">📊</span>
-          Datos y privacidad
-        </h2>
-
-        <div className="space-y-3">
-          <button className="btn-secondary w-full justify-start gap-3">
-            <span className="text-lg">📤</span>
-            <div className="text-left">
-              <p className="font-medium text-slate-900">Exportar todos mis datos</p>
-              <p className="text-sm text-slate-500">Descargar JSON con tickets y análisis</p>
+      <Card padded style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <CardHeader title="Datos y privacidad">
+          <span style={{ width: '2rem', height: '2rem', borderRadius: '0.75rem', backgroundColor: 'rgba(0, 171, 228, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', marginRight: '0.5rem' }}>📊</span>
+        </CardHeader>
+        <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <Button variant="secondary" style={{ width: '100%', justifyContent: 'flex-start', gap: '0.75rem' }}>
+            <span style={{ fontSize: '1.25rem' }}>📤</span>
+            <div style={{ textAlign: 'left', flex: 1 }}>
+              <p style={{ fontWeight: '500', color: 'var(--color-900)', margin: 0 }}>Exportar todos mis datos</p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-500)', margin: 0 }}>Descargar JSON con tickets y análisis</p>
             </div>
-          </button>
-          <button className="btn-secondary w-full justify-start gap-3">
-            <span className="text-lg">📄</span>
-            <div className="text-left">
-              <p className="font-medium text-slate-900">Exportar a PDF/Excel</p>
-              <p className="text-sm text-slate-500">Reportes mensuales para contabilidad</p>
+          </Button>
+          <Button variant="secondary" style={{ width: '100%', justifyContent: 'flex-start', gap: '0.75rem' }}>
+            <span style={{ fontSize: '1.25rem' }}>📄</span>
+            <div style={{ textAlign: 'left', flex: 1 }}>
+              <p style={{ fontWeight: '500', color: 'var(--color-900)', margin: 0 }}>Exportar a PDF/Excel</p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-500)', margin: 0 }}>Reportes mensuales para contabilidad</p>
             </div>
-          </button>
-          <button className="btn-ghost w-full justify-start gap-3 text-red-600 hover:bg-red-50">
-            <span className="text-lg">🗑️</span>
-            <div className="text-left">
-              <p className="font-medium text-slate-900">Eliminar mi cuenta</p>
-              <p className="text-sm text-slate-500">Borrar todos mis datos permanentemente</p>
+          </Button>
+          <Button variant="ghost" style={{ width: '100%', justifyContent: 'flex-start', gap: '0.75rem', color: '#B91C1C' }}>
+            <span style={{ fontSize: '1.25rem' }}>🗑️</span>
+            <div style={{ textAlign: 'left', flex: 1 }}>
+              <p style={{ fontWeight: '500', color: 'var(--color-900)', margin: 0 }}>Eliminar mi cuenta</p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-500)', margin: 0 }}>Borrar todos mis datos permanentemente</p>
             </div>
-          </button>
-        </div>
-      </section>
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Version Info */}
-      <section className="card-padded">
-        <h2 className="font-semibold text-slate-900 flex items-center gap-2">
-          <span className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary">ℹ️</span>
-          Acerca de
-        </h2>
-        <div className="space-y-2 text-sm text-slate-600">
-          <div className="flex justify-between">
+      <Card padded style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <CardHeader title="Acerca de">
+          <span style={{ width: '2rem', height: '2rem', borderRadius: '0.75rem', backgroundColor: 'rgba(0, 171, 228, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', marginRight: '0.5rem' }}>ℹ️</span>
+        </CardHeader>
+        <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-600)' }}>
+          <div style={{ display: 'flex', justifyContent: 'spaceBetween' }}>
             <span>Versión</span>
-            <span className="font-mono text-primary">1.0.0-beta</span>
+            <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--color-primary)' }}>1.0.0-beta</span>
           </div>
-          <div className="flex justify-between">
+          <div style={{ display: 'flex', justifyContent: 'spaceBetween' }}>
             <span>Canal</span>
             <span>Beta</span>
           </div>
-          <div className="flex justify-between">
+          <div style={{ display: 'flex', justifyContent: 'spaceBetween' }}>
             <span>Plataforma</span>
             <span>Android / Web</span>
           </div>
-        </div>
-      </section>
+        </CardContent>
+      </Card>
 
       {/* Save Button */}
-      <button
-        onClick={saveSettings}
-        disabled={saving}
-        className="btn-primary w-full py-3"
-      >
+      <Button variant="primary" onClick={saveSettings} disabled={saving} style={{ width: '100%', padding: '0.75rem' }}>
         {saving ? 'Guardando...' : saved ? '¡Guardado!' : 'Guardar cambios'}
-      </button>
+      </Button>
 
       {saved && (
-        <p className="text-center text-sm text-green-600 animate-in">
+        <p style={{ textAlign: 'center', fontSize: '0.875rem', color: '#047857' }}>
           Cambios guardados correctamente
         </p>
       )}

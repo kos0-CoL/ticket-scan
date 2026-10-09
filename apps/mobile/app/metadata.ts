@@ -1,4 +1,4 @@
 export const metadata = {
   title: 'TicketScan',
-  description: 'Escanea y analiza tus tickets'
+  description: 'Escanea y organiza tus tickets de supermercado',
 };
