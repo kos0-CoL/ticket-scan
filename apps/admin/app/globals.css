@@ -227,6 +227,11 @@ body {
   text-wrap: balance;
 }
 
+/* ===== Content scanning for @ticketscan/ui ===== */
+@source "../../packages/ui/src/**/*.{ts,tsx}";
+@source "../components/**/*.{ts,tsx}";
+@source "../lib/**/*.{ts,tsx}";
+
 /* Table utilities */
 .table-scroll {
   overflow-x: auto;

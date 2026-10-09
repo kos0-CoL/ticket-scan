@@ -237,3 +237,8 @@ body {
 .pb-safe {
   padding-bottom: var(--bottom-nav-safe);
 }
+
+/* ===== Content scanning for @ticketscan/ui ===== */
+@source "../../packages/ui/src/**/*.{ts,tsx}";
+@source "../components/**/*.{ts,tsx}";
+@source "../lib/**/*.{ts,tsx}";
