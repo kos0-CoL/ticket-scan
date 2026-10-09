@@ -22,7 +22,6 @@ interface MLConfig {
   is_active: boolean;
   created_at: string;
 }
-
 export default function ModeloPage() {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [config, setConfig] = useState<MLConfig | null>(null);
@@ -30,7 +29,6 @@ export default function ModeloPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
   const [formData, setFormData] = useState({
     provider_id: '',
     model_id: '',
@@ -129,8 +127,8 @@ export default function ModeloPage() {
       <main className="page-container">
         <div className="page-content">
           <div className="animate-in text-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-slate-600">Cargando configuración...</p>
+            <div className="loading-spinner"></div>
+            <p className="text-muted mt-4">Cargando configuración...</p>
           </div>
         </div>
       </main>
@@ -140,20 +138,20 @@ export default function ModeloPage() {
   return (
     <main className="page-container">
       <div className="page-content">
-        <div className="mb-8 animate-in">
-          <h1 className="text-2xl font-bold text-slate-900">Configuración del Modelo IA</h1>
-          <p className="text-slate-600 mt-1">Gestiona el proveedor, modelo, parámetros y prompt del sistema</p>
+        <div className="section-header animate-in">
+          <h1 className="section-title">Configuración del Modelo IA</h1>
+          <p className="text-muted mt-1">Gestiona el proveedor, modelo, parámetros y prompt del sistema</p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="modelo-grid">
           {/* Form Panel */}
-          <div className="lg:col-span-2 space-y-6 animate-in">
+          <div className="form-panel space-y-6">
             <form onSubmit={save} className="card-padded space-y-6">
               <div>
-                <h2 className="text-lg font-semibold text-slate-900 mb-4">Proveedor y Modelo</h2>
+                <h2 className="panel-title">Proveedor y Modelo</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className="label">Proveedor IA</label>
+                    <label className="form-label">Proveedor IA</label>
                     <select
                       value={formData.provider_id}
                       onChange={e => setFormData({ ...formData, provider_id: e.target.value })}
@@ -170,7 +168,7 @@ export default function ModeloPage() {
                   </div>
 
                   <div>
-                    <label className="label">Modelo</label>
+                    <label className="form-label">Modelo</label>
                     <ModelPicker
                       providerName={providers.find(p => p.id === formData.provider_id)?.name ?? ''}
                       value={formData.model_id}
@@ -187,19 +185,19 @@ export default function ModeloPage() {
                   </div>
 
                   <div className="flex gap-2">
-                    <button type="button" onClick={testConnection} className="btn-secondary" disabled={!formData.provider_id}>
+                    <button type="button" onClick={testConnection} className="btn btn-secondary" disabled={!formData.provider_id}>
                       Probar conexión
                     </button>
-                    <span className="text-sm text-slate-500 self-center">Prueba la API key del proveedor seleccionado</span>
+                    <span className="text-muted self-center">Prueba la API key del proveedor seleccionado</span>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h2 className="text-lg font-semibold text-slate-900 mb-4">Parámetros de Generación</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h2 className="panel-title">Parámetros de Generación</h2>
+                <div className="params-grid">
                   <div>
-                    <label className="label">Temperature <span className="text-sm font-normal text-slate-500">({formData.temperature})</span></label>
+                    <label className="form-label">Temperature <span className="text-muted-sm">({formData.temperature})</span></label>
                     <input
                       type="range"
                       min="0"
@@ -207,12 +205,12 @@ export default function ModeloPage() {
                       step="0.1"
                       value={formData.temperature}
                       onChange={e => setFormData({ ...formData, temperature: parseFloat(e.target.value) })}
-                      className="w-full h-2 bg-primary-light rounded-lg appearance-none cursor-pointer accent-primary"
+                      className="range-slider"
                     />
-                    <p className="text-xs text-slate-500 mt-1">0 = determinístico, 2 = muy creativo</p>
+                    <p className="text-xs-muted mt-1">0 = determinístico, 2 = muy creativo</p>
                   </div>
                   <div>
-                    <label className="label">Max Tokens</label>
+                    <label className="form-label">Max Tokens</label>
                     <input
                       type="number"
                       value={formData.max_tokens}
@@ -226,21 +224,21 @@ export default function ModeloPage() {
               </div>
 
               <div>
-                <h2 className="text-lg font-semibold text-slate-900 mb-4">Prompt del Sistema</h2>
+                <h2 className="panel-title">Prompt del Sistema</h2>
                 <textarea
                   value={formData.system_prompt}
                   onChange={e => setFormData({ ...formData, system_prompt: e.target.value })}
-                  className="input font-mono text-sm min-h-[200px] resize-y"
+                  className="input font-mono text-sm min-h-200 resize-y"
                   placeholder="Eres un experto en extracción de datos de tickets de supermercado argentinos..."
                 />
-                <p className="text-xs text-slate-500 mt-1">Instrucciones para el modelo al procesar tickets</p>
+                <p className="text-xs-muted mt-1">Instrucciones para el modelo al procesar tickets</p>
               </div>
 
               <div>
-                <h2 className="text-lg font-semibold text-slate-900 mb-4">Versionado</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <h2 className="panel-title">Versionado</h2>
+                <div className="params-grid params-grid-3">
                   <div>
-                    <label className="label">Versión</label>
+                    <label className="form-label">Versión</label>
                     <input
                       type="text"
                       value={formData.version}
@@ -255,19 +253,19 @@ export default function ModeloPage() {
                         type="checkbox"
                         checked={formData.is_active}
                         onChange={e => setFormData({ ...formData, is_active: e.target.checked })}
-                        className="rounded border-slate-300 text-primary focus:ring-primary"
+                        className="checkbox-custom"
                       />
-                      <span className="text-sm text-slate-700">Activar esta configuración</span>
+                      <span className="text-sm">Activar esta configuración</span>
                     </label>
                   </div>
                 </div>
               </div>
 
-              {error && <div className="p-3 rounded-lg bg-red-50 text-red-700 text-sm">{error}</div>}
-              {success && <div className="p-3 rounded-lg bg-green-50 text-green-700 text-sm">{success}</div>}
+              {error && <div className="error-box">{error}</div>}
+              {success && <div className="success-box">{success}</div>}
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-primary-light/50">
-                <button type="submit" className="btn-primary" disabled={saving}>
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <button type="submit" className="btn btn-primary" disabled={saving}>
                   {saving ? 'Guardando...' : config ? 'Actualizar' : 'Crear configuración'}
                 </button>
               </div>
@@ -275,63 +273,63 @@ export default function ModeloPage() {
           </div>
 
           {/* Current Config Panel */}
-          <div className="animate-in" style={{ animationDelay: "200ms" }}>
+          <div className="config-panel">
             <div className="card-padded">
-              <h3 className="font-semibold text-slate-900 mb-4">Configuración Actual</h3>
+              <h3 className="panel-title">Configuración Actual</h3>
               {config ? (
-                <dl className="space-y-4 text-sm">
+                <dl className="config-list">
                   <div className="flex justify-between">
-                    <dt className="text-slate-500">Proveedor</dt>
-                    <dd className="font-medium text-slate-900">
+                    <dt className="text-muted-sm">Proveedor</dt>
+                    <dd className="font-medium">
                       {providers.find(p => p.id === config.provider_id)?.name || config.provider_id}
                     </dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-slate-500">Modelo</dt>
-                    <dd className="font-medium text-slate-900 font-mono">{config.model_id}</dd>
+                    <dt className="text-muted-sm">Modelo</dt>
+                    <dd className="font-medium font-mono">{config.model_id}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-slate-500">Temperature</dt>
-                    <dd className="font-medium text-slate-900">{config.temperature}</dd>
+                    <dt className="text-muted-sm">Temperature</dt>
+                    <dd className="font-medium">{config.temperature}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-slate-500">Max Tokens</dt>
-                    <dd className="font-medium text-slate-900">{config.max_tokens}</dd>
+                    <dt className="text-muted-sm">Max Tokens</dt>
+                    <dd className="font-medium">{config.max_tokens}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-slate-500">Versión</dt>
-                    <dd className="font-medium text-slate-900">{config.version}</dd>
+                    <dt className="text-muted-sm">Versión</dt>
+                    <dd className="font-medium">{config.version}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-slate-500">Estado</dt>
-                    <dd className={`font-medium ${config.is_active ? 'text-green-600' : 'text-slate-500'}`}>
+                    <dt className="text-muted-sm">Estado</dt>
+                    <dd className={`font-medium ${config.is_active ? 'text-success' : 'text-muted'}`}>
                       {config.is_active ? '● Activo' : '○ Inactivo'}
                     </dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-slate-500">Creado</dt>
-                    <dd className="font-medium text-slate-900">{new Date(config.created_at).toLocaleString('es-AR')}</dd>
+                    <dt className="text-muted-sm">Creado</dt>
+                    <dd className="font-medium">{new Date(config.created_at).toLocaleString('es-AR')}</dd>
                   </div>
                 </dl>
               ) : (
-                <p className="text-slate-500 text-center py-8">No hay configuración activa</p>
+                <p className="text-muted text-center py-8">No hay configuración activa</p>
               )}
             </div>
 
             {/* Providers Quick View */}
-            <div className="mt-6 card-padded">
-              <h3 className="font-semibold text-slate-900 mb-4">Proveedores Configurados</h3>
+            <div className="card-padded mt-6">
+              <h3 className="panel-title">Proveedores Configurados</h3>
               {providers.length === 0 ? (
-                <p className="text-slate-500 text-center py-4">No hay proveedores. Ve a <a href="/providers" className="text-primary underline">Proveedores IA</a> para agregar.</p>
+                <p className="text-muted text-center py-4">No hay proveedores. Ve a <a href="/providers" className="text-primary hover-underline">Proveedores IA</a> para agregar.</p>
               ) : (
-                <div className="space-y-2">
+                <div className="providers-list">
                   {providers.map(p => (
-                    <div key={p.id} className="flex items-center justify-between p-3 bg-surface rounded-xl">
+                    <div key={p.id} className="provider-item">
                       <div>
-                        <p className="font-medium text-slate-900">{p.name}</p>
-                        <p className="text-xs text-slate-500">{p.defaultModel}</p>
+                        <p className="font-medium">{p.name}</p>
+                        <p className="text-xs-muted">{p.defaultModel}</p>
                       </div>
-                      <span className={`px-2 py-1 rounded-full text-xs ${p.isActive ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}`}>
+                      <span className={`badge ${p.isActive ? 'badge-success' : 'badge-muted'}`}>
                         {p.isActive ? 'Activo' : 'Inactivo'}
                       </span>
                     </div>

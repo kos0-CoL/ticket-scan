@@ -9,7 +9,6 @@ interface User {
   user_metadata?: Record<string, any>;
   last_sign_in_at?: string | null;
 }
-
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -103,32 +102,32 @@ export default function UsersPage() {
 
   const roleOf = (u: User) => (u.app_metadata?.role === 'admin' ? 'admin' : 'usuario');
 
-  if (loading) return <main className="page-container"><p className="text-slate-600">Cargando usuarios...</p></main>;
+  if (loading) return <main className="page-container"><p className="text-muted">Cargando usuarios...</p></main>;
 
   return (
     <main className="page-container">
       <div className="page-content">
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-8 animate-in">
+        <div className="users-header">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Usuarios</h1>
-            <p className="text-slate-500 mt-1">
+            <h1 className="section-title">Usuarios</h1>
+            <p className="text-muted mt-1">
               Cuentas de Supabase Auth. Solo los <strong>admins</strong> pueden entrar al panel.
             </p>
           </div>
-          <button onClick={() => setShowForm(v => !v)} className="btn-primary">
+          <button onClick={() => setShowForm(v => !v)} className="btn btn-primary">
             {showForm ? 'Cerrar' : '+ Crear usuario'}
           </button>
         </div>
 
-        {error && <div className="mb-4 p-3 rounded-xl bg-danger-light text-danger-dark text-sm animate-in">{error}</div>}
-        {success && <div className="mb-4 p-3 rounded-xl bg-success-light text-success-dark text-sm animate-in">{success}</div>}
+        {error && <div className="error-box mb-4">{error}</div>}
+        {success && <div className="success-box mb-4">{success}</div>}
 
         {showForm && (
           <form onSubmit={create} className="card-padded mb-8 space-y-4 animate-in">
-            <h2 className="font-semibold text-slate-900">Nuevo usuario</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h2 className="panel-title">Nuevo usuario</h2>
+            <div className="params-grid">
               <div>
-                <label className="label" htmlFor="user-email">Email</label>
+                <label className="form-label" htmlFor="user-email">Email</label>
                 <input
                   id="user-email"
                   type="email"
@@ -140,7 +139,7 @@ export default function UsersPage() {
                 />
               </div>
               <div>
-                <label className="label" htmlFor="user-pass">Contraseña</label>
+                <label className="form-label" htmlFor="user-pass">Contraseña</label>
                 <input
                   id="user-pass"
                   type="password"
@@ -158,72 +157,74 @@ export default function UsersPage() {
                 type="checkbox"
                 checked={isAdmin}
                 onChange={e => setIsAdmin(e.target.checked)}
-                className="rounded border-slate-300 text-primary focus:ring-primary"
+                className="checkbox-custom"
               />
-              <span className="text-sm text-slate-700">Dar acceso al panel de admin (rol <code>admin</code>)</span>
+              <span className="text-sm">Dar acceso al panel de admin (rol <code>admin</code>)</span>
             </label>
             <div className="flex gap-2">
-              <button type="submit" disabled={saving} className="btn-primary">
+              <button type="submit" disabled={saving} className="btn btn-primary">
                 {saving ? 'Creando…' : 'Crear usuario'}
               </button>
-              <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">Cancelar</button>
+              <button type="button" onClick={() => setShowForm(false)} className="btn btn-secondary">Cancelar</button>
             </div>
           </form>
         )}
 
         <div className="card-padded animate-in">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-primary-light/50 text-left text-slate-500">
-                <th className="p-3">Email</th>
-                <th className="p-3">Rol</th>
-                <th className="p-3">Creado</th>
-                <th className="p-3">Último acceso</th>
-                <th className="p-3 text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map(u => {
-                const admin = roleOf(u) === 'admin';
-                return (
-                  <tr key={u.id} className="border-b border-slate-100 last:border-0">
-                    <td className="p-3 font-medium text-slate-900">{u.email ?? '(sin email)'}</td>
-                    <td className="p-3">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${admin ? 'bg-primary-light text-primary-dark' : 'bg-slate-100 text-slate-600'}`}>
-                        {admin ? '👑 Admin' : 'Usuario'}
-                      </span>
-                    </td>
-                    <td className="p-3 text-slate-500">{new Date(u.created_at).toLocaleDateString('es-AR')}</td>
-                    <td className="p-3 text-slate-500">
-                      {u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString('es-AR') : '—'}
-                    </td>
-                    <td className="p-3 text-right space-x-2 whitespace-nowrap">
-                      <button
-                        onClick={() => toggleAdmin(u)}
-                        disabled={busyId === u.id}
-                        className="btn-secondary !py-1.5 !px-3 !text-xs"
-                      >
-                        {busyId === u.id ? '…' : admin ? 'Quitar admin' : 'Dar admin'}
-                      </button>
-                      <button
-                        onClick={() => remove(u)}
-                        disabled={busyId === u.id}
-                        className="btn-secondary !py-1.5 !px-3 !text-xs !text-danger !border-danger-light hover:!bg-danger-light"
-                      >
-                        Borrar
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-              {users.length === 0 && (
-                <tr><td colSpan={5} className="p-6 text-center text-slate-400">No hay usuarios todavía.</td></tr>
-              )}
-            </tbody>
-          </table>
+          <div className="table-scroll">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Rol</th>
+                  <th>Creado</th>
+                  <th>Último acceso</th>
+                  <th className="text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map(u => {
+                  const admin = roleOf(u) === 'admin';
+                  return (
+                    <tr key={u.id} className="border-t divide-y">
+                      <td className="cell-medium">{u.email ?? '(sin email)'}</td>
+                      <td>
+                        <span className={`users-badge ${admin ? 'users-badge-admin' : 'users-badge-user'}`}>
+                          {admin ? '👑 Admin' : 'Usuario'}
+                        </span>
+                      </td>
+                      <td className="text-muted">{new Date(u.created_at).toLocaleDateString('es-AR')}</td>
+                      <td className="text-muted">
+                        {u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString('es-AR') : '—'}
+                      </td>
+                      <td className="text-right actions-cell">
+                        <button
+                          onClick={() => toggleAdmin(u)}
+                          disabled={busyId === u.id}
+                          className="btn btn-secondary btn-secondary-compact"
+                        >
+                          {busyId === u.id ? '…' : admin ? 'Quitar admin' : 'Dar admin'}
+                        </button>
+                        <button
+                          onClick={() => remove(u)}
+                          disabled={busyId === u.id}
+                          className="btn btn-secondary btn-secondary-compact text-danger-compact"
+                        >
+                          Borrar
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {users.length === 0 && (
+                  <tr><td colSpan={5} className="p-6 text-center text-muted">No hay usuarios todavía.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <p className="mt-4 text-xs text-slate-400">
+        <p className="mt-4 text-xs-muted">
           El rol se guarda en <code>app_metadata.role</code> de Supabase Auth. Si acabás de darle admin a
           alguien con sesión abierta, que cierre y abra sesión de nuevo para refrescar el token.
         </p>

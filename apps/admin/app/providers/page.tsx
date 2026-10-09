@@ -9,7 +9,6 @@ interface Provider {
   fallbackOrder: number;
   isActive: boolean;
 }
-
 export default function ProvidersPage() {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -36,34 +35,45 @@ export default function ProvidersPage() {
   }
 
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Proveedores IA</h1>
-      <button onClick={() => setShowForm(true)} className="rounded bg-blue-600 px-4 py-2 text-white">
-        Agregar proveedor
-      </button>
-      <table className="mt-6 w-full border">
-        <thead><tr className="bg-gray-100">
-          <th className="p-2 text-left">Nombre</th><th className="p-2 text-left">Modelo</th>
-          <th className="p-2 text-left">Fallback</th><th className="p-2 text-left">Activo</th>
-          <th className="p-2 text-left">Acción</th>
-        </tr></thead>
-        <tbody>
-          {providers.map(p => (
-            <tr key={p.id} className="border-t">
-              <td className="p-2">{p.name}</td><td className="p-2">{p.defaultModel}</td>
-              <td className="p-2">{p.fallbackOrder}</td>
-              <td className="p-2">{p.isActive ? '✅' : '❌'}</td>
-              <td className="p-2">
-                <button onClick={() => testConnection(p.id)} disabled={testing === p.id}
-                  className="rounded border px-2 py-1 text-xs">
-                  {testing === p.id ? '...' : 'Test'}
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {showForm && <ProviderForm onClose={() => { setShowForm(false); load(); }} />}
+    <main className="page-container">
+      <div className="page-content">
+        <div className="section-header">
+          <h1 className="section-title">Proveedores IA</h1>
+        </div>
+        <button onClick={() => setShowForm(true)} className="btn btn-primary">
+          Agregar proveedor
+        </button>
+        <div className="table-scroll mt-6">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Modelo</th>
+                <th>Fallback</th>
+                <th>Activo</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {providers.map(p => (
+                <tr key={p.id} className="border-t divide-y">
+                  <td>{p.name}</td>
+                  <td>{p.defaultModel}</td>
+                  <td>{p.fallbackOrder}</td>
+                  <td>{p.isActive ? '✅' : '❌'}</td>
+                  <td>
+                    <button onClick={() => testConnection(p.id)} disabled={testing === p.id}
+                      className="btn btn-ghost text-sm">
+                      {testing === p.id ? '...' : 'Test'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {showForm && <ProviderForm onClose={() => { setShowForm(false); load(); }} />}
+      </div>
     </main>
   );
 }
@@ -89,20 +99,36 @@ function ProviderForm({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <form onSubmit={save} className="mt-6 space-y-3 rounded-lg border bg-white p-6 shadow">
-      <h2 className="font-bold">Nuevo proveedor</h2>
-      {error && <p className="text-red-600">{error}</p>}
-      <select value={name} onChange={e => setName(e.target.value)} required>
+    <form onSubmit={save} className="card-padded mt-6 space-y-4 animate-in">
+      <h2 className="panel-title">Nuevo proveedor</h2>
+      {error && <p className="text-danger text-sm">{error}</p>}
+      <select
+        value={name}
+        onChange={e => setName(e.target.value)}
+        required
+        className="input"
+      >
         <option value="">Seleccionar...</option>
         <option value="gemini">Gemini</option>
         <option value="openai">OpenAI</option>
         <option value="anthropic">Anthropic</option>
         <option value="openrouter">OpenRouter</option>
       </select>
-      <input className="w-full rounded border px-3 py-2" placeholder="API Key" value={apiKey} onChange={e => setApiKey(e.target.value)} required />
-      <input className="w-full rounded border px-3 py-2" placeholder="Base URL (opcional)" value={baseUrl} onChange={e => setBaseUrl(e.target.value)} />
+      <input
+        className="input"
+        placeholder="API Key"
+        value={apiKey}
+        onChange={e => setApiKey(e.target.value)}
+        required
+      />
+      <input
+        className="input"
+        placeholder="Base URL (opcional)"
+        value={baseUrl}
+        onChange={e => setBaseUrl(e.target.value)}
+      />
       <div>
-        <label className="block text-sm font-medium mb-1">Modelo default</label>
+        <label className="form-label">Modelo default</label>
         <ModelPicker
           providerName={name}
           apiKey={apiKey}
@@ -111,17 +137,23 @@ function ProviderForm({ onClose }: { onClose: () => void }) {
           onChange={setDefaultModel}
         />
         <input
-          className="w-full rounded border px-3 py-2 mt-2 font-mono text-sm"
+          className="input mt-2 font-mono text-sm"
           placeholder="ID del modelo (elegilo arriba o escribilo)"
           value={defaultModel}
           onChange={e => setDefaultModel(e.target.value)}
           required
         />
       </div>
-      <input className="w-full rounded border px-3 py-2" type="number" placeholder="Orden fallback" value={fallbackOrder} onChange={e => setFallbackOrder(+e.target.value)} />
+      <input
+        className="input"
+        type="number"
+        placeholder="Orden fallback"
+        value={fallbackOrder}
+        onChange={e => setFallbackOrder(+e.target.value)}
+      />
       <div className="flex gap-2">
-        <button className="rounded bg-blue-600 px-4 py-2 text-white" type="submit">Guardar</button>
-        <button type="button" onClick={onClose} className="rounded border px-4 py-2">Cancelar</button>
+        <button className="btn btn-primary" type="submit">Guardar</button>
+        <button type="button" onClick={onClose} className="btn btn-ghost">Cancelar</button>
       </div>
     </form>
   );

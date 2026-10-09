@@ -68,22 +68,22 @@ export default function ModelPicker({ providerName, apiKey, baseUrl, value, onCh
 
   return (
     <div className="space-y-2">
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="picker-header">
         <button
           type="button"
           onClick={load}
           disabled={!providerName || loading}
-          className="btn-secondary text-sm py-2"
+          className="btn btn-secondary picker-btn"
         >
           {loading ? 'Cargando…' : '🔄 Cargar modelos'}
         </button>
         {anyFree && (
-          <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+          <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={freeOnly}
               onChange={(e) => setFreeOnly(e.target.checked)}
-              className="rounded border-slate-300 text-primary focus:ring-primary"
+              className="checkbox-custom"
             />
             Solo FREE
           </label>
@@ -94,22 +94,23 @@ export default function ModelPicker({ providerName, apiKey, baseUrl, value, onCh
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder="Filtrar por nombre…"
-            className="input !w-auto flex-1 min-w-[160px] text-sm"
+            className="input input-inline picker-filter"
+            aria-label="Filtrar modelos"
           />
         )}
         {models.length > 0 && (
-          <span className="text-xs text-slate-500">
+          <span className="text-xs-muted picker-count">
             {shown.length}/{models.length} modelos
             {loadedFor && loadedFor !== providerName ? ' (proveedor cambió, recargá)' : ''}
           </span>
         )}
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-danger text-sm">{error}</p>}
 
       {models.length > 0 && (
         <select
-          className="input"
+          className="input model-select"
           value={models.some((m) => m.id === value) ? value : ''}
           onChange={(e) => {
             if (e.target.value) onChange(e.target.value);
@@ -127,10 +128,10 @@ export default function ModelPicker({ providerName, apiKey, baseUrl, value, onCh
         </select>
       )}
       {models.length > 0 && shown.length === 0 && (
-        <p className="text-sm text-slate-500">Ningún modelo coincide con el filtro.</p>
+        <p className="text-muted text-sm">Ningún modelo coincide con el filtro.</p>
       )}
       {!providerName && (
-        <p className="text-xs text-slate-500">Seleccioná un proveedor para poder cargar sus modelos.</p>
+        <p className="text-xs-muted">Seleccioná un proveedor para poder cargar sus modelos.</p>
       )}
     </div>
   );
