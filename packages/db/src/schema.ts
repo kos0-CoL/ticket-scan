@@ -181,7 +181,7 @@ export const seedLandingSections = [
     title: "Hero Principal",
     content: {
       badge: "🎫 TicketScan",
-      headline: "Escanea, categoriza y analiza tus <span class=\"text-primary\">tickets de supermercado</span>",
+      headline: "Escanea, categoriza y analiza tus <span class=\"highlight\">tickets de supermercado</span>",
       subtext: "La app que usa IA para leer tus tickets, organizar tus gastos por categoría y mostrarte gráficos claros de tu presupuesto familiar.",
       cta_primary_text: "Descargar APK (MediaFire)",
       cta_primary_url: "https://mediafire.com",
@@ -196,7 +196,7 @@ export const seedLandingSections = [
     key: "features",
     title: "Características",
     content: {
-      headline: "Todo lo que necesitas para <span class=\"text-primary\">controlar tus compras</span>",
+      headline: "Todo lo que necesitas para <span class=\"highlight\">controlar tus compras</span>",
       subtext: "Diseñada para el contexto argentino: supermercados locales, moneda ARS, facturación AFIP.",
       items: [
         { icon: "📷", title: "Escaneo OCR Inteligente", desc: "Apunta la cámara a tu ticket y extraemos automáticamente productos, precios y totales con IA avanzada." },
@@ -212,7 +212,7 @@ export const seedLandingSections = [
     key: "social-proof",
     title: "Prueba Social",
     content: {
-      headline: "Confiada por <span class=\"text-primary\">miles de familias</span> argentinas",
+      headline: "Confiada por <span class=\"highlight\">miles de familias</span> argentinas",
       subtext: "Únete a quienes ya llevan el control de su presupuesto sin esfuerzo.",
       testimonials: [
         { name: "María G.", location: "Buenos Aires", text: "Ahorro 2 horas por semana cargando gastos. El OCR es increíblemente preciso.", rating: 5 },

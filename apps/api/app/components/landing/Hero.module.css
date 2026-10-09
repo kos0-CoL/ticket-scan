@@ -42,9 +42,9 @@
   align-items: center;
   gap: var(--space-2);
   border-radius: var(--radius-full);
-  padding: var(--space-2) var(--space-4);
-  font-size: 0.8125rem;
-  font-weight: 600;
+  padding: var(--space-3) var(--space-5);
+  font-size: 1rem;
+  font-weight: 700;
   line-height: 1.5;
   background: linear-gradient(135deg, var(--color-primary-light) 0%, rgba(0, 171, 228, 0.08) 100%);
   color: var(--color-primary-dark);
@@ -53,8 +53,8 @@
   animation: fade-in-up var(--transition-slow) ease-out forwards;
 }
 
-.badge-icon {
-  font-size: 1rem;
+.badgeIcon {
+  font-size: 1.5rem;
 }
 
 /* Headline */
