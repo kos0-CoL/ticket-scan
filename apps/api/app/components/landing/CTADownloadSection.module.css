@@ -1,83 +1,70 @@
 /**
- * CTADownloadSection Module - Estilos específicos de la sección CTA Download
+ * CTADownloadSection Module - Modern CTA Download Section
  * Importar como: import styles from './CTADownloadSection.module.css'
  */
 
 .section {
   position: relative;
-  padding-top: 4rem;
-  padding-bottom: 4rem;
+  padding-top: var(--space-20);
+  padding-bottom: var(--space-20);
   overflow: hidden;
-  background-color: var(--color-primary);
-  color: white;
+  background: linear-gradient(135deg, var(--color-900) 0%, var(--color-800) 50%, var(--color-primary-dark) 100%);
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .section {
-    padding-top: 5rem;
-    padding-bottom: 5rem;
+    padding-top: var(--space-24);
+    padding-bottom: var(--space-24);
   }
 }
 
 .container {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 64rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  position: relative;
+  z-index: 1;
   text-align: center;
 }
 
-@media (min-width: 640px) {
-  .container {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .container {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-}
-
 .header {
-  margin-bottom: 3rem;
-  animation: fade-in 0.5s ease-out forwards;
+  max-width: 42rem;
+  margin: 0 auto var(--space-10);
 }
 
 .headline {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: white;
-  margin-bottom: 1rem;
-  animation: fade-in 0.5s ease-out forwards;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--color-white);
+  margin-bottom: var(--space-4);
+  animation: fade-in-up var(--transition-slow) ease-out forwards;
 }
 
-@media (min-width: 1024px) {
-  .headline {
-    font-size: 2.25rem;
-  }
+.headlineHighlight {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .subtext {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 36rem;
   font-size: 1.125rem;
-  animation: fade-in 0.5s ease-out forwards;
-  color: var(--color-primary-light);
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 36rem;
+  margin: 0 auto;
+  animation: fade-in-up var(--transition-slow) ease-out forwards;
   animation-delay: 150ms;
 }
 
+/* CTA Group */
 .ctaGroup {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  animation: fade-in 0.5s ease-out forwards;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+  animation: fade-in-up var(--transition-slow) ease-out forwards;
   animation-delay: 300ms;
 }
 
@@ -91,100 +78,278 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  border-radius: 0.75rem;
-  padding: 0.875rem 2rem;
-  font-weight: 500;
-  font-size: 1.125rem;
-  box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.15);
-  transition: all 200ms ease;
-  background-color: white;
-  color: var(--color-primary);
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-8);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-50) 100%);
+  color: var(--color-primary-dark);
+  box-shadow:
+    var(--shadow-primary),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
+  transition: all var(--transition-base);
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .ctaPrimary:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow:
+    var(--shadow-primary-lg),
+    0 0 0 1px rgba(255, 255, 255, 0.3);
 }
 
 .ctaPrimary:active {
-  transform: translateY(0);
+  transform: translateY(-1px);
+}
+
+.ctaPrimary:focus-visible {
+  outline: 2px solid var(--color-white);
+  outline-offset: 3px;
+}
+
+.ctaPrimaryIcon {
+  font-size: 1.25rem;
 }
 
 .ctaSecondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  border-radius: 0.75rem;
-  border: 2px solid white;
-  padding: 0.875rem 2rem;
-  font-weight: 500;
-  font-size: 1.125rem;
-  transition: all 200ms ease;
-  color: white;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-8);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  border-radius: var(--radius-xl);
+  color: var(--color-white);
+  background-color: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+  transition: all var(--transition-base);
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .ctaSecondary:hover {
   background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-lg);
 }
 
 .ctaSecondaryDisabled {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  border-radius: 0.75rem;
-  border: 2px solid white;
-  padding: 0.875rem 2rem;
-  font-weight: 500;
-  font-size: 1.125rem;
-  color: white;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-8);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  border-radius: var(--radius-xl);
+  color: rgba(255, 255, 255, 0.5);
+  background-color: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.15);
   cursor: not-allowed;
   opacity: 0.6;
 }
 
-/* Decorative blobs */
-.blobTop {
+/* Features highlight */
+.featuresHighlight {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-12);
+  padding-top: var(--space-8);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  animation: fade-in var(--transition-slow) ease-out forwards;
+  animation-delay: 500ms;
+}
+
+.featureHighlightItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  padding: var(--space-2) var(--space-4);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.featureHighlightItem:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--color-white);
+}
+
+.featureHighlightIcon {
+  font-size: 1rem;
+}
+
+/* Decorative elements */
+.blobTop,
+.blobBottom {
   position: absolute;
-  top: 0;
-  right: -4rem;
-  height: 16rem;
-  width: 16rem;
-  border-radius: 9999px;
-  filter: blur(64px);
-  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.blobTop {
+  top: -12rem;
+  right: -12rem;
+  width: 40rem;
+  height: 40rem;
+  background: radial-gradient(ellipse at center, rgba(0, 171, 228, 0.15) 0%, transparent 70%);
 }
 
 .blobBottom {
-  position: absolute;
-  bottom: -4rem;
-  left: 50%;
-  height: 16rem;
-  width: 16rem;
-  border-radius: 9999px;
-  filter: blur(64px);
-  transform: translateX(-50%);
-  background-color: rgba(255, 255, 255, 0.05);
+  bottom: -15rem;
+  left: -15rem;
+  width: 45rem;
+  height: 45rem;
+  background: radial-gradient(ellipse at center, rgba(0, 171, 228, 0.1) 0%, transparent 70%);
 }
 
-/* Responsive adjustments */
+/* Gradient orbs */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.orb1 {
+  top: 20%;
+  left: 5%;
+  width: 16rem;
+  height: 16rem;
+  background: radial-gradient(circle, rgba(0, 171, 228, 0.2) 0%, transparent 70%);
+  animation: float 8s ease-in-out infinite;
+}
+
+.orb2 {
+  bottom: 30%;
+  right: 8%;
+  width: 12rem;
+  height: 12rem;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+  animation: float 6s ease-in-out infinite reverse;
+}
+
+.orb3 {
+  top: 50%;
+  left: 2%;
+  width: 8rem;
+  height: 8rem;
+  background: radial-gradient(circle, rgba(0, 171, 228, 0.1) 0%, transparent 70%);
+  animation: float 10s ease-in-out infinite 2s;
+}
+
+/* Phone preview */
+.phonePreview {
+  position: relative;
+  margin-top: var(--space-12);
+  animation: fade-in-up var(--transition-slow) ease-out forwards;
+  animation-delay: 400ms;
+}
+
+.phonePreviewFrame {
+  max-width: 300px;
+  margin: 0 auto;
+  border-radius: 2.25rem;
+  background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  aspect-ratio: 375 / 812;
+}
+
+.phonePreviewScreen {
+  border-radius: 1.5rem;
+  overflow: hidden;
+  background: var(--color-950);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.phonePreviewContent {
+  flex: 1;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.previewCard {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+}
+
+.previewCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.previewCardTitle {
+  font-weight: 600;
+  color: var(--color-white);
+  font-size: 0.875rem;
+}
+
+.previewCardAmount {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-white);
+  line-height: 1.2;
+}
+
+.previewCardMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.75rem;
+  color: var(--color-400);
+}
+
+@media (max-width: 768px) {
+  .phonePreview {
+    display: none;
+  }
+}
+
+/* Responsive */
 @media (max-width: 640px) {
   .headline {
-    font-size: 1.875rem;
-  }
-
-  .subtext {
-    font-size: 1rem;
-  }
-
-  .ctaGroup {
-    flex-direction: column;
-    width: 100%;
+    font-size: 2.125rem;
   }
 
   .ctaPrimary,
   .ctaSecondary,
   .ctaSecondaryDisabled {
+    width: 100%;
+  }
+
+  .featuresHighlight {
+    flex-direction: column;
+  }
+
+  .featureHighlightItem {
     width: 100%;
     justify-content: center;
   }

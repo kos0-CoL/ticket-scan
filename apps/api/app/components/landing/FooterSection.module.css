@@ -1,144 +1,177 @@
 /**
- * FooterSection Module - Estilos específicos de la sección Footer
+ * FooterSection Module - Modern Footer
  * Importar como: import styles from './FooterSection.module.css'
  */
 
 .section {
-  padding-top: 3rem;
-  padding-bottom: 3rem;
-  background-color: #020617; /* slate-950 */
-  color: #cbd5e1; /* slate-300 */
+  position: relative;
+  padding-top: var(--space-16);
+  padding-bottom: var(--space-8);
+  background-color: var(--color-950);
+  color: var(--color-400);
+  overflow: hidden;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .section {
-    padding-top: 4.5rem;
-    padding-bottom: 4.5rem;
+    padding-top: var(--space-20);
+    padding-bottom: var(--space-10);
   }
 }
 
 .container {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 80rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Top accent line */
+.section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 50%, var(--color-primary) 100%);
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-10);
+  margin-bottom: var(--space-12);
 }
 
 @media (min-width: 640px) {
-  .container {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (min-width: 1024px) {
-  .container {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  margin-bottom: 3rem;
-}
-
-@media (min-width: 768px) {
   .grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: 2fr 1fr 1fr 1fr;
   }
 }
 
+/* Brand Column */
 .brandColumn {
-  grid-column: span 1;
-}
-
-@media (min-width: 768px) {
-  .brandColumn {
-    grid-column: span 2;
-  }
+  max-width: 24rem;
 }
 
 .brandBadge {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  border-radius: 9999px;
-  padding: 0.375rem 1rem;
+  gap: var(--space-2);
+  border-radius: var(--radius-full);
+  padding: var(--space-2) var(--space-4);
   font-size: 0.875rem;
-  font-weight: 500;
-  margin-bottom: 1rem;
-  background-color: rgba(0, 171, 228, 0.15);
+  font-weight: 700;
   color: var(--color-primary);
+  background: rgba(0, 171, 228, 0.12);
+  border: 1px solid rgba(0, 171, 228, 0.2);
+  margin-bottom: var(--space-4);
+}
+
+.brandBadgeIcon {
+  font-size: 1.125rem;
 }
 
 .brandDescription {
-  max-width: 20rem;
-  color: #94A3B8;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--color-500);
+  margin-bottom: var(--space-6);
 }
 
+/* Social Links */
 .socialLinks {
   display: flex;
-  gap: 1rem;
-  margin-top: 1.25rem;
+  gap: var(--space-3);
 }
 
 .socialLink {
-  color: #94A3B8;
-  transition: color 150ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-500);
   text-decoration: none;
+  transition: all var(--transition-base);
 }
 
 .socialLink:hover {
-  color: white;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-primary);
 }
 
 .socialIcon {
   font-size: 1.125rem;
 }
 
+/* Navigation Columns */
 .navColumn {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .navTitle {
-  font-weight: 600;
-  color: white;
-  margin-bottom: 1rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-400);
+  margin-bottom: var(--space-4);
 }
 
 .navList {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  font-size: 0.875rem;
+  gap: var(--space-2.5);
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .navItem {
-  transition: color 150ms ease;
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-500);
   text-decoration: none;
-  color: inherit;
+  transition: all var(--transition-fast);
+  padding: var(--space-1) 0;
 }
 
 .navItem:hover {
   color: var(--color-primary);
+  padding-left: var(--space-2);
 }
 
+.navItem:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Divider */
 .divider {
-  padding-top: 2rem;
-  border-top: 1px solid #1E293B; /* slate-800 */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  font-size: 0.875rem;
-  color: #64748B;
+  gap: var(--space-6);
+  padding-top: var(--space-8);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 @media (min-width: 768px) {
@@ -148,44 +181,83 @@
 }
 
 .copyright {
-  color: #64748B;
+  font-size: 0.875rem;
+  color: var(--color-500);
+  line-height: 1.5;
 }
 
 .footerBottom {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-3);
+}
+
+@media (min-width: 768px) {
+  .footerBottom {
+    flex-direction: row;
+  }
 }
 
 .version {
-  color: #94A3B8;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1.5);
+  padding: var(--space-1.5) var(--space-3);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-500);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  letter-spacing: 0.02em;
+}
+
+.versionDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  animation: pulse-glow 2s ease-in-out infinite;
 }
 
 .adminLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1.5) var(--space-3);
+  font-size: 0.8125rem;
+  font-weight: 600;
   color: var(--color-primary);
+  background: rgba(0, 171, 228, 0.1);
+  border: 1px solid rgba(0, 171, 228, 0.2);
+  border-radius: var(--radius-lg);
   text-decoration: none;
+  transition: all var(--transition-fast);
 }
 
 .adminLink:hover {
-  text-decoration: underline;
+  background: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
 }
 
-/* Responsive adjustments */
+.adminLinkIcon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Responsive */
 @media (max-width: 640px) {
   .grid {
     grid-template-columns: 1fr;
   }
 
   .brandColumn {
-    grid-column: 1;
+    max-width: none;
   }
 
-  .divider {
-    flex-direction: column;
+  .copyright {
     text-align: center;
-  }
-
-  .footerBottom {
-    justify-content: center;
   }
 }

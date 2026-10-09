@@ -1,80 +1,67 @@
 /**
- * FeaturesSection Module - Estilos específicos de la sección Features
+ * FeaturesSection Module - Modern Features Grid
  * Importar como: import styles from './FeaturesSection.module.css'
  */
 
 .section {
-  padding-top: 4rem;
-  padding-bottom: 4rem;
-  background-color: var(--color-background);
+  position: relative;
+  padding-top: var(--space-20);
+  padding-bottom: var(--space-20);
+  background-color: var(--color-white);
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .section {
-    padding-top: 5rem;
-    padding-bottom: 5rem;
+    padding-top: var(--space-24);
+    padding-bottom: var(--space-24);
   }
 }
 
 .container {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 64rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  position: relative;
+  z-index: 1;
 }
 
-@media (min-width: 640px) {
-  .container {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .container {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-}
-
+/* Header */
 .header {
   text-align: center;
-  max-width: 48rem;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 4rem;
-  animation: fade-in 0.5s ease-out forwards;
+  max-width: 44rem;
+  margin: 0 auto var(--space-16);
 }
 
 .headline {
-  font-size: 1.875rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: #0F172A;
-  margin-bottom: 1rem;
-  animation: fade-in 0.5s ease-out forwards;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--color-900);
+  margin-bottom: var(--space-4);
+  animation: fade-in-up var(--transition-slow) ease-out forwards;
 }
 
-@media (min-width: 1024px) {
-  .headline {
-    font-size: 2.25rem;
-  }
+.headlineHighlight {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .subtext {
-  margin-top: 1rem;
   font-size: 1.125rem;
-  color: #475569;
+  line-height: 1.75;
+  color: var(--color-600);
+  animation: fade-in-up var(--transition-slow) ease-out forwards;
+  animation-delay: 150ms;
 }
 
+/* Grid */
 .grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -86,41 +73,140 @@
   }
 }
 
+/* Feature Card */
 .card {
-  border-radius: 1.5rem;
-  border: 1px solid #E2E8F0;
-  background-color: white;
-  padding: 1.5rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  animation: fade-in 0.5s ease-out forwards;
+  position: relative;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-200);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
   display: flex;
   flex-direction: column;
+  height: 100%;
+  animation: fade-in-up var(--transition-slow) ease-out forwards;
+}
+
+.card:hover {
+  border-color: var(--color-primary-light);
+  box-shadow: var(--shadow-xl);
+  transform: translateY(-4px);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+/* Icon wrapper */
+.iconWrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, var(--color-primary-light) 0%, rgba(0, 171, 228, 0.08) 100%);
+  margin-bottom: var(--space-5);
+  transition: all var(--transition-base);
+}
+
+.card:hover .iconWrapper {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+  transform: scale(1.05);
 }
 
 .icon {
-  font-size: 2.25rem;
-  margin-bottom: 1rem;
+  font-size: 1.75rem;
+  line-height: 1;
+  transition: color var(--transition-base);
 }
 
+.card:hover .icon {
+  color: var(--color-white);
+}
+
+/* Title */
 .title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #0F172A;
-  margin-bottom: 0.5rem;
+  font-size: 1.1875rem;
+  font-weight: 700;
+  color: var(--color-900);
+  margin-bottom: var(--space-3);
+  line-height: 1.3;
 }
 
+/* Description */
 .description {
-  color: #475569;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--color-600);
   flex: 1;
+  margin: 0;
 }
 
-/* Responsive adjustments */
+/* Feature link */
+.featureLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1.5);
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-200);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.featureLink:hover {
+  gap: var(--space-2.5);
+  color: var(--color-primary-dark);
+}
+
+.featureLinkIcon {
+  width: 18px;
+  height: 18px;
+  transition: transform var(--transition-fast);
+}
+
+.featureLink:hover .featureLinkIcon {
+  transform: translateX(2px);
+}
+
+/* Responsive */
 @media (max-width: 640px) {
-  .headline {
-    font-size: 1.875rem;
+  .card {
+    padding: var(--space-6);
   }
 
-  .grid {
-    grid-template-columns: 1fr;
+  .iconWrapper {
+    width: 48px;
+    height: 48px;
+  }
+
+  .icon {
+    font-size: 1.5rem;
   }
 }
+
+/* Stagger animation delays for grid items */
+.card:nth-child(1) { animation-delay: 100ms; }
+.card:nth-child(2) { animation-delay: 200ms; }
+.card:nth-child(3) { animation-delay: 300ms; }
+.card:nth-child(4) { animation-delay: 400ms; }
+.card:nth-child(5) { animation-delay: 500ms; }
+.card:nth-child(6) { animation-delay: 600ms; }
