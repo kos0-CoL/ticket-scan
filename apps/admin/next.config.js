@@ -3,7 +3,7 @@ const nextConfig = {
   poweredByHeader: false,
 
   async rewrites() {
-    const api = process.env.API_URL || 'https://netlify.app';
+    const api = process.env.API_URL || 'https://ticket-ar.netlify.app';
     return [
       {
         source: '/api/:path*',
