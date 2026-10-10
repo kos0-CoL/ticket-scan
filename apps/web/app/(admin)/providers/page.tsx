@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Button, Card, CardHeader, CardContent, Table, Modal, ConfirmModal, Input, Select, Badge, StatusBadge } from '@ticketscan/ui';
+import { useState, useEffect } from 'react';
+import { Button, Card, CardHeader, CardContent, Table, Modal, ConfirmModal, Input, Select, StatusBadge } from '@ticketscan/ui';
 import type { Column } from '@ticketscan/ui';
 
 interface Provider {
@@ -11,6 +11,7 @@ interface Provider {
   fallback_order: number;
   is_active: boolean;
   created_at: string;
+  ml_configs?: any[];
 }
 
 interface Model {
@@ -21,17 +22,33 @@ interface Model {
 }
 
 export default function ProvidersPage() {
-  const [providers, setProviders] = useState<Provider[]>([
-    { id: '1', name: 'OpenRouter', default_model: 'google/gemini-1.5-flash', fallback_order: 1, is_active: true, created_at: '2025-01-15' },
-    { id: '2', name: 'OpenAI', default_model: 'gpt-4o-mini', fallback_order: 2, is_active: true, created_at: '2025-01-15' },
-    { id: '3', name: 'Anthropic', default_model: 'claude-3.5-sonnet', fallback_order: 3, is_active: false, created_at: '2025-01-15' },
-  ]);
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProvider, setEditingProvider] = useState<Provider | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<Provider | null>(null);
   const [formData, setFormData] = useState({ name: '', default_model: '', fallback_order: 1, is_active: true });
   const [models, setModels] = useState<Model[]>([]);
   const [showModelsFor, setShowModelsFor] = useState<string | null>(null);
+
+  const fetchProviders = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/providers');
+      const data = await res.json();
+      if (data.ok) {
+        setProviders(data.data);
+      }
+    } catch (err) {
+      console.error('Error fetching providers:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProviders();
+  }, []);
 
   const columns: Column<Provider>[] = [
     { key: 'name', header: 'Proveedor', render: (p) => <span className="font-medium">{p.name}</span> },
@@ -53,26 +70,53 @@ export default function ProvidersPage() {
     setIsModalOpen(true);
   };
 
-  const handleModels = (provider: Provider) => {
-    setShowModelsFor(provider.id);
-    // Fetch models would go here
+  const handleModels = async (provider: Provider) => {
+    try {
+      const res = await fetch(`/api/providers/${provider.name.toLowerCase()}/models`);
+      const data = await res.json();
+      if (data.ok) {
+        setModels(data.models);
+        setShowModelsFor(provider.name);
+      }
+    } catch (err) {
+      console.error('Error fetching models:', err);
+    }
   };
 
   const handleSave = async () => {
-    if (editingProvider) {
-      setProviders(providers.map(p => p.id === editingProvider.id ? { ...p, ...formData } : p));
+    const method = editingProvider ? 'PUT' : 'POST';
+    const url = editingProvider ? `/api/admin/providers/${editingProvider.id}` : '/api/admin/providers';
+
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await res.json();
+    if (data.ok) {
+      await fetchProviders();
+      setIsModalOpen(false);
+      setEditingProvider(null);
+      setFormData({ name: '', default_model: '', fallback_order: 1, is_active: true });
     } else {
-      setProviders([...providers, { id: Date.now().toString(), ...formData, created_at: new Date().toISOString() }]);
+      alert(data.error || 'Error al guardar');
     }
-    setIsModalOpen(false);
-    setEditingProvider(null);
-    setFormData({ name: '', default_model: '', fallback_order: 1, is_active: true });
   };
 
-  const handleDelete = () => {
-    if (deleteConfirm) {
-      setProviders(providers.filter(p => p.id !== deleteConfirm.id));
+  const handleDelete = async () => {
+    if (!deleteConfirm) return;
+
+    const res = await fetch(`/api/admin/providers/${deleteConfirm.id}`, {
+      method: 'DELETE',
+    });
+
+    const data = await res.json();
+    if (data.ok) {
+      await fetchProviders();
       setDeleteConfirm(null);
+    } else {
+      alert(data.error || 'Error al eliminar');
     }
   };
 
@@ -83,12 +127,18 @@ export default function ProvidersPage() {
           <h1 className="text-2xl font-bold text-slate-900">Proveedores de IA</h1>
           <p className="text-slate-500">Gestiona los proveedores y modelos de IA disponibles</p>
         </div>
-        <Button onClick={() => handleEdit({ id: '', name: '', default_model: '', fallback_order: providers.length + 1, is_active: true, created_at: '' })}>Nuevo proveedor</Button>
+        <Button onClick={() => handleEdit({ id: '', name: '', default_model: '', fallback_order: (providers.length + 1), is_active: true, created_at: '' })}>Nuevo proveedor</Button>
       </div>
 
-      <Card elevated>
-        <Table columns={columns} data={providers} keyExtractor={p => p.id} hover divide />
-      </Card>
+      {loading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
+      ) : (
+        <Card elevated>
+          <Table columns={columns} data={providers} keyExtractor={p => p.id} hover divide emptyMessage="No hay proveedores configurados" />
+        </Card>
+      )}
 
       <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingProvider ? 'Editar proveedor' : 'Nuevo proveedor'} size="md">
         <div className="space-y-4">
@@ -98,7 +148,7 @@ export default function ProvidersPage() {
           <Select label="Estado" value={formData.is_active.toString()} onChange={e => setFormData({ ...formData, is_active: e.target.value === 'true' })} options={[{ value: 'true', label: 'Activo' }, { value: 'false', label: 'Inactivo' }]} />
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
-            <Button onClick={handleSave} loading={false}>Guardar</Button>
+            <Button onClick={handleSave}>Guardar</Button>
           </div>
         </div>
       </Modal>

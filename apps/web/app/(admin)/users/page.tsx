@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardHeader, CardContent, Table, Button, Input, Select, Badge, StatusBadge, Modal, ConfirmModal } from '@ticketscan/ui';
+import { useState, useEffect } from 'react';
+import { Card, CardHeader, CardContent, Table, Button, Input, Select, Badge, Modal, ConfirmModal } from '@ticketscan/ui';
 import type { Column } from '@ticketscan/ui';
 
 interface User {
@@ -14,19 +14,46 @@ interface User {
   total_spent: number;
 }
 
-const mockUsers: User[] = [
-  { id: '1', email: 'admin@ticketscan.ar', full_name: 'Admin TicketScan', role: 'admin', created_at: '2025-01-01', ticket_count: 0, total_spent: 0 },
-  { id: '2', email: 'maria.gonzalez@email.com', full_name: 'María González', role: 'user', created_at: '2025-01-10', ticket_count: 45, total_spent: 124500 },
-  { id: '3', email: 'carlos.rodriguez@email.com', full_name: 'Carlos Rodríguez', role: 'user', created_at: '2025-01-12', ticket_count: 23, total_spent: 67890 },
-  { id: '4', email: 'lucia.martinez@email.com', full_name: 'Lucía Martínez', role: 'user', created_at: '2025-01-14', ticket_count: 12, total_spent: 34200 },
-];
+interface PaginatedResponse<T> {
+  ok: boolean;
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<User | null>(null);
   const [formData, setFormData] = useState({ email: '', full_name: '', role: 'user' as 'admin' | 'user' });
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/users?page=${page}&limit=20`);
+      const result: PaginatedResponse<User> = await res.json();
+      if (result.ok) {
+        setUsers(result.data);
+        setTotalPages(result.pagination.totalPages);
+      }
+    } catch (err) {
+      console.error('Error fetching users:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, [page]);
 
   const columns: Column<User>[] = [
     { key: 'email', header: 'Email', render: (u) => <span className="font-medium">{u.email}</span> },
@@ -49,19 +76,45 @@ export default function UsersPage() {
     setIsModalOpen(true);
   };
 
-  const handleSave = () => {
-    if (editingUser) {
-      setUsers(users.map(u => u.id === editingUser.id ? { ...u, ...formData } : u));
+  const handleSave = async () => {
+    if (!editingUser) return;
+
+    try {
+      const res = await fetch(`/api/admin/users/${editingUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const result = await res.json();
+      if (result.ok) {
+        await fetchUsers();
+        setIsModalOpen(false);
+        setEditingUser(null);
+        setFormData({ email: '', full_name: '', role: 'user' });
+      } else {
+        alert(result.error || 'Error al guardar');
+      }
+    } catch (err) {
+      alert('Error de conexión');
     }
-    setIsModalOpen(false);
-    setEditingUser(null);
-    setFormData({ email: '', full_name: '', role: 'user' });
   };
 
-  const handleDelete = () => {
-    if (deleteConfirm) {
-      setUsers(users.filter(u => u.id !== deleteConfirm.id));
-      setDeleteConfirm(null);
+  const handleDelete = async () => {
+    if (!deleteConfirm) return;
+
+    try {
+      const res = await fetch(`/api/admin/users/${deleteConfirm.id}`, {
+        method: 'DELETE',
+      });
+      const result = await res.json();
+      if (result.ok) {
+        await fetchUsers();
+        setDeleteConfirm(null);
+      } else {
+        alert(result.error || 'Error al eliminar');
+      }
+    } catch (err) {
+      alert('Error de conexión');
     }
   };
 
@@ -74,9 +127,23 @@ export default function UsersPage() {
         </div>
       </div>
 
-      <Card elevated>
-        <Table columns={columns} data={users} keyExtractor={u => u.id} hover divide />
-      </Card>
+      {loading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
+      ) : (
+        <Card elevated>
+          <Table columns={columns} data={users} keyExtractor={u => u.id} hover divide emptyMessage="No hay usuarios" />
+        </Card>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <Button variant="ghost" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>Anterior</Button>
+          <span className="text-sm text-slate-600">Página {page} de {totalPages}</span>
+          <Button variant="ghost" size="sm" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>Siguiente</Button>
+        </div>
+      )}
 
       <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingUser ? 'Editar usuario' : 'Nuevo usuario'} size="md">
         <div className="space-y-4">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardContent, Table, Button, Badge, StatusBadge, Modal, Select } from '@ticketscan/ui';
 import type { Column } from '@ticketscan/ui';
 
@@ -13,34 +13,63 @@ interface NormalizationItem {
   suggested_category: string;
   status: 'pending' | 'approved' | 'rejected';
   created_at: string;
+  tickets?: { comercio: string; fecha: string; total: number };
 }
 
-const mockQueue: NormalizationItem[] = [
-  { id: '1', ticket_id: 't1', comercio: 'Carrefour', fecha: '2025-01-15', total: 45230, suggested_category: 'almacen', status: 'pending', created_at: '2025-01-15T10:30:00Z' },
-  { id: '2', ticket_id: 't2', comercio: 'Dia', fecha: '2025-01-15', total: 23100, suggested_category: 'frescos', status: 'pending', created_at: '2025-01-15T11:15:00Z' },
-  { id: '3', ticket_id: 't3', comercio: 'Coto', fecha: '2025-01-14', total: 67890, suggested_category: 'bebidas', status: 'approved', created_at: '2025-01-14T09:00:00Z' },
-  { id: '4', ticket_id: 't4', comercio: 'ChangoMas', fecha: '2025-01-14', total: 12450, suggested_category: 'limpieza', status: 'rejected', created_at: '2025-01-14T14:20:00Z' },
-];
+interface PaginatedResponse<T> {
+  ok: boolean;
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
 
 export default function NormalizationPage() {
-  const [queue, setQueue] = useState<NormalizationItem[]>(mockQueue);
+  const [queue, setQueue] = useState<NormalizationItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [detailModal, setDetailModal] = useState<NormalizationItem | null>(null);
 
-  const filteredQueue = filterStatus === 'all' ? queue : queue.filter(q => q.status === filterStatus);
+  const fetchQueue = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ page: String(page), limit: '20' });
+      if (filterStatus !== 'all') params.set('status', filterStatus);
+
+      const res = await fetch(`/api/admin/normalization?${params}`);
+      const result: PaginatedResponse<NormalizationItem> = await res.json();
+      if (result.ok) {
+        setQueue(result.data);
+        setTotalPages(result.pagination.totalPages);
+      }
+    } catch (err) {
+      console.error('Error fetching normalization queue:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchQueue();
+  }, [page, filterStatus]);
 
   const columns: Column<NormalizationItem>[] = [
-    { key: 'comercio', header: 'Comercio', render: (q) => <span className="font-medium">{q.comercio}</span> },
-    { key: 'fecha', header: 'Fecha', render: (q) => <span>{q.fecha}</span> },
-    { key: 'total', header: 'Total', render: (q) => <span className="font-mono">${q.total.toLocaleString()}</span> },
+    { key: 'comercio', header: 'Comercio', render: (q) => <span className="font-medium">{q.tickets?.comercio || q.comercio}</span> },
+    { key: 'fecha', header: 'Fecha', render: (q) => <span>{q.tickets?.fecha || q.fecha}</span> },
+    { key: 'total', header: 'Total', render: (q) => <span className="font-mono">${(q.tickets?.total || q.total).toLocaleString()}</span> },
     { key: 'suggested_category', header: 'Categoría sugerida', render: (q) => <Badge variant="primary">{q.suggested_category}</Badge> },
     { key: 'status', header: 'Estado', render: (q) => <StatusBadge status={q.status === 'approved' ? 'success' : q.status === 'rejected' ? 'error' : 'pending'} /> },
     { key: 'actions', header: 'Acciones', render: (q) => (
       <div className="flex gap-1">
         {q.status === 'pending' && (
           <>
-            <Button variant="primary" size="sm" onClick={() => handleApprove(q.id)}>Aprobar</Button>
-            <Button variant="danger" size="sm" onClick={() => handleReject(q.id)}>Rechazar</Button>
+            <Button variant="primary" size="sm" onClick={() => handleUpdate(q.id, 'approved')}>Aprobar</Button>
+            <Button variant="danger" size="sm" onClick={() => handleUpdate(q.id, 'rejected')}>Rechazar</Button>
           </>
         )}
         <Button variant="ghost" size="sm" onClick={() => setDetailModal(q)}>Ver</Button>
@@ -48,12 +77,22 @@ export default function NormalizationPage() {
     )},
   ];
 
-  const handleApprove = (id: string) => {
-    setQueue(queue.map(q => q.id === id ? { ...q, status: 'approved' } : q));
-  };
-
-  const handleReject = (id: string) => {
-    setQueue(queue.map(q => q.id === id ? { ...q, status: 'rejected' } : q));
+  const handleUpdate = async (id: string, status: 'approved' | 'rejected') => {
+    try {
+      const res = await fetch('/api/admin/normalization', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status }),
+      });
+      const result = await res.json();
+      if (result.ok) {
+        await fetchQueue();
+      } else {
+        alert(result.error || 'Error al actualizar');
+      }
+    } catch (err) {
+      alert('Error de conexión');
+    }
   };
 
   const stats = {
@@ -91,17 +130,31 @@ export default function NormalizationPage() {
         </Card>
       </div>
 
-      <Card elevated>
-        <Table columns={columns} data={filteredQueue} keyExtractor={q => q.id} hover divide emptyMessage="No hay items en la cola" />
-      </Card>
+      {loading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
+      ) : (
+        <Card elevated>
+          <Table columns={columns} data={queue} keyExtractor={q => q.id} hover divide emptyMessage="No hay items en la cola" />
+        </Card>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <Button variant="ghost" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>Anterior</Button>
+          <span className="text-sm text-slate-600">Página {page} de {totalPages}</span>
+          <Button variant="ghost" size="sm" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>Siguiente</Button>
+        </div>
+      )}
 
       <Modal open={!!detailModal} onClose={() => setDetailModal(null)} title="Detalle del ticket" size="md">
         {detailModal && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <div><span className="text-slate-500">Comercio:</span> <span className="font-medium ml-2">{detailModal.comercio}</span></div>
-              <div><span className="text-slate-500">Fecha:</span> <span className="font-medium ml-2">{detailModal.fecha}</span></div>
-              <div><span className="text-slate-500">Total:</span> <span className="font-medium ml-2 font-mono">${detailModal.total.toLocaleString()}</span></div>
+              <div><span className="text-slate-500">Comercio:</span> <span className="font-medium ml-2">{detailModal.tickets?.comercio || detailModal.comercio}</span></div>
+              <div><span className="text-slate-500">Fecha:</span> <span className="font-medium ml-2">{detailModal.tickets?.fecha || detailModal.fecha}</span></div>
+              <div><span className="text-slate-500">Total:</span> <span className="font-medium ml-2 font-mono">${(detailModal.tickets?.total || detailModal.total).toLocaleString()}</span></div>
               <div><span className="text-slate-500">Categoría:</span> <span className="font-medium ml-2">{detailModal.suggested_category}</span></div>
               <div><span className="text-slate-500">Estado:</span> <StatusBadge status={detailModal.status === 'approved' ? 'success' : detailModal.status === 'rejected' ? 'error' : 'pending'} /></div>
               <div><span className="text-slate-500">Ticket ID:</span> <span className="font-medium ml-2 font-mono">{detailModal.ticket_id}</span></div>

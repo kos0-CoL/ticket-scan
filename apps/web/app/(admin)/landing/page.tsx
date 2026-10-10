@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardContent, Table, Button, Input, Textarea, Modal, Badge, StatusBadge, Select } from '@ticketscan/ui';
 import type { Column } from '@ticketscan/ui';
 
@@ -14,19 +14,36 @@ interface LandingSection {
   updated_at: string;
 }
 
-const mockSections: LandingSection[] = [
-  { id: '1', key: 'hero', title: 'Hero Section', enabled: true, sort_order: 1, content: { title: 'Escanea, categoriza y analiza', subtitle: 'tus tickets de supermercado', cta_text: 'Descargar APK', cta_url: '#' }, updated_at: '2025-01-15T10:00:00Z' },
-  { id: '2', key: 'features', title: 'Características', enabled: true, sort_order: 2, content: { items: [] }, updated_at: '2025-01-15T10:00:00Z' },
-  { id: '3', key: 'social-proof', title: 'Testimonios', enabled: true, sort_order: 3, content: { testimonials: [] }, updated_at: '2025-01-15T10:00:00Z' },
-  { id: '4', key: 'cta-download', title: 'CTA Descarga', enabled: true, sort_order: 4, content: { primary_cta: 'Descargar', secondary_cta: 'Play Store' }, updated_at: '2025-01-15T10:00:00Z' },
-  { id: '5', key: 'footer', title: 'Footer', enabled: true, sort_order: 5, content: { brand: 'TicketScan', description: 'Tu app de tickets' }, updated_at: '2025-01-15T10:00:00Z' },
-];
+interface PaginatedResponse<T> {
+  ok: boolean;
+  data: T[];
+}
 
 export default function LandingPage() {
-  const [sections, setSections] = useState<LandingSection[]>(mockSections);
+  const [sections, setSections] = useState<LandingSection[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSection, setEditingSection] = useState<LandingSection | null>(null);
   const [formData, setFormData] = useState({ key: '', title: '', enabled: true, sort_order: 0, content: {} });
+
+  const fetchSections = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/landing');
+      const result: PaginatedResponse<LandingSection> = await res.json();
+      if (result.ok) {
+        setSections(result.data);
+      }
+    } catch (err) {
+      console.error('Error fetching landing sections:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSections();
+  }, []);
 
   const columns: Column<LandingSection>[] = [
     { key: 'title', header: 'Sección', render: (s) => <span className="font-medium">{s.title}</span> },
@@ -47,16 +64,54 @@ export default function LandingPage() {
     setIsModalOpen(true);
   };
 
-  const handleToggle = (id: string) => {
-    setSections(sections.map(s => s.id === id ? { ...s, enabled: !s.enabled } : s));
+  const handleToggle = async (id: string) => {
+    const section = sections.find(s => s.id === id);
+    if (!section) return;
+
+    try {
+      const res = await fetch(`/api/admin/landing/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: !section.enabled }),
+      });
+      const result = await res.json();
+      if (result.ok) {
+        await fetchSections();
+      } else {
+        alert(result.error || 'Error al actualizar');
+      }
+    } catch (err) {
+      alert('Error de conexión');
+    }
   };
 
-  const handleSave = () => {
-    if (editingSection) {
-      setSections(sections.map(s => s.id === editingSection.id ? { ...s, ...formData, updated_at: new Date().toISOString() } : s));
+  const handleSave = async () => {
+    if (!formData.key || !formData.title) {
+      alert('Clave y título requeridos');
+      return;
     }
-    setIsModalOpen(false);
-    setEditingSection(null);
+
+    const method = editingSection ? 'PUT' : 'POST';
+    const url = editingSection ? `/api/admin/landing/${editingSection.id}` : '/api/admin/landing';
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const result = await res.json();
+      if (result.ok) {
+        await fetchSections();
+        setIsModalOpen(false);
+        setEditingSection(null);
+        setFormData({ key: '', title: '', enabled: true, sort_order: 0, content: {} });
+      } else {
+        alert(result.error || 'Error al guardar');
+      }
+    } catch (err) {
+      alert('Error de conexión');
+    }
   };
 
   return (
@@ -68,9 +123,15 @@ export default function LandingPage() {
         </div>
       </div>
 
-      <Card elevated>
-        <Table columns={columns} data={sections} keyExtractor={s => s.id} hover divide />
-      </Card>
+      {loading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
+      ) : (
+        <Card elevated>
+          <Table columns={columns} data={sections} keyExtractor={s => s.id} hover divide emptyMessage="No hay secciones configuradas" />
+        </Card>
+      )}
 
       <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingSection ? 'Editar sección' : 'Nueva sección'} size="lg">
         <div className="space-y-4 max-h-[60vh] overflow-y-auto">
