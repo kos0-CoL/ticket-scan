@@ -240,3 +240,23 @@ export function getAvailableModels(): AIModel[] {
     },
   ];
 }
+
+export function getProviderBaseUrl(providerName: string): string {
+  const urls: Record<string, string> = {
+    'OpenRouter': 'https://openrouter.ai/api/v1',
+    'OpenAI': 'https://api.openai.com/v1',
+    'Anthropic': 'https://api.anthropic.com/v1',
+  };
+  return urls[providerName] || 'https://openrouter.ai/api/v1';
+}
+
+export function getOCRPrompt(): string {
+  return 'Analiza este ticket de supermercado y extrae la información en formato JSON:\n{\n  "comercio": "nombre del comercio",\n  "fecha": "YYYY-MM-DD",\n  "hora": "HH:MM",\n  "total": 123.45,\n  "items": [\n    {"nombre": "producto", "cantidad": 1, "precio": 10.50, "categoria": "almacen"}\n  ],\n  "metodo_pago": "efectivo|tarjeta|transferencia",\n  "sucursal": "nombre sucursal si visible"\n}';
+}
+
+export function getCategorizationPrompt(items: any[]): string {
+  const validCategories = ['almacen', 'frescos', 'lacteos', 'bebidas', 'limpieza', 'congelados', 'carnes', 'frutas_y_verduras', 'panaderia', 'otros'];
+  const itemsText = items.map((item, i) => i + 1 + '. ' + item.nombre + ' (' + item.cantidad + ' x $' + item.precio + ')').join('\n');
+  
+  return 'Categoriza cada item de esta lista de productos de supermercado en una de estas categorías válidas:\n' + validCategories.join(', ') + '\n\nItems a categorizar:\n' + itemsText + '\n\nResponde SOLO con un array JSON con este formato:\n[\n  {"nombre": "nombre del producto", "categoria": "categoria_valida", "subcategoria": "opcional"}\n]';
+}
