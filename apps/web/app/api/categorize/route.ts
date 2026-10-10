@@ -1,47 +1,108 @@
 import { createServerSupabaseClient } from '../../../lib/supabase';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import {
+  categorizeInputSchema,
+  categorizeOutputSchema,
+  type CategorizeInput,
+  type CategorizeOutput,
+  callCategorizationWithFallback,
+  logCategorization,
+} from '@ticketscan/ai';
 
 export async function POST(request: NextRequest) {
+  const requestId = crypto.randomUUID();
+  const startTime = Date.now();
+
   const supabase = await createServerSupabaseClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
+  
   if (authError || !user) {
     return NextResponse.json({ ok: false, error: 'No autorizado' }, { status: 401 });
   }
 
-  const body = await request.json();
-  const { ticket_id, items } = body;
-
-  if (!ticket_id || !items || !Array.isArray(items)) {
-    return NextResponse.json({ ok: false, error: 'ticket_id e items requeridos' }, { status: 400 });
+  // Validate input with Zod
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ ok: false, error: 'JSON inválido' }, { status: 400 });
   }
 
-  const { data: providers, error: providerError } = await supabase
-    .from('ml_providers')
-    .select('*, ml_configs(*)')
-    .eq('is_active', true)
-    .order('fallback_order', { ascending: true })
-    .limit(1);
-
-  if (providerError || !providers || providers.length === 0) {
-    return NextResponse.json({ ok: false, error: 'No hay proveedores IA configurados' }, { status: 500 });
+  const inputValidation = categorizeInputSchema.safeParse(body);
+  if (!inputValidation.success) {
+    logCategorization('warn', 'Invalid input for categorization', {
+      requestId,
+      userId: user.id,
+      error: inputValidation.error.message,
+    });
+    return NextResponse.json(
+      { ok: false, error: 'Datos de entrada inválidos', details: inputValidation.error.flatten() },
+      { status: 400 }
+    );
   }
 
-  const provider = providers[0];
-  const config = provider.ml_configs?.[0];
-  if (!config?.is_active) {
-    return NextResponse.json({ ok: false, error: 'Proveedor sin configuración activa' }, { status: 500 });
+  const { ticket_id, items } = inputValidation.data;
+
+  // Verify ticket belongs to user
+  const { data: ticket, error: ticketError } = await supabase
+    .from('tickets')
+    .select('id')
+    .eq('id', ticket_id)
+    .eq('user_id', user.id)
+    .single();
+
+  if (ticketError || !ticket) {
+    return NextResponse.json({ ok: false, error: 'Ticket no encontrado' }, { status: 404 });
   }
+
+  // Get prompt version from query param or default to v2
+  const url = new URL(request.url);
+  const version = url.searchParams.get('version') || 'v2';
 
   try {
-    const result = await callProviderCategorization(provider, config, items);
-    const updates = result.data.map((categorizedItem: any, index: number) => ({
+    logCategorization('info', 'Starting categorization request', {
+      requestId,
+      userId: user.id,
+      ticketId: ticket_id,
+      itemCount: items.length,
+      version,
+    });
+
+    const result = await callCategorizationWithFallback(
+      supabase,
+      items,
+      requestId,
+      user.id,
+      ticket_id,
+      version
+    );
+
+    // Validate output with Zod
+    const outputValidation = categorizeOutputSchema.safeParse(result.data);
+    if (!outputValidation.success) {
+      logCategorization('error', 'Invalid output from provider', {
+        requestId,
+        userId: user.id,
+        ticketId: ticket_id,
+        provider: result.provider,
+        model: result.model,
+        error: outputValidation.error.message,
+      });
+      return NextResponse.json(
+        { ok: false, error: 'Respuesta inválida del proveedor' },
+        { status: 500 }
+      );
+    }
+
+    // Upsert categorized items
+    const updates = outputValidation.data.map((categorizedItem: CategorizeOutput[number], index: number) => ({
       ticket_id,
       nombre: items[index].nombre,
       cantidad: items[index].cantidad,
       precio: items[index].precio,
       categoria: categorizedItem.categoria,
-      subcategoria: categorizedItem.subcategoria,
+      subcategoria: categorizedItem.subcategoria ?? null,
     }));
 
     const { error: insertError } = await supabase
@@ -49,81 +110,56 @@ export async function POST(request: NextRequest) {
       .upsert(updates, { onConflict: 'ticket_id,nombre' });
 
     if (insertError) {
-      console.error('Error inserting categorized items:', insertError);
+      logCategorization('error', 'Failed to insert categorized items', {
+        requestId,
+        userId: user.id,
+        ticketId: ticket_id,
+        error: insertError.message,
+      });
+      // Don't fail the request, items are still returned
     }
 
-    return NextResponse.json({ ok: true, data: result.data });
-  } catch (err) {
-    console.error('Categorization error:', err);
-    return NextResponse.json({ ok: false, error: 'Error en categorización' }, { status: 500 });
-  }
-}
+    const totalLatencyMs = Date.now() - startTime;
 
-async function callProviderCategorization(provider: any, config: { max_tokens?: number; temperature?: number; model_id?: string }, items: any[]): Promise<{ ok: true; data: any }> {
-  const apiKey = provider.api_key_encrypted;
-  const model = config.model_id || provider.default_model;
-  const baseUrl = getProviderBaseUrl(provider.name);
-  const url = baseUrl + '/chat/completions';
-  const prompt = getCategorizationPrompt(items);
+    logCategorization('info', 'Categorization completed', {
+      requestId,
+      userId: user.id,
+      ticketId: ticket_id,
+      provider: result.provider,
+      model: result.model,
+      version: result.version,
+      itemCount: result.data.length,
+      latencyMs: totalLatencyMs,
+      cost: result.cost,
+    });
 
-  const headers = new Headers();
-  headers.set('Authorization', 'Bearer ' + provider.api_key_encrypted);
-  headers.set('Content-Type', 'application/json');
-
-  const requestBody = {
-    model,
-    messages: [
-      {
-        role: 'user',
-        content: prompt,
+    return NextResponse.json({
+      ok: true,
+      data: result.data,
+      meta: {
+        provider: result.provider,
+        model: result.model,
+        version: result.version,
+        latencyMs: totalLatencyMs,
+        cost: result.cost,
       },
-    ],
-    max_tokens: config.max_tokens || 4096,
-    temperature: config.temperature || 0.1,
-  };
+    });
+  } catch (error) {
+    const totalLatencyMs = Date.now() - startTime;
+    const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: headers,
-    body: JSON.stringify(requestBody),
-  });
+    logCategorization('error', 'Categorization failed', {
+      requestId,
+      userId: user.id,
+      ticketId: ticket_id,
+      version,
+      latencyMs: totalLatencyMs,
+      error: errorMessage,
+    });
 
-  if (!response.ok) {
-    throw new Error('Provider error: ' + response.status);
+    return NextResponse.json(
+      { ok: false, error: 'Error en categorización', details: errorMessage },
+      { status: 500 }
+    );
   }
-
-  const data = await response.json();
-  const content = data.choices?.[0]?.message?.content;
-  
-  if (!content) {
-    throw new Error('Empty response from provider');
-  }
-
-  try {
-    const parsed = JSON.parse(content);
-    return { ok: true, data: parsed };
-  } catch {
-    const jsonRegex = /\{[\s\S]*\}/;
-    const jsonMatch = content.match(jsonRegex);
-    if (jsonMatch) {
-      return { ok: true, data: JSON.parse(jsonMatch[0]) };
-    }
-    throw new Error('Invalid JSON response');
-  }
-}
-
-function getProviderBaseUrl(providerName: string): string {
-  const urls: Record<string, string> = {
-    'OpenRouter': 'https://openrouter.ai/api/v1',
-    'OpenAI': 'https://api.openai.com/v1',
-    'Anthropic': 'https://api.anthropic.com/v1',
-  };
-  return urls[providerName] || 'https://openrouter.ai/api/v1';
-}
-
-function getCategorizationPrompt(items: any[]): string {
-  const validCategories = ['almacen', 'frescos', 'lacteos', 'bebidas', 'limpieza', 'congelados', 'carnes', 'frutas_y_verduras', 'panaderia', 'otros'];
-  const itemsText = items.map((item, i) => i + 1 + '. ' + item.nombre + ' (' + item.cantidad + ' x $' + item.precio + ')').join('\n');
-  
-  return 'Categoriza cada item de esta lista de productos de supermercado en una de estas categorías válidas:\n' + validCategories.join(', ') + '\n\nItems a categorizar:\n' + itemsText + '\n\nResponde SOLO con un array JSON con este formato:\n[\n  {"nombre": "nombre del producto", "categoria": "categoria_valida", "subcategoria": "opcional"}\n]';
 }

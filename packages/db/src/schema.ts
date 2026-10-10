@@ -171,6 +171,26 @@ export const feedbackImages = pgTable('feedback_images', {
   selectedIdx: index('feedback_selected_idx').on(table.selectedForTraining),
 }));
 
+// OCR Usage / Cost Tracking
+export const ocrUsage = pgTable('ocr_usage', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  providerName: varchar('provider_name', { length: 100 }).notNull(),
+  modelId: varchar('model_id', { length: 100 }).notNull(),
+  inputTokens: integer('input_tokens').notNull().default(0),
+  outputTokens: integer('output_tokens').notNull().default(0),
+  totalTokens: integer('total_tokens').notNull().default(0),
+  costUsd: numeric('cost_usd', { precision: 10, scale: 6 }).notNull().default('0'),
+  status: varchar('status', { length: 20 }).notNull(), // 'success' | 'error'
+  errorMessage: text('error_message'),
+  requestId: varchar('request_id', { length: 100 }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => ({
+  userIdx: index('ocr_usage_user_idx').on(table.userId),
+  createdAtIdx: index('ocr_usage_created_idx').on(table.createdAt),
+  requestIdIdx: index('ocr_usage_request_idx').on(table.requestId),
+}));
+
 // ML Training Jobs - Feedback relation (many-to-many)
 export const mlTrainingJobsFeedback = pgTable('ml_training_jobs_feedback', {
   jobId: uuid('job_id').notNull().references(() => mlTrainingJobs.id, { onDelete: 'cascade' }),
@@ -259,4 +279,5 @@ export const schema = {
   feedbackImages,
   mlTrainingJobsFeedback,
   normalizationQueue,
+  ocrUsage,
 };

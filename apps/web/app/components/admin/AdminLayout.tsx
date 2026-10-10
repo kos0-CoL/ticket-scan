@@ -7,6 +7,7 @@ import Link from 'next/link';
 const adminTabs = [
   { href: '/admin', label: 'Proveedores IA', icon: '🤖' },
   { href: '/admin/monitoring', label: 'Monitorización', icon: '📊' },
+  { href: '/admin/ml-metrics', label: 'Métricas IA', icon: '📈' },
   { href: '/admin/normalization', label: 'Normalización', icon: '🔧' },
   { href: '/admin/landing', label: 'Landing', icon: '🎯' },
   { href: '/admin/users', label: 'Usuarios', icon: '👥' },

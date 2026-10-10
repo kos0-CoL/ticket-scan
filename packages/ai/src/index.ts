@@ -1,5 +1,6 @@
 import { OpenAI } from 'openai';
 import { z } from 'zod';
+import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1';
 
@@ -17,7 +18,32 @@ export interface AIModel {
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
-  content: string;
+  content: string | ChatMessageContent[];
+}
+
+export interface ChatMessageContent {
+  type: 'text' | 'image_url';
+  text?: string;
+  image_url?: { url: string };
+}
+
+function convertToOpenAIMessage(message: ChatMessage): ChatCompletionMessageParam {
+  if (typeof message.content === 'string') {
+    return { role: message.role, content: message.content };
+  }
+  // Only user messages can have array content (for vision)
+  if (message.role !== 'user') {
+    return { role: message.role, content: message.content.map((p) => (p.type === 'text' ? p.text : '')).join('') };
+  }
+  return {
+    role: 'user',
+    content: message.content.map((part) => {
+      if (part.type === 'text') {
+        return { type: 'text' as const, text: part.text || '' };
+      }
+      return { type: 'image_url' as const, image_url: { url: part.image_url!.url } };
+    }),
+  };
 }
 
 export interface ChatCompletionOptions {
@@ -92,9 +118,10 @@ class OpenRouterClient {
 
   async chatCompletion(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
     const model = options.model || this.defaultModel;
+    const messages = options.messages.map(convertToOpenAIMessage) as ChatCompletionMessageParam[];
     const response = await this.client.chat.completions.create({
       model,
-      messages: options.messages,
+      messages,
       temperature: options.temperature ?? 0.1,
       max_tokens: options.max_tokens ?? 4096,
       top_p: options.top_p ?? 1,
@@ -112,9 +139,10 @@ class OpenRouterClient {
     onChunk: (chunk: string) => void
   ): Promise<ChatCompletionResponse> {
     const model = options.model || this.defaultModel;
+    const messages = options.messages.map(convertToOpenAIMessage) as ChatCompletionMessageParam[];
     const stream = await this.client.chat.completions.create({
       model,
-      messages: options.messages,
+      messages,
       temperature: options.temperature ?? 0.1,
       max_tokens: options.max_tokens ?? 4096,
       top_p: options.top_p ?? 1,
@@ -159,7 +187,8 @@ class OpenRouterClient {
     });
 
     const content = response.choices[0]?.message?.content || '{}';
-    const parsed = JSON.parse(content);
+    const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
+    const parsed = JSON.parse(contentStr);
     return schema.parse(parsed);
   }
 }
@@ -260,3 +289,6 @@ export function getCategorizationPrompt(items: any[]): string {
   
   return 'Categoriza cada item de esta lista de productos de supermercado en una de estas categorías válidas:\n' + validCategories.join(', ') + '\n\nItems a categorizar:\n' + itemsText + '\n\nResponde SOLO con un array JSON con este formato:\n[\n  {"nombre": "nombre del producto", "categoria": "categoria_valida", "subcategoria": "opcional"}\n]';
 }
+
+export * from './ocr-schemas';
+export * from './categorization';

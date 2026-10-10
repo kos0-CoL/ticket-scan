@@ -9,6 +9,7 @@ export { Badge, StatusBadge } from './components/Badge';
 export { TabBar, TabBarSpacer } from './components/TabBar';
 export { ModelPicker } from './components/ModelPicker';
 export { cn } from './components/utils';
+export { modelCache, getModelCacheKey } from './lib/cache';
 
 export type {
   ButtonProps,

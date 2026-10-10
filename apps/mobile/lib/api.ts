@@ -1,5 +1,9 @@
 // API Client para mobile app
+import type { Column } from '@ticketscan/ui';
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://ticket-ar.netlify.app';
+
+export { type Column };
 
 export interface PaginatedResponse<T> {
   ok: boolean;
@@ -157,6 +161,125 @@ export async function getAnalytics(): Promise<ApiResponse<AnalyticsData>> {
   const response = await fetch(`${API_BASE}/api/analytics`, {
     headers: await getAuthHeaders(),
     credentials: 'include',
+  });
+
+  return response.json();
+}
+
+export interface OcrRequest {
+  image_base64: string;
+  provider?: string;
+  model?: string;
+}
+
+export interface OcrResponse {
+  ok: boolean;
+  data?: {
+    comercio: string;
+    fecha: string;
+    hora?: string;
+    total: number;
+    items: Array<{
+      nombre: string;
+      cantidad: number;
+      precio: number;
+      categoria?: string;
+    }>;
+    metodo_pago?: string;
+    sucursal?: string;
+  };
+  error?: string;
+  cost_usd?: number;
+  latency_ms?: number;
+}
+
+export interface CategorizeRequest {
+  items: Array<{ nombre: string; cantidad: number; precio: number }>;
+}
+
+export interface CategorizeResponse {
+  ok: boolean;
+  data?: Array<{
+    nombre: string;
+    categoria: string;
+    subcategoria?: string;
+  }>;
+  error?: string;
+  cost_usd?: number;
+  latency_ms?: number;
+}
+
+export interface FeedbackImage {
+  id: string;
+  ticket_id: string;
+  image_url: string;
+  ocr_result: Record<string, unknown>;
+  user_corrections: Record<string, unknown>;
+  selected_for_training: boolean;
+  created_at: string;
+}
+
+export interface FeedbackListResponse {
+  ok: boolean;
+  data?: FeedbackImage[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  error?: string;
+}
+
+export async function ocrTicket(input: OcrRequest): Promise<OcrResponse> {
+  const response = await fetch(`${API_BASE}/api/ocr`, {
+    method: 'POST',
+    headers: await getAuthHeaders(),
+    credentials: 'include',
+    body: JSON.stringify(input),
+  });
+
+  return response.json();
+}
+
+export async function categorizeItems(input: CategorizeRequest): Promise<CategorizeResponse> {
+  const response = await fetch(`${API_BASE}/api/categorize`, {
+    method: 'POST',
+    headers: await getAuthHeaders(),
+    credentials: 'include',
+    body: JSON.stringify(input),
+  });
+
+  return response.json();
+}
+
+export async function getFeedback(params?: {
+  page?: number;
+  limit?: number;
+  status?: 'all' | 'selected' | 'pending';
+}): Promise<FeedbackListResponse> {
+  const searchParams = new URLSearchParams();
+  if (params?.page) searchParams.set('page', String(params.page));
+  if (params?.limit) searchParams.set('limit', String(params.limit));
+  if (params?.status) searchParams.set('status', params.status);
+
+  const response = await fetch(`${API_BASE}/api/feedback?${searchParams}`, {
+    headers: await getAuthHeaders(),
+    credentials: 'include',
+  });
+
+  return response.json();
+}
+
+export async function updateFeedback(feedbackId: string, updates: {
+  user_corrections?: Record<string, unknown>;
+  selected_for_training?: boolean;
+}): Promise<ApiResponse<FeedbackImage>> {
+  const response = await fetch(`${API_BASE}/api/feedback/${feedbackId}`, {
+    method: 'PUT',
+    headers: await getAuthHeaders(),
+    credentials: 'include',
+    body: JSON.stringify(updates),
   });
 
   return response.json();

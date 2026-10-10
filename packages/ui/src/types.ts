@@ -137,10 +137,21 @@ export interface TableProps<T> extends HTMLAttributes<HTMLTableElement> {
   rowClassName?: (row: T) => string;
 }
 
+export interface Model {
+  id: string;
+  name: string;
+  context_length: number;
+  pricing: { input: number; output: number };
+}
+
 export interface ModelPickerProps {
   providerName: string;
   value: string;
   onChange: (modelId: string) => void;
   placeholder?: string;
   className?: string;
+  showFreeOnly?: boolean;
+  onError?: (error: Error) => void;
+  onLoad?: (models: Model[]) => void;
+  disabled?: boolean;
 }

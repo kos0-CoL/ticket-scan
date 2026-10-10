@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 const mobileTabs = [
   { href: '/tickets', label: 'Tickets', icon: '🧾' },
   { href: '/analysis', label: 'Análisis', icon: '📊' },
+  { href: '/feedback', label: 'Feedback', icon: '🔧' },
   { href: '/settings', label: 'Configuración', icon: '⚙️' },
 ];
 
