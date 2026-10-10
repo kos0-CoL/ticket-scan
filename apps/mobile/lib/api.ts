@@ -67,10 +67,35 @@ export interface CreateTicketItemInput {
   subcategoria?: string;
 }
 
+export interface AnalyticsData {
+  currentMonth: { total: number; count: number; average: number };
+  previousMonth: { total: number; count: number; average: number };
+  monthlyTrend: MonthlySpending[];
+  byCategory: CategorySpending[];
+  topMerchants: TopMerchant[];
+}
+
+export interface MonthlySpending {
+  month: string;
+  total: number;
+  count: number;
+  average: number;
+}
+
+export interface CategorySpending {
+  categoria: string;
+  total: number;
+  count: number;
+  percentage: number;
+}
+
+export interface TopMerchant {
+  comercio: string;
+  total: number;
+  count: number;
+}
+
 async function getAuthHeaders(): Promise<HeadersInit> {
-  // En el cliente mobile, el token se maneja via Supabase session
-  // Para API routes que requieren auth, usamos cookies (SSR)
-  // En mobile export, usamos fetch directo a la API
   return {
     'Content-Type': 'application/json',
   };
@@ -121,6 +146,15 @@ export async function getTicket(id: string): Promise<ApiResponse<Ticket>> {
 export async function deleteTicket(id: string): Promise<ApiResponse<void>> {
   const response = await fetch(`${API_BASE}/api/tickets/${id}`, {
     method: 'DELETE',
+    headers: await getAuthHeaders(),
+    credentials: 'include',
+  });
+
+  return response.json();
+}
+
+export async function getAnalytics(): Promise<ApiResponse<AnalyticsData>> {
+  const response = await fetch(`${API_BASE}/api/analytics`, {
     headers: await getAuthHeaders(),
     credentials: 'include',
   });
