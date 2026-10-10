@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from '../../../lib/supabase';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { callProviderOCR } from './ocr-provider';
 
 export async function POST(request: NextRequest) {
   const supabase = await createServerSupabaseClient();
@@ -16,7 +17,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Imagen requerida' }, { status: 400 });
   }
 
-  // Get active provider config
   let providerQuery = supabase
     .from('ml_providers')
     .select('*, ml_configs(*)')
@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: 'No hay proveedores IA configurados' }, { status: 500 });
   }
 
-  // Try each provider in fallback order
   for (const provider of providers) {
     const config = provider.ml_configs?.[0];
     if (!config?.is_active) continue;
@@ -41,35 +40,24 @@ export async function POST(request: NextRequest) {
     try {
       const result = await callProviderOCR(provider, config, image_base64);
       if (result.ok) {
-        return NextResponse.json({ ok: true, data: result.data, provider: provider.name });
+        const { data: ocrResult } = await supabase
+          .from('feedback_images')
+          .insert({
+            user_id: user.id,
+            image_url: 'data:image/jpeg;base64,' + image_base64,
+            ocr_result: result.data,
+            selected_for_training: false,
+          })
+          .select()
+          .single();
+
+        return NextResponse.json({ ok: true, data: result.data, provider: provider.name, feedback_id: ocrResult?.id });
       }
     } catch (err) {
-      console.error(`OCR error with ${provider.name}:`, err);
-      continue; // Try next provider
+      console.error('OCR error with ' + provider.name + ':', err);
+      continue;
     }
   }
 
   return NextResponse.json({ ok: false, error: 'Todos los proveedores fallaron' }, { status: 500 });
-}
-
-async function callProviderOCR(provider: any, config: { max_tokens?: number; temperature?: number; model_id?: string }, imageBase64: string) {
-  const apiKey = provider.api_key_encrypted; // TODO: decrypt
-  const model = config.model_id || provider.default_model;
-  const baseUrl = getProviderBaseUrl(provider.name);
-
-  // Mock response for testing
-  return { ok: true, data: { comercio: 'Test', total: 100 } };
-}
-
-function getProviderBaseUrl(providerName: string): string {
-  const urls: Record<string, string> = {
-    'OpenRouter': 'https://openrouter.ai/api/v1',
-    'OpenAI': 'https://api.openai.com/v1',
-    'Anthropic': 'https://api.anthropic.com/v1',
-  };
-  return urls[providerName] || 'https://openrouter.ai/api/v1';
-}
-
-function getOCRPrompt(): string {
-  return 'Analiza este ticket de supermercado y extrae la información en formato JSON:\n{\n  "comercio": "nombre del comercio",\n  "fecha": "YYYY-MM-DD",\n  "hora": "HH:MM",\n  "total": 123.45,\n  "items": [\n    {"nombre": "producto", "cantidad": 1, "precio": 10.50, "categoria": "almacen"}\n  ],\n  "metodo_pago": "efectivo|tarjeta|transferencia",\n  "sucursal": "nombre sucursal si visible"\n}';
 }
