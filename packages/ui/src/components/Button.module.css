@@ -1,0 +1,111 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  line-height: 1.5;
+  transition: all var(--transition-base);
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  font-family: var(--font-sans);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none !important;
+}
+
+/* Variants */
+.primary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  box-shadow: var(--shadow-float);
+}
+
+.primary:hover:not(:disabled) {
+  box-shadow: var(--shadow-float-lg);
+  transform: translateY(-0.125rem);
+}
+
+.primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.secondary {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.secondary:hover:not(:disabled) {
+  opacity: 0.8;
+}
+
+.ghost {
+  background-color: transparent;
+  color: var(--color-700);
+}
+
+.ghost:hover:not(:disabled) {
+  background-color: var(--color-100);
+  color: var(--color-900);
+}
+
+.danger {
+  background-color: var(--color-danger);
+  color: var(--color-white);
+  box-shadow: var(--shadow-float);
+}
+
+.danger:hover:not(:disabled) {
+  box-shadow: var(--shadow-float-lg);
+  transform: translateY(-0.125rem);
+}
+
+.danger:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.float {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 50;
+  box-shadow: var(--shadow-float-lg);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-4) var(--space-6);
+}
+
+/* Sizes */
+.sm {
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.8125rem;
+}
+
+.md {
+  padding: var(--space-3) var(--space-5);
+  font-size: 0.875rem;
+}
+
+.lg {
+  padding: var(--space-4) var(--space-6);
+  font-size: 1rem;
+}
+
+.icon {
+  padding: var(--space-3);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+}
+
+/* Full width utility */
+.fullWidth {
+  width: 100%;
+}

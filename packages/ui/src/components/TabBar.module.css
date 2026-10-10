@@ -1,0 +1,75 @@
+.tabBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-fixed);
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0, 171, 228, 0.08);
+  box-shadow: var(--shadow-float);
+}
+
+.tabItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: var(--radius-xl);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-500);
+  text-decoration: none;
+  transition: all var(--transition-base);
+}
+
+.tabItem:hover {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.tabItem:active {
+  background-color: rgba(0, 171, 228, 0.12);
+}
+
+.tabItem.active {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.tabItem.active .icon {
+  transform: scale(1.1);
+}
+
+.icon {
+  font-size: 1.25rem;
+  transition: transform var(--transition-fast);
+}
+
+.label {
+  white-space: nowrap;
+}
+
+.badge {
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.375rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-danger);
+  color: var(--color-white);
+  font-size: 0.625rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spacer {
+  height: var(--tab-bar-height);
+}

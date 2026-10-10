@@ -1,0 +1,87 @@
+{
+  "name": "code-fix-team",
+  "id": "code-fix-team",
+  "description": "Team to fix registry.ts AI SDK usage and verify build",
+  "captainSessionId": "session-eb768712-4226-4674-8779-cf8bed65b2a9",
+  "createdAt": 1791398633728,
+  "phase": "running",
+  "members": [
+    {
+      "id": "357ccd4b-1518-41ae-ba6e-58f91a60f88a",
+      "name": "engineer",
+      "role": "engineer",
+      "provider": "openrouter-custom",
+      "model": "nvidia/nemotron-3-super-120b-a12b:free",
+      "joinedAt": 1791398633728,
+      "status": "idle"
+    },
+    {
+      "id": "55cee916-aebf-4da3-acb2-5ec5786b3d4e",
+      "name": "tester",
+      "role": "tester",
+      "provider": "openrouter-custom",
+      "model": "nvidia/nemotron-3-super-120b-a12b:free",
+      "joinedAt": 1791398633728,
+      "status": "idle"
+    },
+    {
+      "id": "",
+      "name": "reviewer",
+      "role": "reviewer",
+      "provider": "openrouter-custom",
+      "model": "nvidia/nemotron-3-super-120b-a12b:free",
+      "joinedAt": 1791398633728,
+      "status": "idle"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "t1",
+      "profileSeedId": "fix-registry",
+      "subject": "Fix registry.ts to use messages format for AI SDK",
+      "description": "Update packages/ai/src/registry.ts to use messages with image content instead of top-level images field.",
+      "status": "completed",
+      "assignee": "engineer",
+      "dependencies": [],
+      "attempt": 1,
+      "createdAt": 1791398633728,
+      "updatedAt": 1791398796511,
+      "attemptId": "fdd52fb8-19f7-4a4c-aa87-c09d4b66fb00",
+      "reassigning": false,
+      "output": "Successfully fixed registry.ts to use messages format for AI SDK. Changes made:\n1. Fixed template literal syntax error in EXTRACTION_PROMPT (line 26)\n2. Updated generateObject call to use messages format with image content instead of top-level images field\n\nFrom git diff:\n- Removed: prompt: EXTRACTION_PROMPT, images: [{ url: imageUrl }]\n- Added: messages: [{ role: \"user\", content: [{ type: \"text\", text: EXTRACTION_PROMPT }, { type: \"image\", image: imageUrl }] }]\n\nThe file now correctly uses the AI SDK messages format for passing both text and image content."
+    },
+    {
+      "id": "t2",
+      "profileSeedId": "run-typecheck",
+      "subject": "Run TypeScript type check on ai package",
+      "description": "Execute pnpm run typecheck in packages/ai directory.",
+      "status": "failed",
+      "assignee": "tester",
+      "dependencies": [
+        "t1"
+      ],
+      "attempt": 5,
+      "createdAt": 1791398633728,
+      "updatedAt": 1791399551265,
+      "reassigning": false,
+      "attemptId": "0b973984-4128-4b33-a5b5-4cbd74e6b7db",
+      "output": "Test failed output"
+    },
+    {
+      "id": "t3",
+      "profileSeedId": "run-build",
+      "subject": "Run full workspace build",
+      "description": "Execute pnpm run build (or turbo build) from repo root.",
+      "status": "pending",
+      "assignee": "tester",
+      "dependencies": [
+        "t2"
+      ],
+      "attempt": 0,
+      "createdAt": 1791398633728,
+      "updatedAt": 1791398633728
+    }
+  ],
+  "taskSeq": 3,
+  "approvedAt": 1791398643017
+}

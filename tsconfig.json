@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@ticketscan/ui": ["packages/ui/src"],
+      "@ticketscan/db": ["packages/db/src"],
+      "@ticketscan/types": ["packages/types"],
+      "@ticketscan/utils": ["packages/utils"],
+      "@ticketscan/ai": ["packages/ai/src"]
+    }
+  },
+  "exclude": ["node_modules", ".next", "dist", "out", ".turbo"]
+}

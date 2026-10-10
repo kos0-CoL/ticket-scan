@@ -1,0 +1,5 @@
+# TicketScan v2 - Monorepo
+# Configuración de trabajo pnpm
+packages:
+  - "apps/*"
+  - "packages/*"
