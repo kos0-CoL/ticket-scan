@@ -1,8 +1,47 @@
+import { createServerSupabaseClient } from '../../../lib/supabase';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  // Landing page configuration - this would come from DB in production
-  const config = {
+  const supabase = await createServerSupabaseClient();
+
+  const { data: sections, error } = await supabase
+    .from('landing_sections')
+    .select('*')
+    .eq('enabled', true)
+    .order('sort_order', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching landing sections:', error);
+    // Fallback a config por defecto si falla la DB
+    return NextResponse.json({ ok: true, config: getDefaultConfig() });
+  }
+
+  // Transformar rows a objeto config por key
+  const config: Record<string, Record<string, any>> = {};
+  for (const section of sections || []) {
+    config[section.key] = {
+      enabled: section.enabled,
+      ...section.content,
+    };
+  }
+
+  // Completar con defaults para secciones faltantes
+  const defaults = getDefaultConfig();
+  for (const key of Object.keys(defaults) as Array<keyof typeof defaults>) {
+    if (!config[key]) {
+      config[key] = defaults[key];
+    }
+  }
+
+  return NextResponse.json({ ok: true, config }, {
+    headers: {
+      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+    },
+  });
+}
+
+function getDefaultConfig() {
+  return {
     hero: {
       enabled: true,
       title: 'Escanea, categoriza y analiza tus',
@@ -65,6 +104,4 @@ export async function GET() {
       copyright: '© 2025 TicketScan. Hecho con ❤️ en Argentina.',
     },
   };
-
-  return NextResponse.json({ ok: true, config });
 }
