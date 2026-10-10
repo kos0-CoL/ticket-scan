@@ -1,35 +1,71 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, Button, Input, Badge, Modal, Table } from '@ticketscan/ui';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, Button, Badge, Modal, Table } from '@ticketscan/ui';
 import type { Column } from '@ticketscan/ui';
-
-interface Ticket {
-  id: string;
-  comercio: string;
-  fecha: string;
-  total: number;
-  items: number;
-}
-
-const mockTickets: Ticket[] = [
-  { id: '1', comercio: 'Carrefour', fecha: '2025-01-15', total: 45230, items: 12 },
-  { id: '2', comercio: 'Dia', fecha: '2025-01-14', total: 23100, items: 8 },
-  { id: '3', comercio: 'Coto', fecha: '2025-01-13', total: 67890, items: 15 },
-  { id: '4', comercio: 'ChangoMas', fecha: '2025-01-12', total: 12450, items: 5 },
-];
+import { getTickets, createTicket, Ticket, TicketItem, CreateTicketInput } from '../../lib/api';
 
 export default function TicketsPage() {
-  const [tickets] = useState<Ticket[]>(mockTickets);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [scanModalOpen, setScanModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const columns: Column<Ticket>[] = [
     { key: 'comercio', header: 'Comercio', render: (t) => <span className="font-medium">{t.comercio}</span> },
     { key: 'fecha', header: 'Fecha', render: (t) => <span>{t.fecha}</span> },
-    { key: 'items', header: 'Items', render: (t) => <span className="text-slate-500">{t.items}</span> },
+    { key: 'items_count', header: 'Items', render: (t) => <span className="text-slate-500">{t.ticket_items?.length || 0}</span> },
     { key: 'total', header: 'Total', render: (t) => <span className="font-mono font-semibold">${t.total.toLocaleString()}</span> },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      render: (t) => (
+        <Button variant="ghost" size="sm" onClick={() => handleViewDetail(t.id)}>
+          Ver
+        </Button>
+      ),
+    },
   ];
+
+  const fetchTickets = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await getTickets({ page, limit: 20 });
+      if (response.ok) {
+        setTickets(response.data);
+        setTotalPages(response.pagination.totalPages);
+      } else {
+        setError(response.error || 'Error al cargar tickets');
+      }
+    } catch (err) {
+      setError('Error de conexión');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTickets();
+  }, [page]);
+
+  const handleViewDetail = async (id: string) => {
+    // Navegar a detalle o abrir modal
+    console.log('Ver ticket:', id);
+  };
+
+  const handleCreateTicket = async (input: CreateTicketInput) => {
+    const response = await createTicket(input);
+    if (response.ok) {
+      setIsModalOpen(false);
+      fetchTickets();
+    } else {
+      setError(response.error || 'Error al crear ticket');
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -40,11 +76,47 @@ export default function TicketsPage() {
         </Button>
       </div>
 
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
       <Card elevated>
         <CardContent>
-          <Table columns={columns} data={tickets} keyExtractor={t => t.id} hover divide emptyMessage="No tienes tickets aún. ¡Escanea tu primero!" />
+          <Table
+            columns={columns}
+            data={tickets.map(t => ({ ...t, items_count: t.ticket_items?.length || 0 }))}
+            keyExtractor={t => t.id}
+            hover
+            divide
+            emptyMessage="No tienes tickets aún. ¡Escanea tu primero!"
+            loading={loading}
+          />
         </CardContent>
       </Card>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+          >
+            Anterior
+          </Button>
+          <span className="text-sm text-slate-600">Página {page} de {totalPages}</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+          >
+            Siguiente
+          </Button>
+        </div>
+      )}
 
       <Modal open={scanModalOpen} onClose={() => setScanModalOpen(false)} title="Escanear ticket" size="md">
         <div className="space-y-4 text-center">
