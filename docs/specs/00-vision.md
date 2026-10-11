@@ -166,6 +166,15 @@ Enums: `user_role`, `ticket_source`, `ticket_status`, `provider_status`, `job_st
 
 Relations definidas para todo (profiles→tickets, tickets→items, ml_providers→configs, training_jobs↔feedback many-to-many, etc.)
 
+### Seguridad y RLS
+
+- RLS activado en todas las tablas como segunda barrera, denegando por defecto
+- Políticas de acceso: por dueño (user_id) y por rol admin
+- La API utiliza el token de Supabase Auth del usuario
+- La clave de servicio de Supabase solo se utiliza en código de servidor de rutas admin
+- Todas las rutas `/api/v1/admin/*` verifican que el usuario tenga rol admin
+- La ruta `/api/providers` ya no es pública (requiere autenticación)
+- La conexión directa de Drizzle (`DATABASE_URL`) no pasa por RLS y solo se utiliza en código de servidor autorizado
 ### `@ticketscan/utils`
 - `cn(...classes)` → `clsx` + `tailwind-merge`
 - `formatCurrency`, `formatNumber`, `formatDate`, `formatDateTime`
