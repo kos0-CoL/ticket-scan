@@ -222,7 +222,7 @@ Relations definidas para todo (users→tickets, tickets→items, ml_providers→
 
 | Sprint | Objetivo | Entregables |
 |---|---|---|
-| **Sprint 0** ✅ | Base técnica | Monorepo, UI kit, DB schema, build OK, push GitHub |
+| **Sprint 0** ⏳ | Base técnica | Monorepo, UI kit, esquema de base. *Nota: el repo estaba vacío y la base técnica (monorepo, UI kit y esquema de la base) se reconstruye.* |
 | **Sprint 1** | Auth + Landing + API base | Supabase Auth (email/password + magic link), middleware protected routes, landing CMS from DB, API tickets CRUD |
 | **Sprint 2** | Admin completo | Providers CRUD real (DB), Monitoring real (queries Supabase), Normalization queue real, Users management real |
 | **Sprint 3** | Mobile app | Tickets list real (Supabase), Analysis charts (Recharts), Settings persist (Supabase), Camera scan → OCR API, Capacitor build |
