@@ -39,6 +39,7 @@ Frenar no es fallar: dejá escrito qué necesitás y esperá.
 - Deploy a producción o migraciones contra producción. Con los MCP de Netlify y Supabase: solo previews y el proyecto de desarrollo.
 - `git push --force`, `git reset --hard`, borrar ramas o tags.
 - Instalar plugins o paquetes nuevos sin que te lo pidan.
+- Editar la sección "Archivos permitidos" de la tarjeta, o tocar, crear o borrar archivos de otras tarjetas.
 - Bajar tests, desactivar checks o mockear lógica de negocio para que algo "pase".
 
 ## Convenciones
