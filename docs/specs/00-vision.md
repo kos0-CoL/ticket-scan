@@ -148,26 +148,30 @@ AnalyticsData, MonthlySpending, CategorySpending, TopMerchant
 ApiResponse, PaginatedResponse, SelectOption, NavItem
 ```
 
-### `@ticketscan/db` — Drizzle Schema (8 tablas activas y 3 pospuestas)
+### `@ticketscan/db` — Drizzle Schema (10 tablas activas, 3 pospuestas y 2 reemplazadas)
 | Tabla | Clave | Índices |
 |---|---|---|
 | `profiles` | `user_id` PK (FK a usuario de Supabase Auth) | role (user/admin), preferencias |
 | `landing_sections` | `id` PK, `key` unique | sort_order, enabled |
 | `tickets` | `id` PK, `user_id` FK | user_id, fecha, comercio |
 | `ticket_items` | `id` PK, `ticket_id` FK | ticket_id |
-| `ml_providers` | `id` PK, `name` unique | — |
-| `ml_configs` | `id` PK, `provider_id` FK | provider_id, is_active |
+| ~~`ml_providers`~~ (reemplazado por ai_providers) | `id` PK, `name` unique | — |
+| ~~`ml_configs`~~ (reemplazado por ai_models) | `id` PK, `provider_id` FK | provider_id, is_active |
 | ~~`ml_training_jobs`~~ (pospuesta) | `id` PK | status |
 | ~~`feedback_images`~~ (pospuesta) | `id` PK, `user_id` FK, `ticket_id` FK nullable | user_id, training_job_id, selected_for_training |
 | ~~`ml_training_jobs_feedback`~~ (pospuesta) | `job_id` + `feedback_id` PK compuesta | — |
-| `normalization_queue` | `id` PK, `ticket_id` FK | status, ticket_id |
+| `normalization_queue` | `id` PK | status |
 | `normalization_rules` | `id` PK, (`comercio`, `texto_normalizado`) único | comercio, texto_normalizado |
+| `ai_providers` | `id` PK, `name` unique | — |
+| `ai_models` | `id` PK, `provider_id` FK | provider_id |
+| `ai_task_routes` | `id` PK, `task` unique | task |
+| `ai_model_evaluations` | `id` PK, `model_id` unique | model_id |
 
 Pospuestas: el aprendizaje se hace con diccionario; reentrenar un modelo propio queda para cuando haya volumen.
 
-Enums: `user_role`, `ticket_source`, `ticket_status`, `provider_status`, ~~job_status~~ (pospuesto), ~~feedback_status~~ (pospuesto), `normalization_status`, `category`
+Enums: `user_role`, `ticket_source`, `ticket_status`, `provider_status`, ~~job_status~~ (pospuesto), ~~feedback_status~~ (pospuesto), `normalization_status`, `category`, tipo de proveedor (`openai_compatible`, `gemini`, `anthropic`, `openrouter`, `custom`), origen del precio (`api`, `manual`, `unknown`).
 
-Relations definidas para todo (profiles→tickets, tickets→items, ml_providers→configs, ~~training_jobs↔feedback~~ (pospuesto) many-to-many, etc.)
+Relaciones definidas para todo (profiles→tickets, tickets→items, ai_providers→ai_models, ~~training_jobs↔feedback~~ (pospuesto) many-to-many, etc.)
 
 ### Seguridad y RLS
 
