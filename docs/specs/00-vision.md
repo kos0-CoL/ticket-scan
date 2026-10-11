@@ -221,7 +221,9 @@ Relations definidas para todo (profiles→tickets, tickets→items, ml_providers
 
 | Etapa | Descripción |
 |---|---|
-| **OCR** | Imagen → texto estructurado (proveedor activo + modelo default) |
+| **OCR** | Obtiene texto estructurado de imágenes o datos de comprobante. Dos formas de captura:
+1. QR: se decodifica en el dispositivo y aporta datos del comprobante (CUIT, fecha, importe, código de autorización) - no requiere subir imagen
+2. Foto: se sube por URL firmada a un bucket privado temporal y se envía al OCR para obtener los ítems |
 | **Categorización** | Items → categorías enum (almacen, frescos, lacteos, bebidas, limpieza, congelados, carnes, frutas_y_verduras, panaderia, otros) |
 | **Normalización** | El sistema busca el ítem en un diccionario por comercio y texto normalizado; si no lo encuentra, la IA sugiere una categoría; si queda dudoso, el ítem va a 'Otros' y el usuario puede completarlo |
 | **Feedback Loop** | La corrección entra a `normalization_queue` y, al aprobarse, crea o actualiza una regla en una tabla nueva `normalization_rules`. El diccionario se consulta antes que el modelo, y los ejemplos aprobados pueden usarse como ejemplos en el prompt |
