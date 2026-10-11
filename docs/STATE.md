@@ -5,9 +5,9 @@
 ## Ahora
 
 - Sprint: 0 — Base técnica (se reconstruye: el repo estaba vacío, no hay código todavía)
-- Tarjeta en curso: S0-T01 — Corregir el spec (solo documentos) [COMPLETADA]
-- Rama: `s0/t01-corregir-spec`
-- Último punto de retorno (tag verde): `s0-base` (reglas de trabajo y spec, sin código)
+- Tarjeta en curso: ninguna (S0-T01 cerrada; la próxima es S0-T02)
+- Rama: `main`
+- Último punto de retorno (tag verde): `s0-t01-ok` (spec corregido, sin código)
 - Modo: una tarjeta por vez
 
 ## Cómo volver al cauce
@@ -34,3 +34,4 @@
 | Tag | Qué es | Fecha |
 | --- | --- | --- |
 | `s0-base` | Reglas de trabajo y spec, antes de escribir código | |
+| `s0-t01-ok` | Spec corregido (tarjeta S0-T01) | |
