@@ -104,7 +104,7 @@ app/
 |---|---|
 | **Proveedores IA** | CRUD providers (nombre, modelo default, fallback order, active), Modal edit, ModelPicker para models |
 | **Monitoring** | Select mes → métricas (requests, success%, latency, cost USD), cards KPI, tabla mensual, desglose por provider |
-| **Normalización** | Cola pendientes/aprobados/rechazados, stats cards, tabla con Badge categoría + StatusBadge, acciones Aprobar/Rechazar/Ver, Modal detalle |
+| **Normalización** | Cola pendientes/aprobados/rechazados, stats cards, tabla con Badge categoría + StatusBadge, acciones Aprobar/Rechazar/Ver, Modal detalle. Aprobar una corrección crea o actualiza una regla en `normalization_rules`. |
 | **Landing** | CRUD secciones (hero, features, social-proof, cta-download, footer), toggle enabled, sort_order, JSON content editor |
 | **Usuarios** | Tabla users (email, nombre, role badge, tickets, gasto, fecha), CRUD + ConfirmModal delete |
 
@@ -142,30 +142,69 @@ app/
 User, UserPreferences
 LandingSection, LandingConfig, LandingSectionData, LandingFeatureItem, Testimonial
 Ticket, TicketItem
-MLProvider, MLConfig, MLTrainingJob, FeedbackImage, NormalizationQueueItem
+MLProvider, MLConfig, ~~MLTrainingJob~~ (pospuesto), ~~FeedbackImage~~ (pospuesto), NormalizationQueueItem
 AnalyticsData, MonthlySpending, CategorySpending, TopMerchant
 MLProviderWithModels, MLModel
 ApiResponse, PaginatedResponse, SelectOption, NavItem
 ```
 
-### `@ticketscan/db` — Drizzle Schema (11 tablas)
+### `@ticketscan/db` — Drizzle Schema (8 tablas activas y 3 pospuestas)
 | Tabla | Clave | Índices |
 |---|---|---|
-| `users` | `id` PK, `email` unique | email |
-| `profiles` | `user_id` PK/FK | — |
+| `profiles` | `user_id` PK (FK a usuario de Supabase Auth) | role (user/admin), preferencias |
 | `landing_sections` | `id` PK, `key` unique | sort_order, enabled |
 | `tickets` | `id` PK, `user_id` FK | user_id, fecha, comercio |
 | `ticket_items` | `id` PK, `ticket_id` FK | ticket_id |
 | `ml_providers` | `id` PK, `name` unique | — |
 | `ml_configs` | `id` PK, `provider_id` FK | provider_id, is_active |
-| `ml_training_jobs` | `id` PK | status |
-| `feedback_images` | `id` PK, `user_id` FK, `ticket_id` FK nullable | user_id, training_job_id, selected_for_training |
-| `ml_training_jobs_feedback` | `job_id` + `feedback_id` PK compuesta | — |
+| ~~`ml_training_jobs`~~ (pospuesta) | `id` PK | status |
+| ~~`feedback_images`~~ (pospuesta) | `id` PK, `user_id` FK, `ticket_id` FK nullable | user_id, training_job_id, selected_for_training |
+| ~~`ml_training_jobs_feedback`~~ (pospuesta) | `job_id` + `feedback_id` PK compuesta | — |
 | `normalization_queue` | `id` PK, `ticket_id` FK | status, ticket_id |
+| `normalization_rules` | `id` PK, (`comercio`, `texto_normalizado`) único | comercio, texto_normalizado |
 
-Enums: `user_role`, `ticket_source`, `ticket_status`, `provider_status`, `job_status`, `feedback_status`, `normalization_status`, `category`
+Pospuestas: el aprendizaje se hace con diccionario; reentrenar un modelo propio queda para cuando haya volumen.
 
-Relations definidas para todo (users→tickets, tickets→items, ml_providers→configs, training_jobs↔feedback many-to-many, etc.)
+Enums: `user_role`, `ticket_source`, `ticket_status`, `provider_status`, ~~job_status~~ (pospuesto), ~~feedback_status~~ (pospuesto), `normalization_status`, `category`
+
+Relations definidas para todo (profiles→tickets, tickets→items, ml_providers→configs, ~~training_jobs↔feedback~~ (pospuesto) many-to-many, etc.)
+
+### Seguridad y RLS
+
+- RLS activado en todas las tablas como segunda barrera, denegando por defecto
+- Políticas de acceso: por dueño (user_id) y por rol admin
+- La API utiliza el token de Supabase Auth del usuario
+- La clave de servicio de Supabase solo se utiliza en código de servidor de rutas admin
+- Todas las rutas `/api/v1/admin/*` verifican que el usuario tenga rol admin
+- La ruta `/api/providers` ya no es pública (requiere autenticación)
+- La conexión directa de Drizzle (`DATABASE_URL`) no pasa por RLS y solo se utiliza en código de servidor autorizado
+
+### Contrato de API para mobile
+
+| Método | Ruta | Autenticación | Propósito |
+|---|---|---|---|
+| GET | `/api/v1/tickets` | Requerida | Listar tickets con filtros |
+| POST | `/api/v1/tickets` | Requerida | Crear nuevo ticket |
+| GET | `/api/v1/tickets/:id` | Requerida | Obtener ticket por ID |
+| PUT | `/api/v1/tickets/:id` | Requerida | Actualizar ticket existente |
+| DELETE | `/api/v1/tickets/:id` | Requerida | Eliminar ticket |
+| GET | `/api/v1/analysis` | Requerida | Obtener datos de análisis |
+| GET | `/api/v1/configuration` | Requerida | Obtener configuración de usuario |
+| PUT | `/api/v1/configuration` | Requerida | Actualizar configuración de usuario |
+| GET | `/api/v1/export` | Requerida | Exportar datos (CSV, Excel, etc.) |
+| DELETE | `/api/v1/account` | Requerida | Borrar cuenta de usuario |
+| POST | `/api/v1/scan` | Requerida | Iniciar proceso de escaneo/OCR |
+| GET | `/api/v1/upload-url` | Requerida | Obtener URL firmada para subir foto |
+| POST | `/api/v1/normalization-correction` | Requerida | Envío de corrección de normalización |
+
+**Formato estándar de error:**
+```json
+{
+  "error": "código_de_error",
+  "message": "Mensaje descriptivo del error",
+  "details": {}
+}
+```
 
 ### `@ticketscan/utils`
 - `cn(...classes)` → `clsx` + `tailwind-merge`
@@ -184,13 +223,21 @@ Relations definidas para todo (users→tickets, tickets→items, ml_providers→
 
 | Etapa | Descripción |
 |---|---|
-| **OCR** | Imagen → texto estructurado (proveedor activo + modelo default) |
+| **OCR** | Dos formas de captura: (1) QR: se decodifica en el dispositivo y aporta datos del comprobante (CUIT, fecha, importe, código de autorización) - no requiere subir imagen; (2) Foto: se sube por URL firmada a un bucket privado temporal y se envía al OCR para obtener los ítems |
 | **Categorización** | Items → categorías enum (almacen, frescos, lacteos, bebidas, limpieza, congelados, carnes, frutas_y_verduras, panaderia, otros) |
-| **Normalización** | Cola admin: approve/reject sugerencias → re-entrenamiento |
-| **Feedback Loop** | Usuario corrige → `feedback_images` → `selected_for_training` → `ml_training_jobs` |
+| **Normalización** | El sistema busca el ítem en un diccionario por comercio y texto normalizado; si no lo encuentra, la IA sugiere una categoría; si queda dudoso, el ítem va a 'Otros' y el usuario puede completarlo |
+| **Feedback Loop** | La corrección entra a `normalization_queue` y, al aprobarse, crea o actualiza una regla en una tabla nueva `normalization_rules`. El diccionario se consulta antes que el modelo, y los ejemplos aprobados pueden usarse como ejemplos en el prompt |
 | **Fallback** | Provider 1 falla → Provider 2 (fallback_order) |
 
 ---
+
+## Decisiones abiertas
+
+- Política de aprobación: manual, automática cuando N usuarios distintos coinciden, o ambas
+- Alcance de una regla: por comercio, global, o por comercio con respaldo global
+- Qué se guarda de quien corrige (nada, o un identificador seudónimo para detectar abuso)
+- Qué pasa con la foto del ticket: se descarta al terminar el OCR, o se guarda unas horas para reintentos
+- Revisar con un profesional los requisitos de la Ley 25.326 de protección de datos personales, porque la foto sí se procesa en el servidor y por el proveedor de IA que se configure
 
 ## 6. DEPLOY & CI/CD
 
@@ -277,16 +324,16 @@ NEXT_PUBLIC_APP_URL=https://ticket-ar.netlify.app
 
 > **Nota**: Este spec reconstruye la especificación original que se perdió en el wipe. Sirve como única fuente de verdad para planear sprints, crear tareas Kanban y validar completitud.
 
-## Decisiones abiertas
+## Acceso a datos de mobile
 
-**A: mobile habla directo con Supabase usando RLS, y la API propia queda solo para el OCR.**
-- Pros: Menor latencia para operaciones de datos (mobile → Supabase directo)
-- Pros: Menor carga en la API propia (solo procesa OCR)
-- Contras: Mayor complejidad en mobile (maneja autenticación Supabase directamente)
-- Contras: Duplicación de lógica de acceso a datos entre mobile y admin
+Todo el acceso a datos de la aplicación mobile pasa por la propia API (opción B).
 
-**B: todo pasa por la API propia.**
-- Pros: Lógica centralizada de acceso a datos y autenticación
-- Pros: Menor complejidad en mobile (solo llama a API propia)
-- Contras: Mayor latencia (mobile → API propia → Supabase)
-- Contras: Mayor carga en la API propia (todas las operaciones de datos pasan por ella)
+Motivos:
+- API versionada: el APK no se actualiza al instante, por lo que la API permite mantener compatibilidad hacia atrás
+- Validación centralizada: las correcciones que llegan de los usuarios se validan en un solo lugar antes de afectar al diccionario o al modelo
+- Límites de uso y costo: el control de uso y costo de la IA se centraliza en la API, evitando que cada instancia de la app consuma recursos directamente
+
+Restricciones:
+- El mobile no consulta directamente las tablas de Supabase
+- El mobile solo utiliza Supabase Auth para la autenticación
+- Todo el resto de las operaciones (obtención de datos, envío de tickets, consulta de análisis, etc.) se realiza a través de la API propia

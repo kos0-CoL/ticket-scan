@@ -5,9 +5,9 @@
 ## Ahora
 
 - Sprint: 0 — Base técnica (se reconstruye: el repo estaba vacío, no hay código todavía)
-- Tarjeta en curso: ninguna (S0-T01 cerrada; la próxima es S0-T02)
+- Tarjeta en curso: ninguna (S0-T02 cerrada; la próxima es S0-T03)
 - Rama: `main`
-- Último punto de retorno (tag verde): `s0-t01-ok` (spec corregido, sin código)
+- Último punto de retorno (tag verde): `s0-t02-ok` (spec de seguridad y normalización, sin código)
 - Modo: una tarjeta por vez
 
 ## Cómo volver al cauce
@@ -19,19 +19,22 @@
 
 ## Próximos pasos (propuestos, ajustalos)
 
-1. S0-T02: especificación de IA multi-proveedor y seguridad.
-2. S0-T03: crear el monorepo base (Turborepo + pnpm, apps y packages vacíos que compilen).
-3. S0-T04: crear `pnpm verify` (lint, typecheck, test, build) y un CI mínimo.
+1. S0-T03: especificación de IA multi-proveedor (panel admin de proveedores, modelos y rutas por tarea).
+2. S0-T04: crear el monorepo base (Turborepo + pnpm, apps y packages vacíos que compilen).
+3. S0-T05: crear `pnpm verify` (lint, typecheck, test, build) y un CI mínimo.
 
 ## Decisiones tomadas
 
 - La IA dentro de la app es multi-proveedor: desde el panel admin se agregan APIs (DeepSeek, OpenRouter, Gemini, etc.), se obtienen los modelos directo de cada API, se filtran (gratis o de pago) y, si se puede, se recomienda el mejor para cada tarea.
 - Cada tarjeta sigue el mismo ritmo: rama, un pedido chico, `scope-check`, aprobación humana del diff, merge y tag.
 - Por ahora no se suman plugins de orquestación; el tablero es Kanban.
+- Mobile accede a los datos solo por la API propia (opción B); usa Supabase Auth únicamente para autenticarse.
+- El sistema aprende con un diccionario de normalización alimentado por correcciones de los usuarios (comercio + texto del ítem + categoría), sin enviar imágenes; las aprueba el admin.
 
 ## Puntos de retorno (tags)
 
 | Tag | Qué es | Fecha |
-| --- | --- | --- |
+|---|---|---|
 | `s0-base` | Reglas de trabajo y spec, antes de escribir código | |
 | `s0-t01-ok` | Spec corregido (tarjeta S0-T01) | |
+| `s0-t02-ok` | Spec de seguridad, privacidad y normalización colaborativa (tarjeta S0-T02) | |

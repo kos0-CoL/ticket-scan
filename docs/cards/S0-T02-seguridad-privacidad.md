@@ -54,6 +54,9 @@ Desde la raíz del repo:
 - [ ] Revisión humana: `users` ya no figura como tabla propia y `profiles` sí; `feedback_images`, `ml_training_jobs` y `ml_training_jobs_feedback` están tachadas y pospuestas; el conteo de tablas coincide con la lista.
 - [ ] `scripts/scope-check.sh docs/cards/S0-T02-seguridad-privacidad.md` termina en OK.
 - [ ] `git diff main --stat` muestra solo `docs/specs/00-vision.md`, `docs/STATE.md` y esta tarjeta.
+- [ ] `grep -n "Cola pendientes" docs/specs/00-vision.md` devuelve una línea.
+- [ ] `grep -c "~~el aprendizaje" docs/specs/00-vision.md` devuelve 0.
+- [ ] `grep -n "commerce" docs/specs/00-vision.md` no devuelve nada.
 
 ## Frená y preguntá si...
 
