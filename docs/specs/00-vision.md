@@ -104,7 +104,7 @@ app/
 |---|---|
 | **Proveedores IA** | CRUD providers (nombre, modelo default, fallback order, active), Modal edit, ModelPicker para models |
 | **Monitoring** | Select mes → métricas (requests, success%, latency, cost USD), cards KPI, tabla mensual, desglose por provider |
-| **Normalización** | Cola pendientes/aprobados/rechazados, stats cards, tabla con Badge categoría + StatusBadge, acciones Aprobar/Rechazar/Ver, Modal detalle |
+| **Normalización** | El sistema busca el ítem en un diccionario por comercio y texto normalizado; si no lo encuentra, la IA sugiere una categoría; si queda dudoso, el ítem va a 'Otros' y el usuario puede completarlo. La corrección entra a `normalization_queue` y, al aprobarse, crea o actualiza una regla en una tabla nueva `normalization_rules` |
 | **Landing** | CRUD secciones (hero, features, social-proof, cta-download, footer), toggle enabled, sort_order, JSON content editor |
 | **Usuarios** | Tabla users (email, nombre, role badge, tickets, gasto, fecha), CRUD + ConfirmModal delete |
 
@@ -148,7 +148,7 @@ MLProviderWithModels, MLModel
 ApiResponse, PaginatedResponse, SelectOption, NavItem
 ```
 
-### `@ticketscan/db` — Drizzle Schema (10 tablas)
+### `@ticketscan/db` — Drizzle Schema (11 tablas)
 | Tabla | Clave | Índices |
 |---|---|---|
 | `profiles` | `user_id` PK (FK a usuario de Supabase Auth) | role (user/admin), preferencias |
@@ -157,10 +157,11 @@ ApiResponse, PaginatedResponse, SelectOption, NavItem
 | `ticket_items` | `id` PK, `ticket_id` FK | ticket_id |
 | `ml_providers` | `id` PK, `name` unique | — |
 | `ml_configs` | `id` PK, `provider_id` FK | provider_id, is_active |
-| `ml_training_jobs` | `id` PK | status |
-| `feedback_images` | `id` PK, `user_id` FK, `ticket_id` FK nullable | user_id, training_job_id, selected_for_training |
-| `ml_training_jobs_feedback` | `job_id` + `feedback_id` PK compuesta | — |
+| ~~`ml_training_jobs`~~ | `id` PK | status | ~~el aprendizaje se hace con diccionario; reentrenar un modelo propio queda para cuando haya volumen~~ |
+| ~~`feedback_images`~~ | `id` PK, `user_id` FK, `ticket_id` FK nullable | user_id, training_job_id, selected_for_training | ~~el aprendizaje se hace con diccionario; reentrenar un modelo propio queda para cuando haya volumen~~ |
+| ~~`ml_training_jobs_feedback`~~ | `job_id` + `feedback_id` PK compuesta | — | ~~el aprendizaje se hace con diccionario; reentrenar un modelo propio queda para cuando haya volumen~~ |
 | `normalization_queue` | `id` PK, `ticket_id` FK | status, ticket_id |
+| `normalization_rules` | `id` PK, `commerce` | texto_normalizado, categoría, activo |
 
 Enums: `user_role`, `ticket_source`, `ticket_status`, `provider_status`, `job_status`, `feedback_status`, `normalization_status`, `category`
 
@@ -222,11 +223,19 @@ Relations definidas para todo (profiles→tickets, tickets→items, ml_providers
 |---|---|
 | **OCR** | Imagen → texto estructurado (proveedor activo + modelo default) |
 | **Categorización** | Items → categorías enum (almacen, frescos, lacteos, bebidas, limpieza, congelados, carnes, frutas_y_verduras, panaderia, otros) |
-| **Normalización** | Cola admin: approve/reject sugerencias → re-entrenamiento |
-| **Feedback Loop** | Usuario corrige → `feedback_images` → `selected_for_training` → `ml_training_jobs` |
+| **Normalización** | El sistema busca el ítem en un diccionario por comercio y texto normalizado; si no lo encuentra, la IA sugiere una categoría; si queda dudoso, el ítem va a 'Otros' y el usuario puede completarlo |
+| **Feedback Loop** | La corrección entra a `normalization_queue` y, al aprobarse, crea o actualiza una regla en una tabla nueva `normalization_rules`. El diccionario se consulta antes que el modelo, y los ejemplos aprobados pueden usarse como ejemplos en el prompt |
 | **Fallback** | Provider 1 falla → Provider 2 (fallback_order) |
 
 ---
+
+## Decisiones abiertas
+
+- Política de aprobación: manual, automática cuando N usuarios distintos coinciden, o ambas
+- Alcance de una regla: por comercio, global, o por comercio con respaldo global
+- Qué se guarda de quien corrige (nada, o un identificador seudónimo para detectar abuso)
+- Qué pasa con la foto del ticket: se descarta al terminar el OCR, o se guarda unas horas para reintentos
+- Revisar con un profesional los requisitos de la Ley 25.326 de protección de datos personales, porque la foto sí se procesa en el servidor y por el proveedor de IA que se configure
 
 ## 6. DEPLOY & CI/CD
 
