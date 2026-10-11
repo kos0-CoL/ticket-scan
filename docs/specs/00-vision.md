@@ -62,7 +62,7 @@ ticket-ar.netlify.app/admin/* → apps/web (panel admin)
 | **Table** | `columns[]` con `render`, `hover`, `divide`, `emptyMessage`, `loading`, `onRowClick`, `keyExtractor` |
 | **Badge/StatusBadge** | `success\|warning\|danger\|primary\|accent\|muted\|outline\|info`, `sm\|md\|lg`, `dot` |
 | **TabBar** | `items[] {href,label,icon,badge}`, `pathname` auto-activo, `hideOnPaths[]`, fixed bottom |
-| **ModelPicker** | Fetch models por provider, search, `loadedFor` cache, dropdown animado |
+| **ModelPicker** | Lee del caché de modelos sincronizados y admite filtros por gratis o de pago, visión, salida estructurada, contexto y proveedor. |
 
 ### Apps consumen tokens vía `@theme` — **nada de `tailwind.config.ts` v3**
 
@@ -102,7 +102,7 @@ app/
 #### Admin Panel (protegido, SSR)
 | Página | Funcionalidad |
 |---|---|
-| **Proveedores IA** | CRUD providers (nombre, modelo default, fallback order, active), Modal edit, ModelPicker para models |
+| **Proveedores IA** | Tres pestañas: Proveedores (alta con probar conexión, edición, activar/desactivar, orden de fallback, tope mensual); Modelos (botón de sincronizar desde API, filtros por gratis/de pago, visión, salida estructurada, contexto, proveedor); Rutas por tarea (modelo principal y fallbacks para OCR, categorización y normalización, con recomendación a la vista). |
 | **Monitoring** | Select mes → métricas (requests, success%, latency, cost USD), cards KPI, tabla mensual, desglose por provider |
 | **Normalización** | Cola pendientes/aprobados/rechazados, stats cards, tabla con Badge categoría + StatusBadge, acciones Aprobar/Rechazar/Ver, Modal detalle. Aprobar una corrección crea o actualiza una regla en `normalization_rules`. |
 | **Landing** | CRUD secciones (hero, features, social-proof, cta-download, footer), toggle enabled, sort_order, JSON content editor |
