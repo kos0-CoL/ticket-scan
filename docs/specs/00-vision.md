@@ -148,11 +148,10 @@ MLProviderWithModels, MLModel
 ApiResponse, PaginatedResponse, SelectOption, NavItem
 ```
 
-### `@ticketscan/db` — Drizzle Schema (11 tablas)
+### `@ticketscan/db` — Drizzle Schema (10 tablas)
 | Tabla | Clave | Índices |
 |---|---|---|
-| `users` | `id` PK, `email` unique | email |
-| `profiles` | `user_id` PK/FK | — |
+| `profiles` | `user_id` PK (FK a usuario de Supabase Auth) | role (user/admin), preferencias |
 | `landing_sections` | `id` PK, `key` unique | sort_order, enabled |
 | `tickets` | `id` PK, `user_id` FK | user_id, fecha, comercio |
 | `ticket_items` | `id` PK, `ticket_id` FK | ticket_id |
@@ -165,7 +164,7 @@ ApiResponse, PaginatedResponse, SelectOption, NavItem
 
 Enums: `user_role`, `ticket_source`, `ticket_status`, `provider_status`, `job_status`, `feedback_status`, `normalization_status`, `category`
 
-Relations definidas para todo (users→tickets, tickets→items, ml_providers→configs, training_jobs↔feedback many-to-many, etc.)
+Relations definidas para todo (profiles→tickets, tickets→items, ml_providers→configs, training_jobs↔feedback many-to-many, etc.)
 
 ### `@ticketscan/utils`
 - `cn(...classes)` → `clsx` + `tailwind-merge`
