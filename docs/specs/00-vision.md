@@ -277,16 +277,16 @@ NEXT_PUBLIC_APP_URL=https://ticket-ar.netlify.app
 
 > **Nota**: Este spec reconstruye la especificación original que se perdió en el wipe. Sirve como única fuente de verdad para planear sprints, crear tareas Kanban y validar completitud.
 
-## Decisiones abiertas
+## Acceso a datos de mobile
 
-**A: mobile habla directo con Supabase usando RLS, y la API propia queda solo para el OCR.**
-- Pros: Menor latencia para operaciones de datos (mobile → Supabase directo)
-- Pros: Menor carga en la API propia (solo procesa OCR)
-- Contras: Mayor complejidad en mobile (maneja autenticación Supabase directamente)
-- Contras: Duplicación de lógica de acceso a datos entre mobile y admin
+Todo el acceso a datos de la aplicación mobile pasa por la propia API (opción B).
 
-**B: todo pasa por la API propia.**
-- Pros: Lógica centralizada de acceso a datos y autenticación
-- Pros: Menor complejidad en mobile (solo llama a API propia)
-- Contras: Mayor latencia (mobile → API propia → Supabase)
-- Contras: Mayor carga en la API propia (todas las operaciones de datos pasan por ella)
+Motivos:
+- API versionada: el APK no se actualiza al instante, por lo que la API permite mantener compatibilidad hacia atrás
+- Validación centralizada: las correcciones que llegan de los usuarios se validan en un solo lugar antes de afectar al diccionario o al modelo
+- Límites de uso y costo: el control de uso y costo de la IA se centraliza en la API, evitando que cada instancia de la app consuma recursos directamente
+
+Restricciones:
+- El mobile no consulta directamente las tablas de Supabase
+- El mobile solo utiliza Supabase Auth para la autenticación
+- Todo el resto de las operaciones (obtención de datos, envío de tickets, consulta de análisis, etc.) se realiza a través de la API propia
