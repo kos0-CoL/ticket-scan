@@ -155,17 +155,17 @@ ApiResponse, PaginatedResponse, SelectOption, NavItem
 | `landing_sections` | `id` PK, `key` unique | sort_order, enabled |
 | `tickets` | `id` PK, `user_id` FK | user_id, fecha, comercio |
 | `ticket_items` | `id` PK, `ticket_id` FK | ticket_id |
-| ~~`ml_providers`~~ (reemplazado por ai_providers) | `id` PK, `name` unique | — |
-| ~~`ml_configs`~~ (reemplazado por ai_models) | `id` PK, `provider_id` FK | provider_id, is_active |
+| ~~`ml_providers`~~ (reemplazada por ai_providers) | `id` PK, `name` unique | — |
+| ~~`ml_configs`~~ (reemplazada por ai_providers) | `id` PK, `provider_id` FK | provider_id, is_active |
 | ~~`ml_training_jobs`~~ (pospuesta) | `id` PK | status |
 | ~~`feedback_images`~~ (pospuesta) | `id` PK, `user_id` FK, `ticket_id` FK nullable | user_id, training_job_id, selected_for_training |
 | ~~`ml_training_jobs_feedback`~~ (pospuesta) | `job_id` + `feedback_id` PK compuesta | — |
 | `normalization_queue` | `id` PK | status |
 | `normalization_rules` | `id` PK, (`comercio`, `texto_normalizado`) único | comercio, texto_normalizado |
 | `ai_providers` | `id` PK, `name` unique | — |
-| `ai_models` | `id` PK, `provider_id` FK | provider_id |
+| `ai_models` | `id` PK, (`provider_id`, `model_id`) único | provider_id |
 | `ai_task_routes` | `id` PK, `task` unique | task |
-| `ai_model_evaluations` | `id` PK, `model_id` unique | model_id |
+| `ai_model_evaluations` | `id` PK, `model_id` FK | model_id, task |
 
 Pospuestas: el aprendizaje se hace con diccionario; reentrenar un modelo propio queda para cuando haya volumen.
 
