@@ -21,13 +21,14 @@
 | Auth | Supabase Auth (SSR via `@supabase/ssr`) |
 | IA | OpenRouter (multi-provider: Gemini, GPT, Claude, Llama) |
 | Mobile | Capacitor 6 (Android) |
-| Deploy | Netlify (sitio único + proxy `/admin/*`) |
+| Deploy | Netlify (sitio único; el admin vive en `/admin` dentro de apps/web) |
 
-### Netlify — Single Site con Proxy
+### Netlify — Sitio único
 ```
 ticket-ar.netlify.app          → apps/web (landing + API)
+ticket-ar.netlify.app/admin/* → apps/web (panel admin)
 ```
-- Configuración de sitio único: ticket-ar.netlify.app
+- El admin vive en /admin dentro de apps/web; no hay segundo sitio.
 - `netlify.toml` maneja redirects + headers de seguridad + cache
 
 ---
@@ -260,7 +261,21 @@ NEXT_PUBLIC_APP_URL=https://ticket-ar.netlify.app
 - [ ] Restaurar `SPEC-COMPLETO.md` en repo ✅ (este archivo)
 - [ ] GitHub Actions CI/CD
 - [ ] Supabase Auth configurado (providers, emails, redirects)
+- [ ] Middleware auth en `/admin` (web)
 - [ ] Mobile se exporta estática (sin middleware ni route handlers), auth resuelta del lado del cliente
+- [ ] API tickets CRUD (mobile consume)
+- [ ] OCR endpoint + categorización
+- [ ] Feedback loop UI (mobile) → DB
+- [ ] Training job scheduler (cron Supabase pg_cron o GitHub Actions)
+- [ ] Tests unit/integration/E2E
+- [ ] Sentry / logging
+- [ ] Play Store build pipeline
+- [ ] Documentación API (OpenAPI/Swagger)
+
+
+---
+
+> **Nota**: Este spec reconstruye la especificación original que se perdió en el wipe. Sirve como única fuente de verdad para planear sprints, crear tareas Kanban y validar completitud.
 
 ## Decisiones abiertas
 
@@ -275,16 +290,3 @@ NEXT_PUBLIC_APP_URL=https://ticket-ar.netlify.app
 - Pros: Menor complejidad en mobile (solo llama a API propia)
 - Contras: Mayor latencia (mobile → API propia → Supabase)
 - Contras: Mayor carga en la API propia (todas las operaciones de datos pasan por ella)
-
-- [ ] API tickets CRUD (mobile consume)
-- [ ] OCR endpoint + categorización
-- [ ] Feedback loop UI (mobile) → DB
-- [ ] Training job scheduler (cron Supabase pg_cron o GitHub Actions)
-- [ ] Tests unit/integration/E2E
-- [ ] Sentry / logging
-- [ ] Play Store build pipeline
-- [ ] Documentación API (OpenAPI/Swagger)
-
----
-
-> **Nota**: Este spec reconstruye la especificación original que se perdió en el wipe. Sirve como única fuente de verdad para planear sprints, crear tareas Kanban y validar completitud.

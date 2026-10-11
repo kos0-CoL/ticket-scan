@@ -5,7 +5,7 @@
 ## Ahora
 
 - Sprint: 0 — Base técnica (se reconstruye: el repo estaba vacío, no hay código todavía)
-- Tarjeta en curso: S0-T01 — Corregir el spec (solo documentos)
+- Tarjeta en curso: S0-T01 — Corregir el spec (solo documentos) [COMPLETADA]
 - Rama: `s0/t01-corregir-spec`
 - Último punto de retorno (tag verde): `s0-base` (reglas de trabajo y spec, sin código)
 - Modo: una tarjeta por vez
@@ -19,9 +19,9 @@
 
 ## Próximos pasos (propuestos, ajustalos)
 
-1. Cerrar S0-T01: corregir el spec (el "Sprint 0 ✅" no es cierto; rutas del admin, auth del mobile, IA multi-proveedor, seguridad).
-2. S0-T02: crear el monorepo base (Turborepo + pnpm, apps y packages vacíos que compilen).
-3. S0-T03: crear `pnpm verify` (lint, typecheck, test, build) y un CI mínimo.
+1. S0-T02: especificación de IA multi-proveedor y seguridad.
+2. S0-T03: crear el monorepo base (Turborepo + pnpm, apps y packages vacíos que compilen).
+3. S0-T04: crear `pnpm verify` (lint, typecheck, test, build) y un CI mínimo.
 
 ## Decisiones tomadas
 

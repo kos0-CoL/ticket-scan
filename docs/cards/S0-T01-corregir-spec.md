@@ -44,6 +44,9 @@ Verificables por texto, sin mirar la pantalla. Desde la raíz del repo:
 - [ ] Existe la sección "Decisiones abiertas" con las opciones A y B de mobile, sin una elegida.
 - [ ] `scripts/scope-check.sh docs/cards/S0-T01-corregir-spec.md` termina en OK.
 - [ ] `git diff main --stat` muestra solo `docs/specs/00-vision.md`, `docs/STATE.md` y esta tarjeta.
+- [ ] `grep -n -i "proxy" docs/specs/00-vision.md` no devuelve nada.
+- [ ] `grep -n "^## " docs/specs/00-vision.md | tail -1` contiene "Decisiones abiertas"
+- [ ] `grep -n "Middleware auth en \`/admin\`" docs/specs/00-vision.md` devuelve algo y `grep -n "Mobile se exporta estática" docs/specs/00-vision.md` devuelve algo
 
 ## Frená y preguntá si...
 
