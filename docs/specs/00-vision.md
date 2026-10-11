@@ -104,7 +104,7 @@ app/
 |---|---|
 | **Proveedores IA** | CRUD providers (nombre, modelo default, fallback order, active), Modal edit, ModelPicker para models |
 | **Monitoring** | Select mes → métricas (requests, success%, latency, cost USD), cards KPI, tabla mensual, desglose por provider |
-| **Normalización** | El sistema busca el ítem en un diccionario por comercio y texto normalizado; si no lo encuentra, la IA sugiere una categoría; si queda dudoso, el ítem va a 'Otros' y el usuario puede completarlo. La corrección entra a `normalization_queue` y, al aprobarse, crea o actualiza una regla en una tabla nueva `normalization_rules` |
+| **Normalización** | Cola pendientes/aprobados/rechazados, stats cards, tabla con Badge categoría + StatusBadge, acciones Aprobar/Rechazar/Ver, Modal detalle. Aprobar una corrección crea o actualiza una regla en `normalization_rules`. |
 | **Landing** | CRUD secciones (hero, features, social-proof, cta-download, footer), toggle enabled, sort_order, JSON content editor |
 | **Usuarios** | Tabla users (email, nombre, role badge, tickets, gasto, fecha), CRUD + ConfirmModal delete |
 
@@ -142,13 +142,13 @@ app/
 User, UserPreferences
 LandingSection, LandingConfig, LandingSectionData, LandingFeatureItem, Testimonial
 Ticket, TicketItem
-MLProvider, MLConfig, MLTrainingJob, FeedbackImage, NormalizationQueueItem
+MLProvider, MLConfig, ~~MLTrainingJob~~ (pospuesto), ~~FeedbackImage~~ (pospuesto), NormalizationQueueItem
 AnalyticsData, MonthlySpending, CategorySpending, TopMerchant
 MLProviderWithModels, MLModel
 ApiResponse, PaginatedResponse, SelectOption, NavItem
 ```
 
-### `@ticketscan/db` — Drizzle Schema (11 tablas)
+### `@ticketscan/db` — Drizzle Schema (8 tablas activas y 3 pospuestas)
 | Tabla | Clave | Índices |
 |---|---|---|
 | `profiles` | `user_id` PK (FK a usuario de Supabase Auth) | role (user/admin), preferencias |
@@ -157,15 +157,17 @@ ApiResponse, PaginatedResponse, SelectOption, NavItem
 | `ticket_items` | `id` PK, `ticket_id` FK | ticket_id |
 | `ml_providers` | `id` PK, `name` unique | — |
 | `ml_configs` | `id` PK, `provider_id` FK | provider_id, is_active |
-| ~~`ml_training_jobs`~~ | `id` PK | status | ~~el aprendizaje se hace con diccionario; reentrenar un modelo propio queda para cuando haya volumen~~ |
-| ~~`feedback_images`~~ | `id` PK, `user_id` FK, `ticket_id` FK nullable | user_id, training_job_id, selected_for_training | ~~el aprendizaje se hace con diccionario; reentrenar un modelo propio queda para cuando haya volumen~~ |
-| ~~`ml_training_jobs_feedback`~~ | `job_id` + `feedback_id` PK compuesta | — | ~~el aprendizaje se hace con diccionario; reentrenar un modelo propio queda para cuando haya volumen~~ |
+| ~~`ml_training_jobs`~~ (pospuesta) | `id` PK | status |
+| ~~`feedback_images`~~ (pospuesta) | `id` PK, `user_id` FK, `ticket_id` FK nullable | user_id, training_job_id, selected_for_training |
+| ~~`ml_training_jobs_feedback`~~ (pospuesta) | `job_id` + `feedback_id` PK compuesta | — |
 | `normalization_queue` | `id` PK, `ticket_id` FK | status, ticket_id |
-| `normalization_rules` | `id` PK, `commerce` | texto_normalizado, categoría, activo |
+| `normalization_rules` | `id` PK, (`comercio`, `texto_normalizado`) único | comercio, texto_normalizado |
 
-Enums: `user_role`, `ticket_source`, `ticket_status`, `provider_status`, `job_status`, `feedback_status`, `normalization_status`, `category`
+Pospuestas: el aprendizaje se hace con diccionario; reentrenar un modelo propio queda para cuando haya volumen.
 
-Relations definidas para todo (profiles→tickets, tickets→items, ml_providers→configs, training_jobs↔feedback many-to-many, etc.)
+Enums: `user_role`, `ticket_source`, `ticket_status`, `provider_status`, ~~job_status~~ (pospuesto), ~~feedback_status~~ (pospuesto), `normalization_status`, `category`
+
+Relations definidas para todo (profiles→tickets, tickets→items, ml_providers→configs, ~~training_jobs↔feedback~~ (pospuesto) many-to-many, etc.)
 
 ### Seguridad y RLS
 
@@ -221,9 +223,7 @@ Relations definidas para todo (profiles→tickets, tickets→items, ml_providers
 
 | Etapa | Descripción |
 |---|---|
-| **OCR** | Obtiene texto estructurado de imágenes o datos de comprobante. Dos formas de captura:
-1. QR: se decodifica en el dispositivo y aporta datos del comprobante (CUIT, fecha, importe, código de autorización) - no requiere subir imagen
-2. Foto: se sube por URL firmada a un bucket privado temporal y se envía al OCR para obtener los ítems |
+| **OCR** | Dos formas de captura: (1) QR: se decodifica en el dispositivo y aporta datos del comprobante (CUIT, fecha, importe, código de autorización) - no requiere subir imagen; (2) Foto: se sube por URL firmada a un bucket privado temporal y se envía al OCR para obtener los ítems |
 | **Categorización** | Items → categorías enum (almacen, frescos, lacteos, bebidas, limpieza, congelados, carnes, frutas_y_verduras, panaderia, otros) |
 | **Normalización** | El sistema busca el ítem en un diccionario por comercio y texto normalizado; si no lo encuentra, la IA sugiere una categoría; si queda dudoso, el ítem va a 'Otros' y el usuario puede completarlo |
 | **Feedback Loop** | La corrección entra a `normalization_queue` y, al aprobarse, crea o actualiza una regla en una tabla nueva `normalization_rules`. El diccionario se consulta antes que el modelo, y los ejemplos aprobados pueden usarse como ejemplos en el prompt |
