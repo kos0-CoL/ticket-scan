@@ -93,7 +93,7 @@ app/
 #### Landing Page (SSR, ISR 60s)
 - **Hero**: badge, título, 2 CTAs (APK MediaFire + Play Store disabled), trust indicators
 - **Features**: 4 cards (OCR, Categorización, Gráficos, Export)
-- **Social Proof**: 3 testimonios + stats (10K+, 4.8★, 99%)
+- **Social Proof**: 3 testimonios + stats (10K+, 4.8★, 99%) [placeholders ficticios]
 - **CTA Download**: download card + 4 feature highlights
 - **Footer**: brand, nav (Producto/Legal), social, admin link, version
 - **Config-driven**: todo viene de `/api/landing` (CMS en DB)
