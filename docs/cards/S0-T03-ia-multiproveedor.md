@@ -31,6 +31,7 @@ Dejar en `docs/specs/00-vision.md` definida la base de la IA multi-proveedor, qu
 ## Archivos permitidos
 
 - `docs/specs/00-vision.md`
+- `scripts/spec-check.sh`
 
 (Además se permiten siempre `docs/STATE.md` y esta tarjeta.)
 

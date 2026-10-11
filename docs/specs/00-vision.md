@@ -139,12 +139,12 @@ app/
 
 ### `@ticketscan/types` — Interfaces compartidas
 ```typescript
-User, UserPreferences
+~~User~~ (reemplazado por Profile), UserPreferences
 LandingSection, LandingConfig, LandingSectionData, LandingFeatureItem, Testimonial
 Ticket, TicketItem
-MLProvider, MLConfig, ~~MLTrainingJob~~ (pospuesto), ~~FeedbackImage~~ (pospuesto), NormalizationQueueItem
+~~MLProvider~~ (reemplazado por AiProvider), ~~MLConfig~~ (reemplazado por AiModel), ~~MLTrainingJob~~ (pospuesto), ~~FeedbackImage~~ (pospuesto), NormalizationQueueItem
 AnalyticsData, MonthlySpending, CategorySpending, TopMerchant
-MLProviderWithModels, MLModel
+~~MLProviderWithModels~~ (reemplazado por AiTaskRoute), ~~MLModel~~ (reemplazado por AiModelEvaluation)
 ApiResponse, PaginatedResponse, SelectOption, NavItem
 ```
 
@@ -213,8 +213,10 @@ Relations definidas para todo (profiles→tickets, tickets→items, ml_providers
 - `debounce`, `throttle`, `classNames`
 
 ### `@ticketscan/ai` — OpenRouter Client
-- `OpenRouterClient`: `chatCompletion`, `chatCompletionStream`, `createEmbedding`, `structuredOutput` (Zod)
-- `listModels()`, `getAvailableModels()` (9 modelos predefinidos: Gemini 1.5 Pro/Flash, GPT-4o/mini, Claude 3.5 Sonnet/Haiku/Opus, Llama 3.1 405B, Gemma 2 27B, Mistral Large 2)
+~~- `OpenRouterClient`: `chatCompletion`, `chatCompletionStream`, `createEmbedding`, `structuredOutput` (Zod)~~
+- `AiClient`: interfaz común con `listModels`, `chat`, `vision`, `structured`.
+~~- `listModels()`, `getAvailableModels()` (9 modelos predefinidos: Gemini 1.5 Pro/Flash, GPT-4o/mini, Claude 3.5 Sonnet/Haiku/Opus, Llama 3.1 405B, Gemma 2 27B, Mistral Large 2)~~
+- Los proveedores y modelos se sincronizan desde cada API del proveedor (no hay proveedores ni modelos fijos en el código).
 - Headers: `HTTP-Referer`, `X-Title: TicketScan`
 
 ---
