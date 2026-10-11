@@ -175,6 +175,34 @@ Relations definidas para todo (profiles→tickets, tickets→items, ml_providers
 - Todas las rutas `/api/v1/admin/*` verifican que el usuario tenga rol admin
 - La ruta `/api/providers` ya no es pública (requiere autenticación)
 - La conexión directa de Drizzle (`DATABASE_URL`) no pasa por RLS y solo se utiliza en código de servidor autorizado
+
+### Contrato de API para mobile
+
+| Método | Ruta | Autenticación | Propósito |
+|---|---|---|---|
+| GET | `/api/v1/tickets` | Requerida | Listar tickets con filtros |
+| POST | `/api/v1/tickets` | Requerida | Crear nuevo ticket |
+| GET | `/api/v1/tickets/:id` | Requerida | Obtener ticket por ID |
+| PUT | `/api/v1/tickets/:id` | Requerida | Actualizar ticket existente |
+| DELETE | `/api/v1/tickets/:id` | Requerida | Eliminar ticket |
+| GET | `/api/v1/analysis` | Requerida | Obtener datos de análisis |
+| GET | `/api/v1/configuration` | Requerida | Obtener configuración de usuario |
+| PUT | `/api/v1/configuration` | Requerida | Actualizar configuración de usuario |
+| GET | `/api/v1/export` | Requerida | Exportar datos (CSV, Excel, etc.) |
+| DELETE | `/api/v1/account` | Requerida | Borrar cuenta de usuario |
+| POST | `/api/v1/scan` | Requerida | Iniciar proceso de escaneo/OCR |
+| GET | `/api/v1/upload-url` | Requerida | Obtener URL firmada para subir foto |
+| POST | `/api/v1/normalization-correction` | Requerida | Envío de corrección de normalización |
+
+**Formato estándar de error:**
+```json
+{
+  "error": "código_de_error",
+  "message": "Mensaje descriptivo del error",
+  "details": {}
+}
+```
+
 ### `@ticketscan/utils`
 - `cn(...classes)` → `clsx` + `tailwind-merge`
 - `formatCurrency`, `formatNumber`, `formatDate`, `formatDateTime`
