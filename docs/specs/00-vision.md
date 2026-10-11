@@ -26,9 +26,8 @@
 ### Netlify — Single Site con Proxy
 ```
 ticket-ar.netlify.app          → apps/web (landing + API)
-ticket-ar.netlify.app/admin/*  → proxy 200 → admin-ticket-ar.netlify.app (legacy, temporal)
 ```
-- Elimina el segundo sitio Netlify (`admin-ticket-ar.netlify.app`)
+- Configuración de sitio único: ticket-ar.netlify.app
 - `netlify.toml` maneja redirects + headers de seguridad + cache
 
 ---
@@ -199,7 +198,6 @@ Relations definidas para todo (users→tickets, tickets→items, ml_providers→
 - **Build**: `pnpm run build` (turborepo)
 - **Publish**: `.netlify/output` (Next.js 15 output)
 - **Env vars**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `DATABASE_URL`, `OPENROUTER_API_KEY`, `NEXT_PUBLIC_API_URL`
-- **Proxy**: `[[redirects]] from = "/admin/*" to = "https://admin-ticket-ar.netlify.app/:splat" status = 200`
 
 ### GitHub Actions (pendiente)
 ```yaml
