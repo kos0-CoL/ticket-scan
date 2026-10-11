@@ -244,10 +244,10 @@ Relations definidas para todo (users→tickets, tickets→items, ml_providers→
 
 ```env
 # .env.example
-NEXT_PUBLIC_SUPABASE_URL=https://ojgxwyzuvdjoouxhqycg.supabase.co
+NEXT_PUBLIC_SUPABASE_URL=https://<tu-proyecto>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...
-DATABASE_URL=postgresql://postgres:...@db.ojgxwyzuvdjoouxhqycg.supabase.co:5432/postgres
+DATABASE_URL=postgresql://postgres:...@db.<tu-proyecto>.supabase.co:5432/postgres
 OPENROUTER_API_KEY=...
 NEXT_PUBLIC_API_URL=https://ticket-ar.netlify.app
 NEXT_PUBLIC_APP_URL=https://ticket-ar.netlify.app
