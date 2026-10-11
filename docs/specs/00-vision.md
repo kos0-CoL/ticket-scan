@@ -260,7 +260,22 @@ NEXT_PUBLIC_APP_URL=https://ticket-ar.netlify.app
 - [ ] Restaurar `SPEC-COMPLETO.md` en repo ✅ (este archivo)
 - [ ] GitHub Actions CI/CD
 - [ ] Supabase Auth configurado (providers, emails, redirects)
-- [ ] Middleware auth en `admin/` y `mobile`
+- [ ] Mobile se exporta estática (sin middleware ni route handlers), auth resuelta del lado del cliente
+
+## Decisiones abiertas
+
+**A: mobile habla directo con Supabase usando RLS, y la API propia queda solo para el OCR.**
+- Pros: Menor latencia para operaciones de datos (mobile → Supabase directo)
+- Pros: Menor carga en la API propia (solo procesa OCR)
+- Contras: Mayor complejidad en mobile (maneja autenticación Supabase directamente)
+- Contras: Duplicación de lógica de acceso a datos entre mobile y admin
+
+**B: todo pasa por la API propia.**
+- Pros: Lógica centralizada de acceso a datos y autenticación
+- Pros: Menor complejidad en mobile (solo llama a API propia)
+- Contras: Mayor latencia (mobile → API propia → Supabase)
+- Contras: Mayor carga en la API propia (todas las operaciones de datos pasan por ella)
+
 - [ ] API tickets CRUD (mobile consume)
 - [ ] OCR endpoint + categorización
 - [ ] Feedback loop UI (mobile) → DB
