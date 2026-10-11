@@ -77,7 +77,7 @@ ticket-ar.netlify.app/admin/*  → proxy 200 → admin-ticket-ar.netlify.app (le
 app/
 ├── (public)/
 │   └── page.tsx          # Landing SSR (fetch /api/landing)
-├── (admin)/
+├── admin/
 │   ├── layout.tsx        # AdminLayout + TabBar (5 tabs)
 │   ├── page.tsx          # redirect → /admin/providers
 │   ├── providers/page.tsx
@@ -262,7 +262,7 @@ NEXT_PUBLIC_APP_URL=https://ticket-ar.netlify.app
 - [ ] Restaurar `SPEC-COMPLETO.md` en repo ✅ (este archivo)
 - [ ] GitHub Actions CI/CD
 - [ ] Supabase Auth configurado (providers, emails, redirects)
-- [ ] Middleware auth en `(admin)` y `mobile`
+- [ ] Middleware auth en `admin/` y `mobile`
 - [ ] API tickets CRUD (mobile consume)
 - [ ] OCR endpoint + categorización
 - [ ] Feedback loop UI (mobile) → DB
