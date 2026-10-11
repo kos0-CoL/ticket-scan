@@ -21,14 +21,14 @@
 | Auth | Supabase Auth (SSR via `@supabase/ssr`) |
 | IA | OpenRouter (multi-provider: Gemini, GPT, Claude, Llama) |
 | Mobile | Capacitor 6 (Android) |
-| Deploy | Netlify (sitio único + proxy `/admin/*`) |
+| Deploy | Netlify (sitio único; el admin vive en `/admin` dentro de apps/web) |
 
-### Netlify — Single Site con Proxy
+### Netlify — Sitio único
 ```
 ticket-ar.netlify.app          → apps/web (landing + API)
-ticket-ar.netlify.app/admin/*  → proxy 200 → admin-ticket-ar.netlify.app (legacy, temporal)
+ticket-ar.netlify.app/admin/* → apps/web (panel admin)
 ```
-- Elimina el segundo sitio Netlify (`admin-ticket-ar.netlify.app`)
+- El admin vive en /admin dentro de apps/web; no hay segundo sitio.
 - `netlify.toml` maneja redirects + headers de seguridad + cache
 
 ---
@@ -77,7 +77,7 @@ ticket-ar.netlify.app/admin/*  → proxy 200 → admin-ticket-ar.netlify.app (le
 app/
 ├── (public)/
 │   └── page.tsx          # Landing SSR (fetch /api/landing)
-├── (admin)/
+├── admin/
 │   ├── layout.tsx        # AdminLayout + TabBar (5 tabs)
 │   ├── page.tsx          # redirect → /admin/providers
 │   ├── providers/page.tsx
@@ -94,7 +94,7 @@ app/
 #### Landing Page (SSR, ISR 60s)
 - **Hero**: badge, título, 2 CTAs (APK MediaFire + Play Store disabled), trust indicators
 - **Features**: 4 cards (OCR, Categorización, Gráficos, Export)
-- **Social Proof**: 3 testimonios + stats (10K+, 4.8★, 99%)
+- **Social Proof**: 3 testimonios + stats (10K+, 4.8★, 99%) [placeholders ficticios]
 - **CTA Download**: download card + 4 feature highlights
 - **Footer**: brand, nav (Producto/Legal), social, admin link, version
 - **Config-driven**: todo viene de `/api/landing` (CMS en DB)
@@ -199,7 +199,6 @@ Relations definidas para todo (users→tickets, tickets→items, ml_providers→
 - **Build**: `pnpm run build` (turborepo)
 - **Publish**: `.netlify/output` (Next.js 15 output)
 - **Env vars**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `DATABASE_URL`, `OPENROUTER_API_KEY`, `NEXT_PUBLIC_API_URL`
-- **Proxy**: `[[redirects]] from = "/admin/*" to = "https://admin-ticket-ar.netlify.app/:splat" status = 200`
 
 ### GitHub Actions (pendiente)
 ```yaml
@@ -222,7 +221,7 @@ Relations definidas para todo (users→tickets, tickets→items, ml_providers→
 
 | Sprint | Objetivo | Entregables |
 |---|---|---|
-| **Sprint 0** ✅ | Base técnica | Monorepo, UI kit, DB schema, build OK, push GitHub |
+| **Sprint 0** ⏳ | Base técnica | Monorepo, UI kit, esquema de base. *Nota: el repo estaba vacío y la base técnica (monorepo, UI kit y esquema de la base) se reconstruye.* |
 | **Sprint 1** | Auth + Landing + API base | Supabase Auth (email/password + magic link), middleware protected routes, landing CMS from DB, API tickets CRUD |
 | **Sprint 2** | Admin completo | Providers CRUD real (DB), Monitoring real (queries Supabase), Normalization queue real, Users management real |
 | **Sprint 3** | Mobile app | Tickets list real (Supabase), Analysis charts (Recharts), Settings persist (Supabase), Camera scan → OCR API, Capacitor build |
@@ -246,10 +245,10 @@ Relations definidas para todo (users→tickets, tickets→items, ml_providers→
 
 ```env
 # .env.example
-NEXT_PUBLIC_SUPABASE_URL=https://ojgxwyzuvdjoouxhqycg.supabase.co
+NEXT_PUBLIC_SUPABASE_URL=https://<tu-proyecto>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...
-DATABASE_URL=postgresql://postgres:...@db.ojgxwyzuvdjoouxhqycg.supabase.co:5432/postgres
+DATABASE_URL=postgresql://postgres:...@db.<tu-proyecto>.supabase.co:5432/postgres
 OPENROUTER_API_KEY=...
 NEXT_PUBLIC_API_URL=https://ticket-ar.netlify.app
 NEXT_PUBLIC_APP_URL=https://ticket-ar.netlify.app
@@ -262,7 +261,8 @@ NEXT_PUBLIC_APP_URL=https://ticket-ar.netlify.app
 - [ ] Restaurar `SPEC-COMPLETO.md` en repo ✅ (este archivo)
 - [ ] GitHub Actions CI/CD
 - [ ] Supabase Auth configurado (providers, emails, redirects)
-- [ ] Middleware auth en `(admin)` y `mobile`
+- [ ] Middleware auth en `/admin` (web)
+- [ ] Mobile se exporta estática (sin middleware ni route handlers), auth resuelta del lado del cliente
 - [ ] API tickets CRUD (mobile consume)
 - [ ] OCR endpoint + categorización
 - [ ] Feedback loop UI (mobile) → DB
@@ -272,6 +272,21 @@ NEXT_PUBLIC_APP_URL=https://ticket-ar.netlify.app
 - [ ] Play Store build pipeline
 - [ ] Documentación API (OpenAPI/Swagger)
 
+
 ---
 
 > **Nota**: Este spec reconstruye la especificación original que se perdió en el wipe. Sirve como única fuente de verdad para planear sprints, crear tareas Kanban y validar completitud.
+
+## Decisiones abiertas
+
+**A: mobile habla directo con Supabase usando RLS, y la API propia queda solo para el OCR.**
+- Pros: Menor latencia para operaciones de datos (mobile → Supabase directo)
+- Pros: Menor carga en la API propia (solo procesa OCR)
+- Contras: Mayor complejidad en mobile (maneja autenticación Supabase directamente)
+- Contras: Duplicación de lógica de acceso a datos entre mobile y admin
+
+**B: todo pasa por la API propia.**
+- Pros: Lógica centralizada de acceso a datos y autenticación
+- Pros: Menor complejidad en mobile (solo llama a API propia)
+- Contras: Mayor latencia (mobile → API propia → Supabase)
+- Contras: Mayor carga en la API propia (todas las operaciones de datos pasan por ella)
