@@ -107,15 +107,10 @@ app/
 | **Normalización** | Cola pendientes/aprobados/rechazados, stats cards, tabla con Badge categoría + StatusBadge, acciones Aprobar/Rechazar/Ver, Modal detalle. Aprobar una corrección crea o actualiza una regla en `normalization_rules`. |
 | **Landing** | CRUD secciones (hero, features, social-proof, cta-download, footer), toggle enabled, sort_order, JSON content editor |
 | **Usuarios** | Tabla users (email, nombre, role badge, tickets, gasto, fecha), CRUD + ConfirmModal delete |
-## IA configurable desde el admin
-- Precios: OpenRouter publica el precio por modelo en su listado, pero muchos proveedores devuelven solo ids y límites, sin precios (verificarlo en la documentación de cada uno). Para esos, el precio se carga a mano o queda como `unknown`. Los planes gratuitos con cupo se marcan "gratis con límites". El filtro de gratis o de pago solo es confiable donde el dato existe.
-- Recomendación: se filtra primero por lo que exige la tarea (OCR pide visión; categorización y normalización piden salida estructurada) y se ordena con evidencia propia: los puntajes de evaluación más el monitoring (éxito, latencia, costo). Sin evaluación, el modelo figura como "compatible", no como "recomendado".
-- Evaluación: botón "Evaluar este modelo" que corre un set de unos 20 tickets con resultado esperado y guarda el puntaje. El set lo arma el admin con tickets propios, nunca con datos de usuarios.
-- Keys: cifradas en reposo, nunca viajan al navegador, solo las gestiona el rol admin, y cada proveedor tiene un tope de gasto mensual. Revisar la política de retención y de entrenamiento de cada proveedor antes de habilitarlo.
 #### API Routes
 - `GET /api/landing` → config completa landing (hero, features, social-proof, cta-download, footer)
-- `GET /api/providers` → lista providers + models
-- `GET /api/providers/:provider/models` → models filtrados por provider
+- ~~`GET /api/providers` → lista providers + models~~ (reemplazado por `GET /api/v1/admin/ai/providers` y `GET /api/v1/admin/ai/models`)
+- ~~`GET /api/providers/:provider/models` → models filtrados por provider~~ (reemplazado por `GET /api/v1/admin/ai/models` con filtros)
 
 ---
 
@@ -193,7 +188,7 @@ Relaciones definidas para todo (profiles→tickets, tickets→items, ai_provider
 - La API utiliza el token de Supabase Auth del usuario
 - La clave de servicio de Supabase solo se utiliza en código de servidor de rutas admin
 - Todas las rutas `/api/v1/admin/*` verifican que el usuario tenga rol admin
-- La ruta `/api/providers` ya no es pública (requiere autenticación)
+- ~~La ruta `/api/providers` ya no es pública (requiere autenticación)~~ (reemplazado: las rutas de IA son solo de admin, bajo `/api/v1/admin/ai/`)
 - La conexión directa de Drizzle (`DATABASE_URL`) no pasa por RLS y solo se utiliza en código de servidor autorizado
 
 ### Contrato de API para mobile
@@ -213,18 +208,24 @@ Relaciones definidas para todo (profiles→tickets, tickets→items, ai_provider
 | POST | `/api/v1/scan` | Requerida | Iniciar proceso de escaneo/OCR |
 | GET | `/api/v1/upload-url` | Requerida | Obtener URL firmada para subir foto |
 | POST | `/api/v1/normalization-correction` | Requerida | Envío de corrección de normalización |
+
+### Contrato de API admin de IA
+
 | Método | Ruta | Autenticación | Propósito |
 |---|---|---|---|
-| GET | `/api/v1/admin/ai/providers` | Requerida | Listar proveedores |
-| POST | `/api/v1/admin/ai/providers` | Requerida | Crear proveedor |
-| PUT | `/api/v1/admin/ai/providers/:id` | Requerida | Editar proveedor |
-| DELETE | `/api/v1/admin/ai/providers/:id` | Requerida | Borrar proveedor |
-| POST | `/api/v1/admin/ai/providers/:id/test` | Requerida | Probar conexión |
-| POST | `/api/v1/admin/ai/providers/:id/sync` | Requerida | Sincronizar modelos |
-| GET | `/api/v1/admin/ai/models` | Requerida | Listar modelos con filtros |
-| PUT | `/api/v1/admin/ai/routes` | Requerida | Editar rutas por tarea |
-| POST | `/api/v1/admin/ai/evaluate` | Requerida | Correr una evaluación |
-| GET | `/api/v1/admin/ai/recommendation` | Requerida | Pedir la recomendación |
+| GET | `/api/v1/admin/ai/providers` | Rol admin | Listar proveedores |
+| POST | `/api/v1/admin/ai/providers` | Rol admin | Crear proveedor |
+| PUT | `/api/v1/admin/ai/providers/:id` | Rol admin | Editar proveedor |
+| DELETE | `/api/v1/admin/ai/providers/:id` | Rol admin | Borrar proveedor |
+| POST | `/api/v1/admin/ai/providers/:id/test` | Rol admin | Probar conexión |
+| POST | `/api/v1/admin/ai/providers/:id/sync` | Rol admin | Sincronizar modelos |
+| GET | `/api/v1/admin/ai/models` | Rol admin | Listar modelos con filtros |
+| PUT | `/api/v1/admin/ai/routes` | Rol admin | Editar rutas por tarea |
+| POST | `/api/v1/admin/ai/evaluate` | Rol admin | Correr una evaluación |
+| GET | `/api/v1/admin/ai/recommendation` | Rol admin | Pedir la recomendación |
+
+Todas las rutas admin de IA requieren el rol admin. Ninguna devuelve una key completa: solo los últimos 4 caracteres.
+
 **Formato estándar de error:**
 ```json
 {
@@ -262,6 +263,12 @@ Relaciones definidas para todo (profiles→tickets, tickets→items, ai_provider
 
 ---
 
+## IA configurable desde el admin
+- Precios: OpenRouter publica el precio por modelo en su listado, pero muchos proveedores devuelven solo ids y límites, sin precios (verificarlo en la documentación de cada uno). Para esos, el precio se carga a mano o queda como `unknown`. Los planes gratuitos con cupo se marcan "gratis con límites". El filtro de gratis o de pago solo es confiable donde el dato existe.
+- Recomendación: se filtra primero por lo que exige la tarea (OCR pide visión; categorización y normalización piden salida estructurada) y se ordena con evidencia propia: los puntajes de evaluación más el monitoring (éxito, latencia, costo). Sin evaluación, el modelo figura como "compatible", no como "recomendado".
+- Evaluación: botón "Evaluar este modelo" que corre un set de unos 20 tickets con resultado esperado y guarda el puntaje. El set lo arma el admin con tickets propios, nunca con datos de usuarios.
+- Keys: cifradas en reposo, nunca viajan al navegador, solo las gestiona el rol admin, y cada proveedor tiene un tope de gasto mensual. Revisar la política de retención y de entrenamiento de cada proveedor antes de habilitarlo.
+
 ## Decisiones abiertas
 
 - Política de aprobación: manual, automática cuando N usuarios distintos coinciden, o ambas
@@ -269,16 +276,17 @@ Relaciones definidas para todo (profiles→tickets, tickets→items, ai_provider
 - Qué se guarda de quien corrige (nada, o un identificador seudónimo para detectar abuso)
 - Qué pasa con la foto del ticket: se descarta al terminar el OCR, o se guarda unas horas para reintentos
 - Revisar con un profesional los requisitos de la Ley 25.326 de protección de datos personales, porque la foto sí se procesa en el servidor y por el proveedor de IA que se configure
-- dónde se cifran las keys (Supabase Vault o cifrado propio con una clave en una variable de entorno)
-- si el tope de gasto es por proveedor, por tarea o ambos
-- dónde vive el set de evaluación (en la base o en archivos privados)
+- Dónde se cifran las keys (Supabase Vault o cifrado propio con una clave en una variable de entorno)
+- Si el tope de gasto es por proveedor, por tarea o ambos
+- Dónde vive el set de evaluación (en la base o en archivos privados)
+
 ## 6. DEPLOY & CI/CD
 
 ### Netlify (producción)
 - **Site**: `ticket-ar.netlify.app`
 - **Build**: `pnpm run build` (turborepo)
 - **Publish**: `.netlify/output` (Next.js 15 output)
-- **Env vars**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `DATABASE_URL`, `~~OPENROUTER_API_KEY~~`, `NEXT_PUBLIC_API_URL`  # ya no: las keys se cargan desde el admin
+- **Env vars**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `DATABASE_URL`, ~~`OPENROUTER_API_KEY`~~ (ya no: las keys se cargan desde el admin), `NEXT_PUBLIC_API_URL`
 
 ### GitHub Actions (pendiente)
 ```yaml
@@ -329,7 +337,7 @@ NEXT_PUBLIC_SUPABASE_URL=https://<tu-proyecto>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...
 DATABASE_URL=postgresql://postgres:...@db.<tu-proyecto>.supabase.co:5432/postgres
-~~OPENROUTER_API_KEY~~=...  # ya no: las keys se cargan desde el admin
+# OPENROUTER_API_KEY: ya no se usa; las keys se cargan desde el admin
 NEXT_PUBLIC_API_URL=https://ticket-ar.netlify.app
 NEXT_PUBLIC_APP_URL=https://ticket-ar.netlify.app
 ```

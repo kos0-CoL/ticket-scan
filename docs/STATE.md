@@ -38,4 +38,4 @@
 | `s0-t01-ok` | Spec corregido (tarjeta S0-T01) | |
 | `s0-t02-ok` | Spec de seguridad, privacidad y normalización colaborativa (tarjeta S0-T02) | |
 | `s0-t03-ok` | Spec de IA: paquete, datos y panel admin (tarjeta S0-T03) | |
-| `s0-t04-ok` | Spec de IA completa (tarjeta S0-T04) |
+| `s0-t04-ok` | Spec de IA completa (tarjeta S0-T04) | |
