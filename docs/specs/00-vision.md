@@ -8,14 +8,14 @@
 ## 1. ARQUITECTURA GENERAL
 
 ### Monorepo
-- **Turborepo v2** + **pnpm 9** + **Node ≥20**
+- **Turborepo v2** + **pnpm 12** + **Node ≥20**
 - **Apps**: `web` (landing + admin + API), `mobile` (Next.js + Capacitor)
 - **Packages**: `ui`, `db`, `types`, `utils`, `ai`
 
 ### Stack
 | Capa | Tech |
 |---|---|
-| Framework | Next.js 15 (App Router), React 19 |
+| Framework | Next.js 16 (App Router), React 19 |
 | Styling | Tailwind v4 (CSS-first `@theme`), CSS Modules |
 | DB/ORM | Supabase (PostgreSQL) + Drizzle ORM |
 | Auth | Supabase Auth (SSR via `@supabase/ssr`) |
@@ -70,7 +70,7 @@ ticket-ar.netlify.app/admin/* → apps/web (panel admin)
 
 ## 3. APPS
 
-### 3.1 `apps/web` — Landing + Admin + API (Next.js 15)
+### 3.1 `apps/web` — Landing + Admin + API (Next.js 16)
 
 #### Route Groups
 ```
@@ -114,7 +114,7 @@ app/
 
 ---
 
-### 3.2 `apps/mobile` — App Capacitor (Next.js 15 + `output: 'export'`)
+### 3.2 `apps/mobile` — App Capacitor (Next.js 16 + `output: 'export'`)
 
 #### Tabs (TabBar fijo bottom)
 | Tab | Ruta | Contenido |
@@ -285,7 +285,7 @@ Todas las rutas admin de IA requieren el rol admin. Ninguna devuelve una key com
 ### Netlify (producción)
 - **Site**: `ticket-ar.netlify.app`
 - **Build**: `pnpm run build` (turborepo)
-- **Publish**: `.netlify/output` (Next.js 15 output)
+- **Publish**: `.netlify/output` (Next.js 16 output)
 - **Env vars**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `DATABASE_URL`, ~~`OPENROUTER_API_KEY`~~ (ya no: las keys se cargan desde el admin), `NEXT_PUBLIC_API_URL`
 
 ### GitHub Actions (pendiente)
