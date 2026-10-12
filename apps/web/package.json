@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "dependencies": {
+    "next": "16.3.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/node": "26.6.1",
+    "typescript": "7.0.2"
+  }
+}
