@@ -13,6 +13,11 @@
       "dependsOn": [
         "^typecheck"
       ]
+    },
+    "test": {
+      "dependsOn": [
+        "^test"
+      ]
     }
   }
 }
