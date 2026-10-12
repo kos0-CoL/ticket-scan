@@ -209,7 +209,18 @@ Relaciones definidas para todo (profiles→tickets, tickets→items, ai_provider
 | POST | `/api/v1/scan` | Requerida | Iniciar proceso de escaneo/OCR |
 | GET | `/api/v1/upload-url` | Requerida | Obtener URL firmada para subir foto |
 | POST | `/api/v1/normalization-correction` | Requerida | Envío de corrección de normalización |
-
+| Método | Ruta | Autenticación | Propósito |
+|---|---|---|---|
+| GET | `/api/v1/admin/ai/providers` | Requerida | Listar proveedores |
+| POST | `/api/v1/admin/ai/providers` | Requerida | Crear proveedor |
+| PUT | `/api/v1/admin/ai/providers/:id` | Requerida | Editar proveedor |
+| DELETE | `/api/v1/admin/ai/providers/:id` | Requerida | Borrar proveedor |
+| POST | `/api/v1/admin/ai/providers/:id/test` | Requerida | Probar conexión |
+| POST | `/api/v1/admin/ai/providers/:id/sync` | Requerida | Sincronizar modelos |
+| GET | `/api/v1/admin/ai/models` | Requerida | Listar modelos con filtros |
+| PUT | `/api/v1/admin/ai/routes` | Requerida | Editar rutas por tarea |
+| POST | `/api/v1/admin/ai/evaluate` | Requerida | Correr una evaluación |
+| GET | `/api/v1/admin/ai/recommendation` | Requerida | Pedir la recomendación
 **Formato estándar de error:**
 ```json
 {
