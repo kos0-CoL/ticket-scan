@@ -1,0 +1,20 @@
+# Node modules
+node_modules/
+.next/
+out/
+.turbo/
+dist/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+.netlify/
+android/app/build/
+.env
+.env.*
+# except .env.example
+!.env.example
+*.pem
+*.key
+*.keystore
+*.jks
+
