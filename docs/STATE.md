@@ -5,9 +5,9 @@
 ## Ahora
 
 - Sprint: 0 — Base técnica (se reconstruye: el repo estaba vacío, no hay código todavía)
-- Tarjeta en curso: ninguna (S0-T02 cerrada; la próxima es S0-T03)
+- Tarjeta en curso: ninguna (S0-T03 cerrada; la próxima es S0-T04)
 - Rama: `main`
-- Último punto de retorno (tag verde): `s0-t02-ok` (spec de seguridad y normalización, sin código)
+- Último punto de retorno (tag verde): `s0-t03-ok` (spec de IA: paquete, datos y panel admin, sin código)
 - Modo: una tarjeta por vez
 
 ## Cómo volver al cauce
@@ -19,9 +19,9 @@
 
 ## Próximos pasos (propuestos, ajustalos)
 
-1. S0-T03: especificación de IA multi-proveedor (panel admin de proveedores, modelos y rutas por tarea).
-2. S0-T04: crear el monorepo base (Turborepo + pnpm, apps y packages vacíos que compilen).
-3. S0-T05: crear `pnpm verify` (lint, typecheck, test, build) y un CI mínimo.
+1. S0-T04: IA multi-proveedor (2 de 2): contrato de API admin, reglas de precio y recomendación, pipeline, checklist y entorno.
+2. S0-T05: crear el monorepo base (Turborepo + pnpm, apps y packages vacíos que compilen).
+3. S0-T06: crear `pnpm verify` (lint, typecheck, test, build) y un CI mínimo.
 
 ## Decisiones tomadas
 
@@ -38,3 +38,4 @@
 | `s0-base` | Reglas de trabajo y spec, antes de escribir código | |
 | `s0-t01-ok` | Spec corregido (tarjeta S0-T01) | |
 | `s0-t02-ok` | Spec de seguridad, privacidad y normalización colaborativa (tarjeta S0-T02) | |
+| `s0-t03-ok` | Spec de IA: paquete, datos y panel admin (tarjeta S0-T03) | |

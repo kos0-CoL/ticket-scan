@@ -62,7 +62,7 @@ ticket-ar.netlify.app/admin/* → apps/web (panel admin)
 | **Table** | `columns[]` con `render`, `hover`, `divide`, `emptyMessage`, `loading`, `onRowClick`, `keyExtractor` |
 | **Badge/StatusBadge** | `success\|warning\|danger\|primary\|accent\|muted\|outline\|info`, `sm\|md\|lg`, `dot` |
 | **TabBar** | `items[] {href,label,icon,badge}`, `pathname` auto-activo, `hideOnPaths[]`, fixed bottom |
-| **ModelPicker** | Fetch models por provider, search, `loadedFor` cache, dropdown animado |
+| **ModelPicker** | Lee del caché de modelos sincronizados y admite filtros por gratis o de pago, visión, salida estructurada, contexto y proveedor. |
 
 ### Apps consumen tokens vía `@theme` — **nada de `tailwind.config.ts` v3**
 
@@ -102,7 +102,7 @@ app/
 #### Admin Panel (protegido, SSR)
 | Página | Funcionalidad |
 |---|---|
-| **Proveedores IA** | CRUD providers (nombre, modelo default, fallback order, active), Modal edit, ModelPicker para models |
+| **Proveedores IA** | Tres pestañas: Proveedores (alta con probar conexión, edición, activar/desactivar, orden de fallback, tope mensual); Modelos (botón de sincronizar desde API, filtros por gratis/de pago, visión, salida estructurada, contexto, proveedor); Rutas por tarea (modelo principal y fallbacks para OCR, categorización y normalización, con recomendación a la vista). |
 | **Monitoring** | Select mes → métricas (requests, success%, latency, cost USD), cards KPI, tabla mensual, desglose por provider |
 | **Normalización** | Cola pendientes/aprobados/rechazados, stats cards, tabla con Badge categoría + StatusBadge, acciones Aprobar/Rechazar/Ver, Modal detalle. Aprobar una corrección crea o actualiza una regla en `normalization_rules`. |
 | **Landing** | CRUD secciones (hero, features, social-proof, cta-download, footer), toggle enabled, sort_order, JSON content editor |
@@ -139,35 +139,48 @@ app/
 
 ### `@ticketscan/types` — Interfaces compartidas
 ```typescript
-User, UserPreferences
+~~User~~ (reemplazado por Profile), UserPreferences
 LandingSection, LandingConfig, LandingSectionData, LandingFeatureItem, Testimonial
 Ticket, TicketItem
-MLProvider, MLConfig, ~~MLTrainingJob~~ (pospuesto), ~~FeedbackImage~~ (pospuesto), NormalizationQueueItem
+~~MLProvider~~ (reemplazado por AiProvider), ~~MLConfig~~ (reemplazado por AiProvider), ~~MLTrainingJob~~ (pospuesto), ~~FeedbackImage~~ (pospuesto), NormalizationQueueItem
 AnalyticsData, MonthlySpending, CategorySpending, TopMerchant
-MLProviderWithModels, MLModel
+~~MLProviderWithModels~~ (reemplazado por AiProvider y AiModel), ~~MLModel~~ (reemplazado por AiModel)
+Profile, AiProvider, AiModel, AiTaskRoute, AiModelEvaluation
 ApiResponse, PaginatedResponse, SelectOption, NavItem
 ```
 
-### `@ticketscan/db` — Drizzle Schema (8 tablas activas y 3 pospuestas)
+### `@ticketscan/db` — Drizzle Schema (10 tablas activas, 3 pospuestas y 2 reemplazadas)
 | Tabla | Clave | Índices |
 |---|---|---|
 | `profiles` | `user_id` PK (FK a usuario de Supabase Auth) | role (user/admin), preferencias |
 | `landing_sections` | `id` PK, `key` unique | sort_order, enabled |
 | `tickets` | `id` PK, `user_id` FK | user_id, fecha, comercio |
 | `ticket_items` | `id` PK, `ticket_id` FK | ticket_id |
-| `ml_providers` | `id` PK, `name` unique | — |
-| `ml_configs` | `id` PK, `provider_id` FK | provider_id, is_active |
+| ~~`ml_providers`~~ (reemplazada por ai_providers) | `id` PK, `name` unique | — |
+| ~~`ml_configs`~~ (reemplazada por ai_providers) | `id` PK, `provider_id` FK | provider_id, is_active |
 | ~~`ml_training_jobs`~~ (pospuesta) | `id` PK | status |
 | ~~`feedback_images`~~ (pospuesta) | `id` PK, `user_id` FK, `ticket_id` FK nullable | user_id, training_job_id, selected_for_training |
 | ~~`ml_training_jobs_feedback`~~ (pospuesta) | `job_id` + `feedback_id` PK compuesta | — |
-| `normalization_queue` | `id` PK, `ticket_id` FK | status, ticket_id |
+| `normalization_queue` | `id` PK | status |
 | `normalization_rules` | `id` PK, (`comercio`, `texto_normalizado`) único | comercio, texto_normalizado |
+| `ai_providers` | `id` PK, `name` unique | — |
+| `ai_models` | `id` PK, (`provider_id`, `model_id`) único | provider_id |
+| `ai_task_routes` | `id` PK, `task` unique | task |
+| `ai_model_evaluations` | `id` PK, `model_id` FK | model_id, task |
 
 Pospuestas: el aprendizaje se hace con diccionario; reentrenar un modelo propio queda para cuando haya volumen.
 
-Enums: `user_role`, `ticket_source`, `ticket_status`, `provider_status`, ~~job_status~~ (pospuesto), ~~feedback_status~~ (pospuesto), `normalization_status`, `category`
+Campos de las tablas nuevas y de `normalization_queue`:
 
-Relations definidas para todo (profiles→tickets, tickets→items, ml_providers→configs, ~~training_jobs↔feedback~~ (pospuesto) many-to-many, etc.)
+- `ai_providers`: nombre, tipo, base URL, key cifrada, estado, orden de fallback, tope mensual.
+- `ai_models`: proveedor, id del modelo, nombre, contexto, modalidades de entrada, precios de entrada y salida, origen del precio, si es gratis, si soporta visión, si soporta salida estructurada, fecha de sincronización, habilitado.
+- `ai_task_routes`: tarea, modelo principal y fallbacks.
+- `ai_model_evaluations`: modelo, tarea, puntaje, cantidad de muestras, fecha.
+- `normalization_queue`: comercio, texto crudo del ítem, categoría elegida y estado, sin `ticket_id` (si se guarda o no un identificador de quien corrige sigue siendo una decisión abierta).
+
+Enums: `user_role`, `ticket_source`, `ticket_status`, `provider_status`, ~~job_status~~ (pospuesto), ~~feedback_status~~ (pospuesto), `normalization_status`, `category`, tipo de proveedor (`openai_compatible`, `gemini`, `anthropic`, `openrouter`, `custom`), origen del precio (`api`, `manual`, `unknown`).
+
+Relaciones definidas para todo (profiles→tickets, tickets→items, ai_providers→ai_models, ai_models→ai_model_evaluations, ai_task_routes→ai_models, ~~training_jobs↔feedback~~ (pospuesto) many-to-many, etc.)
 
 ### Seguridad y RLS
 
@@ -212,10 +225,13 @@ Relations definidas para todo (profiles→tickets, tickets→items, ml_providers
 - `truncate`, `slugify`, `generateId`
 - `debounce`, `throttle`, `classNames`
 
-### `@ticketscan/ai` — OpenRouter Client
-- `OpenRouterClient`: `chatCompletion`, `chatCompletionStream`, `createEmbedding`, `structuredOutput` (Zod)
-- `listModels()`, `getAvailableModels()` (9 modelos predefinidos: Gemini 1.5 Pro/Flash, GPT-4o/mini, Claude 3.5 Sonnet/Haiku/Opus, Llama 3.1 405B, Gemma 2 27B, Mistral Large 2)
-- Headers: `HTTP-Referer`, `X-Title: TicketScan`
+### `@ticketscan/ai` — Cliente de IA multi-proveedor
+~~- `OpenRouterClient`: `chatCompletion`, `chatCompletionStream`, `createEmbedding`, `structuredOutput` (Zod)~~
+- `AiClient`: interfaz común con `listModels`, `chat`, `vision`, `structured`.
+- Adapters: uno genérico compatible con OpenAI (cubre DeepSeek, OpenRouter y varios más) y adapters nativos para Gemini y Anthropic, que usan otro formato.
+~~- `listModels()`, `getAvailableModels()` (9 modelos predefinidos: Gemini 1.5 Pro/Flash, GPT-4o/mini, Claude 3.5 Sonnet/Haiku/Opus, Llama 3.1 405B, Gemma 2 27B, Mistral Large 2)~~
+- Los proveedores y modelos se sincronizan desde cada API del proveedor (no hay proveedores ni modelos fijos en el código).
+- Headers `HTTP-Referer` y `X-Title: TicketScan`: solo para el proveedor OpenRouter.
 
 ---
 
