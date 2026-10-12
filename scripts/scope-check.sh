@@ -13,6 +13,8 @@
 # En los patrones, "*" también cubre subcarpetas ("docs/**" y "docs/*" equivalen).
 #
 # Topes (se pueden cambiar con variables de entorno): MAX_FILES=15, MAX_LINES=400.
+# Los archivos de bloqueo de dependencias (pnpm-lock.yaml, package-lock.json, yarn.lock)
+# cuentan como archivo pero no suman líneas, porque los genera el gestor de paquetes.
 # Códigos de salida: 0 = OK, 1 = hay violaciones, 2 = error de uso.
 
 set -euo pipefail
@@ -21,6 +23,7 @@ CARD_ARG="${1:-}"
 BASE="${2:-main}"
 MAX_FILES="${MAX_FILES:-15}"
 MAX_LINES="${MAX_LINES:-400}"
+LOCK_RE='(^|/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock)$'
 
 if [[ -z "$CARD_ARG" || ! -f "$CARD_ARG" ]]; then
   echo "Uso: scripts/scope-check.sh <tarjeta.md> [rama-base]" >&2
@@ -85,12 +88,14 @@ is_allowed() {
 }
 
 TOTAL_LINES=0
-while IFS=$'\t' read -r add del _; do
+while IFS=$'\t' read -r add del path; do
+  if [[ "$path" =~ $LOCK_RE ]]; then continue; fi
   if [[ "$add" =~ ^[0-9]+$ ]]; then TOTAL_LINES=$((TOTAL_LINES + add)); fi
   if [[ "$del" =~ ^[0-9]+$ ]]; then TOTAL_LINES=$((TOTAL_LINES + del)); fi
 done < <(git diff --numstat "$MB")
 
 while IFS= read -r f; do
+  if [[ "$f" =~ $LOCK_RE ]]; then continue; fi
   if [[ -f "$f" ]]; then TOTAL_LINES=$((TOTAL_LINES + $(wc -l < "$f"))); fi
 done < <(git ls-files --others --exclude-standard)
 
