@@ -4,10 +4,10 @@
 
 ## Ahora
 
-- Sprint: 0 — Base técnica (se reconstruye: el repo estaba vacío, no hay código todavía)
-- Tarjeta en curso: ninguna (S0-T04 cerrada; la próxima es S0-T05)
+- Sprint: 0 — Base técnica (monorepo base creado; faltan `pnpm verify` y el CI)
+- Tarjeta en curso: ninguna (S0-T05 cerrada; la próxima es S0-T06)
 - Rama: `main`
-- Último punto de retorno (tag verde): `s0-t04-ok` (spec de IA completa, sin código)
+- Último punto de retorno (tag verde): `s0-t05-ok` (monorepo base que compila, sin funcionalidades)
 - Modo: una tarjeta por vez
 
 ## Cómo volver al cauce
@@ -19,8 +19,8 @@
 
 ## Próximos pasos (propuestos, ajustalos)
 
-1. S0-T05: crear el monorepo base (Turborepo + pnpm, apps y packages vacíos que compilen).
-2. S0-T06: crear `pnpm verify` (lint, typecheck, test, build) y un CI mínimo.
+1. S0-T06: crear `pnpm verify` (lint, typecheck, test, build) y un CI mínimo.
+2. Sprint 1: a definir con el humano (auth, API base y landing).
 
 ## Decisiones tomadas
 
@@ -39,3 +39,12 @@
 | `s0-t02-ok` | Spec de seguridad, privacidad y normalización colaborativa (tarjeta S0-T02) | |
 | `s0-t03-ok` | Spec de IA: paquete, datos y panel admin (tarjeta S0-T03) | |
 | `s0-t04-ok` | Spec de IA completa (tarjeta S0-T04) | |
+| `s0-t05-ok` | Monorepo base que compila (tarjeta S0-T05) | |
+
+## Pendientes anotados
+
+- Alinear `@types/node` (hoy 26.x) con la versión de Node que se use (hoy 24).
+- Agregar un script `typecheck` a las dos apps (hoy solo se tipan dentro del build).
+- Actualizar el spec: las apps usan `src/app/` y no `app/`.
+- Revisar versiones nuevas (Next.js 16.4.0, Turborepo 2.11.7, `@types/node` 26.6.5) respetando la regla de los 14 días.
+- TypeScript quedó en 7.0.2 (salto de versión mayor): revisar al agregar ESLint en S0-T06.
