@@ -142,9 +142,10 @@ app/
 ~~User~~ (reemplazado por Profile), UserPreferences
 LandingSection, LandingConfig, LandingSectionData, LandingFeatureItem, Testimonial
 Ticket, TicketItem
-~~MLProvider~~ (reemplazado por AiProvider), ~~MLConfig~~ (reemplazado por AiModel), ~~MLTrainingJob~~ (pospuesto), ~~FeedbackImage~~ (pospuesto), NormalizationQueueItem
+~~MLProvider~~ (reemplazado por AiProvider), ~~MLConfig~~ (reemplazado por AiProvider), ~~MLTrainingJob~~ (pospuesto), ~~FeedbackImage~~ (pospuesto), NormalizationQueueItem
 AnalyticsData, MonthlySpending, CategorySpending, TopMerchant
-~~MLProviderWithModels~~ (reemplazado por AiTaskRoute), ~~MLModel~~ (reemplazado por AiModelEvaluation)
+~~MLProviderWithModels~~ (reemplazado por AiProvider y AiModel), ~~MLModel~~ (reemplazado por AiModel)
+Profile, AiProvider, AiModel, AiTaskRoute, AiModelEvaluation
 ApiResponse, PaginatedResponse, SelectOption, NavItem
 ```
 
@@ -169,9 +170,17 @@ ApiResponse, PaginatedResponse, SelectOption, NavItem
 
 Pospuestas: el aprendizaje se hace con diccionario; reentrenar un modelo propio queda para cuando haya volumen.
 
+Campos de las tablas nuevas y de `normalization_queue`:
+
+- `ai_providers`: nombre, tipo, base URL, key cifrada, estado, orden de fallback, tope mensual.
+- `ai_models`: proveedor, id del modelo, nombre, contexto, modalidades de entrada, precios de entrada y salida, origen del precio, si es gratis, si soporta visión, si soporta salida estructurada, fecha de sincronización, habilitado.
+- `ai_task_routes`: tarea, modelo principal y fallbacks.
+- `ai_model_evaluations`: modelo, tarea, puntaje, cantidad de muestras, fecha.
+- `normalization_queue`: comercio, texto crudo del ítem, categoría elegida y estado, sin `ticket_id` (si se guarda o no un identificador de quien corrige sigue siendo una decisión abierta).
+
 Enums: `user_role`, `ticket_source`, `ticket_status`, `provider_status`, ~~job_status~~ (pospuesto), ~~feedback_status~~ (pospuesto), `normalization_status`, `category`, tipo de proveedor (`openai_compatible`, `gemini`, `anthropic`, `openrouter`, `custom`), origen del precio (`api`, `manual`, `unknown`).
 
-Relaciones definidas para todo (profiles→tickets, tickets→items, ai_providers→ai_models, ~~training_jobs↔feedback~~ (pospuesto) many-to-many, etc.)
+Relaciones definidas para todo (profiles→tickets, tickets→items, ai_providers→ai_models, ai_models→ai_model_evaluations, ai_task_routes→ai_models, ~~training_jobs↔feedback~~ (pospuesto) many-to-many, etc.)
 
 ### Seguridad y RLS
 
@@ -216,12 +225,13 @@ Relaciones definidas para todo (profiles→tickets, tickets→items, ai_provider
 - `truncate`, `slugify`, `generateId`
 - `debounce`, `throttle`, `classNames`
 
-### `@ticketscan/ai` — OpenRouter Client
+### `@ticketscan/ai` — Cliente de IA multi-proveedor
 ~~- `OpenRouterClient`: `chatCompletion`, `chatCompletionStream`, `createEmbedding`, `structuredOutput` (Zod)~~
 - `AiClient`: interfaz común con `listModels`, `chat`, `vision`, `structured`.
+- Adapters: uno genérico compatible con OpenAI (cubre DeepSeek, OpenRouter y varios más) y adapters nativos para Gemini y Anthropic, que usan otro formato.
 ~~- `listModels()`, `getAvailableModels()` (9 modelos predefinidos: Gemini 1.5 Pro/Flash, GPT-4o/mini, Claude 3.5 Sonnet/Haiku/Opus, Llama 3.1 405B, Gemma 2 27B, Mistral Large 2)~~
 - Los proveedores y modelos se sincronizan desde cada API del proveedor (no hay proveedores ni modelos fijos en el código).
-- Headers: `HTTP-Referer`, `X-Title: TicketScan`
+- Headers `HTTP-Referer` y `X-Title: TicketScan`: solo para el proveedor OpenRouter.
 
 ---
 
