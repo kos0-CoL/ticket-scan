@@ -258,7 +258,7 @@ Relaciones definidas para todo (profiles→tickets, tickets→items, ai_provider
 | **Categorización** | Items → categorías enum (almacen, frescos, lacteos, bebidas, limpieza, congelados, carnes, frutas_y_verduras, panaderia, otros) |
 | **Normalización** | El sistema busca el ítem en un diccionario por comercio y texto normalizado; si no lo encuentra, la IA sugiere una categoría; si queda dudoso, el ítem va a 'Otros' y el usuario puede completarlo |
 | **Feedback Loop** | La corrección entra a `normalization_queue` y, al aprobarse, crea o actualiza una regla en una tabla nueva `normalization_rules`. El diccionario se consulta antes que el modelo, y los ejemplos aprobados pueden usarse como ejemplos en el prompt |
-| **Fallback** | Provider 1 falla → Provider 2 (fallback_order) |
+| **Fallback** | la ruta de cada tarea define el modelo principal y sus fallbacks |
 
 ---
 
@@ -269,14 +269,16 @@ Relaciones definidas para todo (profiles→tickets, tickets→items, ai_provider
 - Qué se guarda de quien corrige (nada, o un identificador seudónimo para detectar abuso)
 - Qué pasa con la foto del ticket: se descarta al terminar el OCR, o se guarda unas horas para reintentos
 - Revisar con un profesional los requisitos de la Ley 25.326 de protección de datos personales, porque la foto sí se procesa en el servidor y por el proveedor de IA que se configure
-
+- dónde se cifran las keys (Supabase Vault o cifrado propio con una clave en una variable de entorno)
+- si el tope de gasto es por proveedor, por tarea o ambos
+- dónde vive el set de evaluación (en la base o en archivos privados)
 ## 6. DEPLOY & CI/CD
 
 ### Netlify (producción)
 - **Site**: `ticket-ar.netlify.app`
 - **Build**: `pnpm run build` (turborepo)
 - **Publish**: `.netlify/output` (Next.js 15 output)
-- **Env vars**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `DATABASE_URL`, `OPENROUTER_API_KEY`, `NEXT_PUBLIC_API_URL`
+- **Env vars**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `DATABASE_URL`, `~~OPENROUTER_API_KEY~~`, `NEXT_PUBLIC_API_URL`  # ya no: las keys se cargan desde el admin
 
 ### GitHub Actions (pendiente)
 ```yaml
@@ -327,7 +329,7 @@ NEXT_PUBLIC_SUPABASE_URL=https://<tu-proyecto>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...
 DATABASE_URL=postgresql://postgres:...@db.<tu-proyecto>.supabase.co:5432/postgres
-OPENROUTER_API_KEY=...
+~~OPENROUTER_API_KEY~~=...  # ya no: las keys se cargan desde el admin
 NEXT_PUBLIC_API_URL=https://ticket-ar.netlify.app
 NEXT_PUBLIC_APP_URL=https://ticket-ar.netlify.app
 ```
@@ -343,13 +345,16 @@ NEXT_PUBLIC_APP_URL=https://ticket-ar.netlify.app
 - [ ] Mobile se exporta estática (sin middleware ni route handlers), auth resuelta del lado del cliente
 - [ ] API tickets CRUD (mobile consume)
 - [ ] OCR endpoint + categorización
-- [ ] Feedback loop UI (mobile) → DB
-- [ ] Training job scheduler (cron Supabase pg_cron o GitHub Actions)
+- [ ] ~~Feedback loop UI (mobile) → DB~~ (pospuesto)
+- [ ] ~~Training job scheduler (cron Supabase pg_cron o GitHub Actions)~~ (pospuesto)
 - [ ] Tests unit/integration/E2E
 - [ ] Sentry / logging
 - [ ] Play Store build pipeline
 - [ ] Documentación API (OpenAPI/Swagger)
-
+- [ ] Panel de proveedores IA con sincronización de modelos
+- [ ] Rutas por tarea y recomendación
+- [ ] Evaluación de modelos con set de tickets propios
+- [ ] Corrección de normalización (mobile → API → cola del admin)
 
 ---
 
