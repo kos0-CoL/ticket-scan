@@ -107,7 +107,11 @@ app/
 | **Normalización** | Cola pendientes/aprobados/rechazados, stats cards, tabla con Badge categoría + StatusBadge, acciones Aprobar/Rechazar/Ver, Modal detalle. Aprobar una corrección crea o actualiza una regla en `normalization_rules`. |
 | **Landing** | CRUD secciones (hero, features, social-proof, cta-download, footer), toggle enabled, sort_order, JSON content editor |
 | **Usuarios** | Tabla users (email, nombre, role badge, tickets, gasto, fecha), CRUD + ConfirmModal delete |
-
+## IA configurable desde el admin
+- Precios: OpenRouter publica el precio por modelo en su listado, pero muchos proveedores devuelven solo ids y límites, sin precios (verificarlo en la documentación de cada uno). Para esos, el precio se carga a mano o queda como `unknown`. Los planes gratuitos con cupo se marcan "gratis con límites". El filtro de gratis o de pago solo es confiable donde el dato existe.
+- Recomendación: se filtra primero por lo que exige la tarea (OCR pide visión; categorización y normalización piden salida estructurada) y se ordena con evidencia propia: los puntajes de evaluación más el monitoring (éxito, latencia, costo). Sin evaluación, el modelo figura como "compatible", no como "recomendado".
+- Evaluación: botón "Evaluar este modelo" que corre un set de unos 20 tickets con resultado esperado y guarda el puntaje. El set lo arma el admin con tickets propios, nunca con datos de usuarios.
+- Keys: cifradas en reposo, nunca viajan al navegador, solo las gestiona el rol admin, y cada proveedor tiene un tope de gasto mensual. Revisar la política de retención y de entrenamiento de cada proveedor antes de habilitarlo.
 #### API Routes
 - `GET /api/landing` → config completa landing (hero, features, social-proof, cta-download, footer)
 - `GET /api/providers` → lista providers + models
@@ -220,7 +224,7 @@ Relaciones definidas para todo (profiles→tickets, tickets→items, ai_provider
 | GET | `/api/v1/admin/ai/models` | Requerida | Listar modelos con filtros |
 | PUT | `/api/v1/admin/ai/routes` | Requerida | Editar rutas por tarea |
 | POST | `/api/v1/admin/ai/evaluate` | Requerida | Correr una evaluación |
-| GET | `/api/v1/admin/ai/recommendation` | Requerida | Pedir la recomendación
+| GET | `/api/v1/admin/ai/recommendation` | Requerida | Pedir la recomendación |
 **Formato estándar de error:**
 ```json
 {
