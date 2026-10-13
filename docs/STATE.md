@@ -4,10 +4,10 @@
 
 ## Ahora
 
-- Sprint: 0 — Base técnica (monorepo base creado; faltan `pnpm verify` y el CI)
-- Tarjeta en curso: ninguna (S0-T05 cerrada; la próxima es S0-T06)
+- Sprint: 0 — Base técnica (monorepo base con pnpm verify y CI; falta definir el Sprint 1)
+- Tarjeta en curso: ninguna (S0-T06 cerrada; la próxima es el Sprint 1)
 - Rama: `main`
-- Último punto de retorno (tag verde): `s0-t05-ok` (monorepo base que compila, sin funcionalidades)
+- Último punto de retorno (tag verde): `s0-t06-ok` (pnpm verify y CI, sin funcionalidades)
 - Modo: una tarjeta por vez
 
 ## Cómo volver al cauce
@@ -19,8 +19,8 @@
 
 ## Próximos pasos (propuestos, ajustalos)
 
-1. S0-T06: crear `pnpm verify` (lint, typecheck, test, build) y un CI mínimo.
-2. Sprint 1: a definir con el humano (auth, API base y landing).
+1. Sprint 1: a definir con el humano (auth, API base y landing).
+2. Reglas de ESLint específicas de Next y con información de tipos: cuando haga falta.
 
 ## Decisiones tomadas
 
@@ -29,6 +29,12 @@
 - Por ahora no se suman plugins de orquestación; el tablero es Kanban.
 - Mobile accede a los datos solo por la API propia (opción B); usa Supabase Auth únicamente para autenticarse.
 - El sistema aprende con un diccionario de normalización alimentado por correcciones de los usuarios (comercio + texto del ítem + categoría), sin enviar imágenes; las aprueba el admin.
+- TypeScript se mantiene en 6.0.x porque typescript-eslint no soporta TypeScript 7; se reevalúa cuando lo soporte.
+
+## Pendientes anotados
+
+- Actualizar el spec: las apps usan `src/app/` y no `app/`.
+- Revisar versiones nuevas (Next.js 16.4.0, Turborepo 2.11.7, `@types/node` 26.6.5) respetando la regla de los 14 días.
 
 ## Puntos de retorno (tags)
 
@@ -40,11 +46,4 @@
 | `s0-t03-ok` | Spec de IA: paquete, datos y panel admin (tarjeta S0-T03) | |
 | `s0-t04-ok` | Spec de IA completa (tarjeta S0-T04) | |
 | `s0-t05-ok` | Monorepo base que compila (tarjeta S0-T05) | |
-
-## Pendientes anotados
-
-- Alinear `@types/node` (hoy 26.x) con la versión de Node que se use (hoy 24).
-- Agregar un script `typecheck` a las dos apps (hoy solo se tipan dentro del build).
-- Actualizar el spec: las apps usan `src/app/` y no `app/`.
-- Revisar versiones nuevas (Next.js 16.4.0, Turborepo 2.11.7, `@types/node` 26.6.5) respetando la regla de los 14 días.
-- TypeScript quedó en 7.0.2 (salto de versión mayor): revisar al agregar ESLint en S0-T06.
+| `s0-t06-ok` | pnpm verify y CI (tarjeta S0-T06) | |

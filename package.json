@@ -12,10 +12,10 @@
     "verify": "pnpm lint && turbo run typecheck test build"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "eslint": "^10.12.0",
+    "@eslint/js": "10.0.1",
+    "eslint": "10.11.0",
     "turbo": "2.11.3",
     "typescript": "6.0.3",
-    "typescript-eslint": "^8.71.1"
+    "typescript-eslint": "8.70.1"
   }
 }
