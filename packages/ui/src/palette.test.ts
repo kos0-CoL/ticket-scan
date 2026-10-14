@@ -1,29 +1,28 @@
-import { describe, test, expect } from 'vitest';
-import { tokens } from './palette';
-import { readFileSync } from 'node:fs';
+import { readFileSync } from "node:fs";
+import { describe, expect, test } from "vitest";
+import { tokens } from "./palette";
 
-describe('palette tokens consistency', () => {
-  const css = readFileSync(new URL('./theme.css', import.meta.url), 'utf-8');
+const css = readFileSync(new URL("./theme.css", import.meta.url), "utf-8");
+const declaradas = new Map<string, string>();
+for (const m of css.matchAll(/(--[a-z0-9-]+):\s*([^;]+);/g)) {
+  declaradas.set(m[1], m[2].trim());
+}
+const esperados = new Map<string, string>(Object.entries(tokens));
 
-  // Extract all --variable: value; declarations from the CSS
-  const cssVars = new Map<string, string>();
-  const cssVarRegex = /(--[a-zA-Z0-9-]+):\s*([^;]+);/g;
-  let match;
-  while ((match = cssVarRegex.exec(css)) !== null) {
-    const [, name, value] = match;
-    cssVars.set(name.trim(), value.trim());
-  }
-
-  test('each token appears in CSS', () => {
-    for (const [name, value] of Object.entries(tokens)) {
-      expect((tokens as Record<string, string>)[name]).toBe(value);
+describe("tokens de diseño", () => {
+  test("cada token de palette.ts está en theme.css con el mismo valor", () => {
+    for (const [nombre, valor] of esperados) {
+      expect(declaradas.get(nombre), nombre).toBe(valor);
     }
   });
 
-  test('each CSS variable exists in tokens', () => {
-    for (const [name, value] of cssVars) {
-      expect(tokens).toHaveProperty(name);
-      expect((tokens as Record<string, string>)[name]).toBe(value);
+  test("cada variable de theme.css está en palette.ts", () => {
+    for (const nombre of declaradas.keys()) {
+      expect(esperados.has(nombre), nombre).toBe(true);
     }
+  });
+
+  test("hay la misma cantidad de tokens en los dos archivos", () => {
+    expect(declaradas.size).toBe(esperados.size);
   });
 });

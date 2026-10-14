@@ -31,4 +31,4 @@ export const tokens = {
   "--z-fixed": "20",
   "--z-modal": "50",
   "--tab-bar-height": "3.5rem",
-};
+} as const;
