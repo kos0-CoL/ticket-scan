@@ -4,10 +4,10 @@
 
 ## Ahora
 
-- Sprint: 0 — Base técnica (monorepo base con pnpm verify y CI; falta definir el Sprint 1)
-- Tarjeta en curso: ninguna (S0-T06 cerrada; la próxima es el Sprint 1)
+- Sprint: 0 — Base técnica (monorepo, verify, CI y tokens de diseño; faltan componentes de UI y esquema de base)
+- Tarjeta en curso: ninguna (S0-T07 cerrada; la próxima es S0-T08)
 - Rama: `main`
-- Último punto de retorno (tag verde): `s0-t06-ok` (pnpm verify y CI, sin funcionalidades)
+- Último punto de retorno (tag verde): `s0-t07-ok` (tokens de diseño y Tailwind v4)
 - Modo: una tarjeta por vez
 
 ## Cómo volver al cauce
@@ -19,8 +19,10 @@
 
 ## Próximos pasos (propuestos, ajustalos)
 
-1. Sprint 1: a definir con el humano (auth, API base y landing).
-2. Reglas de ESLint específicas de Next y con información de tipos: cuando haga falta.
+1. S0-T08: utilidades compartidas (`cn` y formatos) con tests en `packages/utils`.
+2. S0-T09: componentes base del UI kit.
+3. S0-T10: esquema de la base de datos con Drizzle.
+4. Sprint 1: a definir con el humano (auth, API base y landing).
 
 ## Decisiones tomadas
 
@@ -30,6 +32,7 @@
 - Mobile accede a los datos solo por la API propia (opción B); usa Supabase Auth únicamente para autenticarse.
 - El sistema aprende con un diccionario de normalización alimentado por correcciones de los usuarios (comercio + texto del ítem + categoría), sin enviar imágenes; las aprueba el admin.
 - TypeScript se mantiene en 6.0.x porque typescript-eslint no soporta TypeScript 7; se reevalúa cuando lo soporte.
+- Los tokens de diseño viven en `packages/ui/src/theme.css` (con `@theme static`) y en `palette.ts`; un test impide que se desincronicen.
 
 ## Pendientes anotados
 
@@ -47,3 +50,5 @@
 | `s0-t04-ok` | Spec de IA completa (tarjeta S0-T04) | |
 | `s0-t05-ok` | Monorepo base que compila (tarjeta S0-T05) | |
 | `s0-t06-ok` | pnpm verify y CI (tarjeta S0-T06) | |
+| `s0-t07-ok` | Tokens de diseño y Tailwind v4 (tarjeta S0-T07) | |
+

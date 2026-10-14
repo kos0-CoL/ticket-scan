@@ -1,1 +1,1 @@
-export {};
+export { tokens } from './palette';
