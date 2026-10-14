@@ -6,12 +6,18 @@
       ],
       "outputs": [
         ".next/**",
+        "out/**",
         "!.next/cache/**"
       ]
     },
     "typecheck": {
       "dependsOn": [
         "^typecheck"
+      ]
+    },
+    "test": {
+      "dependsOn": [
+        "^test"
       ]
     }
   }

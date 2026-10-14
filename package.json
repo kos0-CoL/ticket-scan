@@ -6,10 +6,16 @@
   },
   "scripts": {
     "build": "turbo run build",
-    "typecheck": "turbo run typecheck"
+    "typecheck": "turbo run typecheck",
+    "lint": "eslint .",
+    "test": "turbo run test",
+    "verify": "pnpm lint && turbo run typecheck test build"
   },
   "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.11.0",
     "turbo": "2.11.3",
-    "typescript": "7.0.2"
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.1"
   }
 }
