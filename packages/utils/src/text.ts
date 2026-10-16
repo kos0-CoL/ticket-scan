@@ -5,11 +5,9 @@ export function truncate(text: string, max: number, ellipsis = "…"): string {
   if (text.length <= max) {
     return text;
   }
-  // The ellipsis length in characters (note: ellipsis is a string, could be more than one char)
   const ellipsisLength = ellipsis.length;
   if (max <= ellipsisLength) {
-    // If max is less than or equal to the ellipsis length, we just return the ellipsis truncated to max?
-    // But the test doesn't cover this. We'll return the ellipsis substring.
+    // No hay lugar para texto: devolvemos solo el sufijo, recortado a `max`.
     return ellipsis.slice(0, max);
   }
   const limit = max - ellipsisLength;
