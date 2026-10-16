@@ -8,6 +8,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
+  "dependencies": {
+    "clsx": "2.1.1",
+    "tailwind-merge": "3.7.0"
+  },
   "devDependencies": {
     "vitest": "5.0.2"
   }
