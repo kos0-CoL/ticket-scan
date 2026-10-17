@@ -118,6 +118,24 @@ describe("Button", () => {
     expect(boton.className).toContain("extra");
   });
 
+  test("la clase recibida se suma a las del componente y no las reemplaza", () => {
+    const { unmount } = render(<Button>Base</Button>);
+    const base = screen.getByRole("button", { name: "Base" }).className;
+    unmount();
+    render(<Button className="extra">Con extra</Button>);
+    const conExtra = screen.getByRole("button", { name: "Con extra" }).className;
+    expect(conExtra).toBe(`${base} extra`.trim());
+  });
+
+  test("cargando se deshabilita aunque disabled sea false", () => {
+    render(
+      <Button loading disabled={false}>
+        Guardar
+      </Button>,
+    );
+    expect((screen.getByRole("button", { name: "Guardar" }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
   test("el tipo exige aria-label cuando el tamaño es icon", () => {
     // @ts-expect-error un botón de solo icono sin aria-label no debe compilar
     const elemento = <Button size="icon">x</Button>;

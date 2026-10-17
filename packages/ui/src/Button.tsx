@@ -25,6 +25,8 @@ export function Button({
   loading = false,
   startIcon,
   endIcon,
+  className,
+  disabled,
   children,
   type = "button",
   ...rest
@@ -34,21 +36,21 @@ export function Button({
     styles[variant],
     styles[size],
     fullWidth ? styles.fullWidth : undefined,
-    rest.className,
+    className,
   ]
     .filter(Boolean)
     .join(" ");
 
   return (
     <button
+      {...rest}
       type={type}
       className={classes}
       data-variant={variant}
       data-size={size}
       data-full-width={fullWidth ? "true" : undefined}
       aria-busy={loading ? "true" : undefined}
-      disabled={rest.disabled || loading}
-      {...rest}
+      disabled={disabled || loading}
     >
       {loading ? (
         <span className={styles.spinner} aria-hidden="true" />
