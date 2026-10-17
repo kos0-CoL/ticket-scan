@@ -1,1 +1,1 @@
-module.exports = {};
+module.exports = { transpilePackages: ["@ticketscan/ui"] };

@@ -11,7 +11,7 @@ Dejar `packages/ui` listo para tener componentes React (estilos con CSS Modules,
 
 ## Reglas para esta tarjeta
 
-- **No modifiques, no renombres y no borres estos archivos entregados por el humano:** `packages/ui/vitest.config.ts`, `packages/ui/vitest.setup.ts`, `packages/ui/src/css-modules.d.ts`, `packages/ui/src/Button.module.css`, `packages/ui/src/Button.test.tsx`, `apps/web/next.config.js`, `apps/web/src/app/(public)/page.tsx`, `apps/mobile/next.config.js` y `apps/mobile/src/app/page.tsx`. Si alguno te parece incorrecto, o falla con las versiones de esta tarjeta, frená y avisá: no lo arregles.
+- **No modifiques, no renombres y no borres estos archivos entregados por el humano:** `packages/ui/vitest.config.mts`, `packages/ui/vitest.setup.ts`, `packages/ui/src/css-modules.d.ts`, `packages/ui/src/Button.module.css`, `packages/ui/src/Button.test.tsx`, `apps/web/next.config.js`, `apps/web/src/app/(public)/page.tsx`, `apps/mobile/next.config.js` y `apps/mobile/src/app/page.tsx`. Si alguno te parece incorrecto, o falla con las versiones de esta tarjeta, frená y avisá: no lo arregles.
 - Dependencias permitidas, y solo estas, en `packages/ui/package.json`:
   - `devDependencies`, en estas versiones exactas: `react` 19.3.0, `react-dom` 19.3.0, `@types/react` 19.3.0, `@types/react-dom` 19.3.0, `@testing-library/react` 16.3.3, `@testing-library/dom` 10.4.2, `@testing-library/user-event` 14.6.7 y `jsdom` 30.1.1 (además de las que ya tiene).
   - `peerDependencies`: `"react": ">=19 <20"` y `"react-dom": ">=19 <20"`. Es lo único que puede llevar rangos.
@@ -64,7 +64,7 @@ Comportamiento de `Button(props: ButtonProps)`:
     "jsx": "react-jsx",
     "types": ["node"]
   },
-  "include": ["src", "vitest.config.ts", "vitest.setup.ts"]
+  "include": ["src", "vitest.config.mts", "vitest.setup.ts"]
 }
 ```
 
@@ -92,7 +92,7 @@ export type { ButtonProps, ButtonSize, ButtonVariant } from "./Button";
 - `pnpm-lock.yaml`
 - `packages/ui/package.json`
 - `packages/ui/tsconfig.json`
-- `packages/ui/vitest.config.ts`
+- `packages/ui/vitest.config.mts`
 - `packages/ui/vitest.setup.ts`
 - `packages/ui/src/css-modules.d.ts`
 - `packages/ui/src/Button.tsx`

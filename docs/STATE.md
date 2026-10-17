@@ -4,10 +4,10 @@
 
 ## Ahora
 
-- Sprint: 0 — Base técnica (monorepo, verify, CI, tokens y utilidades; faltan componentes de UI y esquema de base)
-- Tarjeta en curso: ninguna (S0-T08 cerrada; la próxima es S0-T09)
+- Sprint: 0 — Base técnica (monorepo, verify, CI, tokens, utilidades y botón; faltan más componentes de UI y esquema de base)
+- Tarjeta en curso: ninguna (S0-T09 cerrada; la próxima es S0-T10)
 - Rama: `main`
-- Último punto de retorno (tag verde): `s0-t08-ok` (utilidades compartidas con tests)
+- Último punto de retorno (tag verde): `s0-t09-ok` (entorno de componentes y Button)
 - Modo: una tarjeta por vez
 
 ## Cómo volver al cauce
@@ -19,9 +19,10 @@
 
 ## Próximos pasos (propuestos, ajustalos)
 
-1. S0-T09: componentes base del UI kit.
-2. S0-T10: esquema de la base de datos con Drizzle.
-3. Sprint 1: a definir con el humano (auth, API base y landing).
+1. S0-T10: Input, Textarea, Select, Card y Badge del UI kit.
+2. S0-T11: Modal, ConfirmModal, Table y TabBar del UI kit.
+3. S0-T12: esquema de la base de datos con Drizzle.
+4. Sprint 1: a definir con el humano (auth, API base y landing).
 
 ## Decisiones tomadas
 
@@ -33,6 +34,7 @@
 - TypeScript se mantiene en 6.0.x porque typescript-eslint no soporta TypeScript 7; se reevalúa cuando lo soporte.
 - Los tokens de diseño viven en `packages/ui/src/theme.css` (con `@theme static`) y en `palette.ts`; un test impide que se desincronicen.
 - La función `classNames` del spec no se implementa porque duplica `cn`. Idioma, moneda y fechas por defecto: `es-AR`, ARS y zona horaria de Buenos Aires.
+- Los componentes del UI kit se prueban en jsdom con tests que escribe el humano; cada archivo de tests de componentes declara `// @vitest-environment jsdom`. `ModelPicker` se construye junto con el panel de proveedores de IA.
 
 ## Pendientes anotados
 
@@ -52,3 +54,4 @@
 | `s0-t06-ok` | pnpm verify y CI (tarjeta S0-T06) | |
 | `s0-t07-ok` | Tokens de diseño y Tailwind v4 (tarjeta S0-T07) | |
 | `s0-t08-ok` | Utilidades compartidas con tests (tarjeta S0-T08) | |
+| `s0-t09-ok` | Entorno de componentes y Button (tarjeta S0-T09) | |
